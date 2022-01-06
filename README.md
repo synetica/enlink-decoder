@@ -1,7 +1,5 @@
 # Synetica - enLink LoRaWAN decoders
 
-[ <style>table { font-size: 0.875em }</style> ]: #
-
 [![GitHub](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/synetica/enlink-decoder/blob/master/LICENSE)
 
 ## Table of Contents
@@ -218,8 +216,6 @@ Payload (hexadecimal): `61 19 41 BC 7A E1`
 </table>
 
 Ths translates to Gas Type `0x19` or 25 which is **Carbon Monoxide**. The value is 23.56ppb.
-
-<div style="page-break-after: always;"></div>
 
 The Gas types are listed here:
 
