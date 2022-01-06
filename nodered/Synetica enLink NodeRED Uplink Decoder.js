@@ -1,7 +1,6 @@
-// Used for decoding enLink LoRa Messages
+// Used for decoding enLink Uplink LoRa Messages
 // --------------------------------------------------------------------------------------
-// 30 Sep 2021 (Doc.Ver:4.43 FW Ver:4.43)
-//   Added IAQ, TVOC and eCO2 values for indoor sensor board 'i'
+// 03 Dec 2021 (FW Ver:4.47)
 // --------------------------------------------------------------------------------------
 
 if (!msg.eui)
@@ -86,11 +85,6 @@ const ENLINK_VOLTAGE = 0x2E;                               // U16  0 -> 65.535V 
 const ENLINK_CURRENT = 0x2F;                               // U16  0 -> 65.535mA [Divide by 1000]
 const ENLINK_RESISTANCE = 0x30;                            // U16  0 -> 65.535kOhm [Divide by 1000]
 const ENLINK_LEAK_DETECT_EVT = 0x31;                       // U8   1 or 0, Leak status on resistance rope
-const ENLINK_VIBRATION_EVT = 0x32;                         // U8   1 or 0, vibration event detected
-
-const ENLINK_PRESSURE_TX = 0x3A;                           // U16  Pressure/Depth Transducer (0..50,000 mbar/mm)
-const ENLINK_TEMPERATURE_TX = 0x3B;                        // S16  Transducer Temperature -3276.8 C -> 3276.7 C (-10..80)
-
 const ENLINK_CO2E = 0x3F;                                  // F32  ppm CO2e Estimate Equivalent
 
 const ENLINK_SOUND_MIN = 0x50;                             // F32  dB(A)
@@ -563,24 +557,6 @@ function DecodePayload(data) {
         case ENLINK_LEAK_DETECT_EVT: // 1 byte U8, Leak status changed
             obj.leak_detect_event = (data[i + 1]) ? true : false;
             i += 1;
-            msg_ok = true;
-            break;
-        case ENLINK_VIBRATION_EVT: // 1 byte U8, 1 or 0, vibration event detected
-            obj.vibration_event = (data[i + 1]) ? true : false;
-            i += 1;
-            msg_ok = true;
-            break;
-        // Pressure Transducer
-        case ENLINK_PRESSURE_TX:
-            // u16
-            obj.pressure_tx_mbar = U16((data[i + 1] << 8 | data[i + 2]));
-            i += 2;
-            msg_ok = true;
-            break;
-        case ENLINK_TEMPERATURE_TX:
-            //s16 in deci-celcius
-            obj.temperature_tx_degc = (S16((data[i + 1] << 8) | (data[i + 2]))) / 10;
-            i += 2;
             msg_ok = true;
             break;
 

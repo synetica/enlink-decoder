@@ -59,11 +59,6 @@ function decodeUplink(input) {
     const ENLINK_CURRENT = 0x2F;
     const ENLINK_RESISTANCE = 0x30;
     const ENLINK_LEAK_DETECT_EVT = 0x31;
-    const ENLINK_VIBRATION_EVT = 0x32;
-
-    const ENLINK_PRESSURE_TX = 0x3A;
-    const ENLINK_TEMPERATURE_TX = 0x3B;
-
     const ENLINK_CO2E = 0x3F;
 
     const ENLINK_SOUND_MIN = 0x50;
@@ -455,22 +450,7 @@ function decodeUplink(input) {
 					obj.leak_detect_event = (data[i + 1]) ? true : false;
 					i += 1;
 					break;
-				case ENLINK_VIBRATION_EVT: // 1 byte U8, 1 or 0, vibration event detected
-					obj.vibration_event = (data[i + 1]) ? true : false;
-					i += 1;
-					break;
-				// Pressure Transducer
-				case ENLINK_PRESSURE_TX:
-					// u16
-					obj.pressure_tx_mbar = U16((data[i + 1] << 8 | data[i + 2]));
-					i += 2;
-					break;
-				case ENLINK_TEMPERATURE_TX:
-					//s16 in deci-celcius
-					obj.temperature_tx_degc = (S16((data[i + 1] << 8) | (data[i + 2]))) / 10;
-					i += 2;
-					break;
-
+				
 				case ENLINK_CO2E: // CO2e Estimate Equivalent
 					obj.co2e_ppm = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
 					i += 4;
