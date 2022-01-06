@@ -99,7 +99,7 @@ Each Data Type can use 1 or more bytes to send the value according to the follow
 | `0x02` | Humidity | 0 to 100 | % | 1 | U8
 | `0x03` | Ambient Light | 0.01 to 83k | lux | 2 | U16
 | `0x04` | Pressure | 300 to 1100 | mbar | 2 | U16
-| `0x05` | Volatile Organic Compounds | 0 to 500 | IAQ | 2 | U16
+| `0x05` | Volatile Organic Compounds (VOC) | 0 to 500 | IAQ | 2 | U16
 | `0x06` | Oxygen | 0 to 25 | % | 1 | U8 | / 10
 | `0x07` | Carbon Monoxide | 0 to 100  | ppm | 2 | U16 | / 100
 | `0x08` | Carbon Dioxide | 0 to 2000 | ppm | 2 | U16 | 
@@ -110,9 +110,9 @@ Each Data Type can use 1 or more bytes to send the value according to the follow
 | `0x0D` | Hydrogen Sulphide (H2S) | 0 to 100 | ppm | 2 | U16 | / 100
 | `0x0E` | Pulse ID + Pulse Counter | ID: 0 to 3<br />Value: 0 to 2^32 | count | 1 + 4 | U32
 | `0x0F` | MB ID + Modbus Exception | ID: 0 to 31<br />Error Num | | 1 + 1 | U8
-| `0x10` | MB ID + Modbus Interval value | ID: 0 to 30<br />Interval Value | | 1 + 4 | F32
+| `0x10` | MB ID + Modbus Interval value | ID: 0 to 31<br />Interval Value | | 1 + 4 | F32
 | `0x11` | MB ID + Modbus Cumulative value | ID: 0 to 31<br />Cumulative&nbsp;Value | | 1 + 4 | F32
-| `0x12` | bVOC – Breath VOC estimate equivalent |  | ppm | 4 | F32
+| `0x12` | bVOC – VOC concentration |  | ppm | 4 | F32
 | `0x13` | Detection count (PIR etc.) |  | count | 4 | U32
 | `0x14` | Total occupied time |  | seconds | 4 | U32
 | `0x15` | Occupied Status | 0 = Unoccupied<br />1 = Occupied | status | 1 | U8
