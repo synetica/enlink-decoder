@@ -1,10 +1,6 @@
 # Synetica - enLink LoRaWAN decoders
 
-<style>
-table {
-  font-size: 0.875em
-}
-</style>
+[ <style>table { font-size: 0.875em }</style> ]: #
 
 [![GitHub](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/synetica/enlink-decoder/blob/master/LICENSE)
 
@@ -94,7 +90,6 @@ Finally, decoding the data:
 | `0x01` - Temperature   | ((`0x01` * 256) + `0x23`) / 10 = (256 + 35) / 10 | 29.1 °C |
 | `0x02` - Humidity      | `0x56` | 86 %rH |
 | `0x03` - Ambient Light | (`0x01` * 256) + `0xA4` = 256 + 164 | 420 Lux |
-|
 
 Each Data Type can use 1 or more bytes to send the value according to the following table
 
@@ -177,7 +172,6 @@ Each Data Type can use 1 or more bytes to send the value according to the follow
 | `0x66` | Gas ID + Gas Concentration |  | µg/m³ | 1 + 4 | F32
 | `0x67` | Outdoor EPA Index Sensor Fast AQI (reading taken over 1 minute) | 0 to 500 | AQI | 2 | U16
 | `0x68` | Outdoor EPA Index Sensor EPA AQI<br />See: [AirNow Technical Doc](https://www.airnow.gov/sites/default/files/2020-05/aqi-technical-assistance-document-sept2018.pdf) | 0 to 500 | AQI | 2 | U16
-|
 
 ## Decoding Complex Messages
 
@@ -238,7 +232,6 @@ The Gas types are listed here:
 | `0x1B` - Hydrogen - H<sub>2</sub></li>              | | `0x22` - Oxygen - O<sub>2</sub>
 | `0x1C` - Hydrogen Sulphide - H<sub>2</sub>S</li>    | | `0x23` - Ozone - O<sub>3</sub>
 | `0x1D` - Hydrogen Chloride - HCl</li>               | | `0x24` - Sulphur Dioxide / Sulfur Dioxide (IUPAC) - SO<sub>2</sub>
-|
 
 #### Corrosion – Types: `0x62`, `0x63`, `0x64`, `0x65`
 
@@ -265,7 +258,6 @@ Other Coupon/Metal types are:
 | `0x01` - Copper                | | `0x81` - Copper
 | `0x02` - Silver                | | `0x82` - Silver
 | `0x03` - Chromium              | | `0x83` - Chromium
-|
 
 ### enLink KPI Payload Data
 
@@ -288,7 +280,6 @@ Each enLink end-node device can have optional Key Perfomance Indicators (KPI) ad
 | `0x4C` | Login fail count | Failed logon count | count | 2 | U16
 | `0x4D` | Fan runtime | Total time the air intake fan has run (AIR models only) | seconds | 4 | U32
 | `0x4E` | CPU Temperature | New from Ver: 4.9 | °C | 2 | S16 /10
-|
 
 Example code for different LoRaWAN Network Servers (LNS) is including in the folders on this site.
 
@@ -301,13 +292,10 @@ Example code for different LoRaWAN Network Servers (LNS) is including in the fol
 
 Downlink payloads are sent to re-configure the device. When the device processes the payload, it acknowledges the message by transmitting an ACK/NACK and the identifier code. This is to notify the user that the message has been received. There is an extra decoder example that can decode the ACK/NACK messages that are sent from the end-node to the LNS.
 
-
-
 ### Configuration Payload Structure
 | Header | Msg Len | Command | Value      |
 | ------ | ------- | ------- | ---------- |
 | 1 byte | 1 byte  | 1 byte  | *n* bytes  |
-|
 
 The header byte is is always `0xA5`.
 
@@ -329,7 +317,6 @@ The header byte is is always `0xA5`.
 | Transmit Interval Index | 2  | `0x0C` | `1` to `10`
 | Transmit Power Index | 2  | `0x0D` | `1` to `6`
 | Receive Port | 2  | `0x0E` | `0` to `223` (`0` indicates **All** Ports)
-|
 
 The following are used in the AQM/Air, Zone and ZonePlus (with Light Sensor)
 
@@ -337,7 +324,6 @@ The following are used in the AQM/Air, Zone and ZonePlus (with Light Sensor)
 | ---- | ------- | ------- | ----- | ------- |
 | Lux Scale Parameter | 3 | `0x20` | `0` to `65535` | /1000 (`0xFFFF` represents 65.535)
 | Lux Offset Parameter | 3 | `0x21` | `0` to `65535` | None (`0xFFFF` represents 65535)
-|
 
 The following are used in the AQM/Air
 
@@ -345,7 +331,6 @@ The following are used in the AQM/Air
 | ---- | ------- | ------- | ----- |
 | Case Fan Run Time| 3 | `0x22` | `10` to `600` Seconds
 | HPM Particulate Fan Run Time<br />(Discontinued)| 3 | `0x23` | `10` to `60` Seconds
-|
 
 The following are used in devices with CO<sub>2</sub> sensor
 
@@ -358,7 +343,6 @@ The following are used in devices with CO<sub>2</sub> sensor
 | Set Regular Auto-Cal Interval | 3 | `0x28` | `24` to `8760` hours
 | Set the Out-of-Bounds limits<br />**Only GSS model** | 3 | `0x29` | `10` to `5000` ppm
 | Set initial auto-cal interval<br />**Only GSS model** | 3 | `0x2A` | `1` to `8760` hours
-|
 
 ### Downlink Message Examples
 
@@ -398,7 +382,6 @@ The Indexes for some settings depend on the region the unit is programmed for.
 | 3 | DR3 SF9 BW125 |  | 3 | DR3 SF7 BW125
 | 4 | DR4 SF8 BW125 |  | 4 | DR4 SF8 BW500
 | 5 | DR5 SF7 BW125
-|
 
 `0x0C` - Transmit Interval Index
 
@@ -415,7 +398,6 @@ The Indexes for some settings depend on the region the unit is programmed for.
 | 9 | 1 hour | `A5 02 0C 09`
 | 10 | 2 hours | `A5 02 0C 0A`
 | 11 | 3 hours | `A5 02 0C 0B`
-|
 
 `0x0D` - Transmit Power Index
 
@@ -429,7 +411,6 @@ The Indexes for some settings depend on the region the unit is programmed for.
 | 6 | 6 dBm |  | 11 | 10 dBm
 | 7 | 4 dBm
 | 8 | 2 dBm 
-|
 
 <div style="page-break-after: always;"></div>
 

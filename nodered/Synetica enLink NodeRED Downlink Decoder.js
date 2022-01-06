@@ -1,5 +1,7 @@
-// Used for decoding enLink Messages from Downlink Replies
-// DN 03 Dec 2021 - 4.47
+// Used for decoding enLink Uplink replies from Downlink messages
+// --------------------------------------------------------------------------------------
+// 05 Jan 2022 - FW Ver:4.48
+// --------------------------------------------------------------------------------------
 
 if (!msg.eui) return null;
 
@@ -51,7 +53,7 @@ const ENLINK_SET_SR_CO2_FACTORY_CALIB = 0x27;
 const ENLINK_SET_CO2_REGULAR_INTERVAL = 0x28;
 // 0x29,0x30 GSS CO2 Only
 const ENLINK_SET_GSS_CO2_OOB_LIMITS = 0x29;
-const ENLINK_SET_GSS_CO2_INIT_INTERVAL = 0x30;
+const ENLINK_SET_GSS_CO2_INIT_INTERVAL = 0x2A;
 
 const ENLINK_REBOOT = 0xFF;
 
