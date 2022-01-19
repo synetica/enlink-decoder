@@ -18,8 +18,6 @@
   - [Settings for CO<sub>2</sub> Sensors](#settings-for-cosub2sub-sensors)
   - [Uplink Replies to Downlink Messages](#uplink-replies-to-downlink-messages)
 
-<br />
-
 ---
 
 ## Preamble
@@ -36,6 +34,10 @@ The **enLink** range of LoRaWAN devices are categorised into the following:
 - Temperature Probes
 
 This repository contains various decoders for the LoRaWAN data packets. The uplink data is telemetry data containing values like temperature, particulates and gas concentrations.
+
+This version of the enLink firmware implements LoRa Mac 4.4.0 release from Semtech/StackForce [LoRaMac-Node](https://github.com/Lora-net/LoRaMac-node/tree/f42be67be402a40b3586724800771bfe13fb18e6).
+
+This LoRaWAN stack implements all regions defined in "LoRaWAN Regional Parameters v1.0.2rB" document. Class A and Class C endpoint implementation is fully compatible with "LoRaWAN specification 1.0.2".
 
 ---
 
