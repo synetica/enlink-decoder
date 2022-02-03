@@ -104,7 +104,7 @@ Each Data Type can use 1 or more bytes to send the value according to the follow
 | `0x05` | Volatile Organic Compounds (VOC) | 0 to 500 | IAQ | 2 | U16
 | `0x06` | Oxygen | 0 to 25 | % | 1 | U8 | / 10
 | `0x07` | Carbon Monoxide | 0 to 100  | ppm | 2 | U16 | / 100
-| `0x08` | Carbon Dioxide | 0 to 2000 | ppm | 2 | U16 | 
+| `0x08` | Carbon Dioxide | 0 to 5000 | ppm | 2 | U16 | 
 | `0x09` | Ozone (O3) | 0 to 1<br />0 to 1000 | ppm<br />ppb | 2 | U16 | / 10000<br />/ 10
 | `0x0A` | Air Pollutants: CO, Ammonia, Ethanol, H2, Methane / Propane / Iso-Butane. | 100 to 1500 (Typ)| kΩ | 2 | U16 | / 10
 | `0x0B` | Particulate Matter 2.5 | 0 to 1000 | µg/m3 | 2 | U16
