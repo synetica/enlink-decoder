@@ -163,20 +163,20 @@
     }
 
     // Return gas name from gas type byte
-    var GAS_HCHO_CH2O = 0x17; // Formaldehyde 
-    var GAS_VOCs = 0x18; // vocs 
-    var GAS_CO = 0x19; // Carbon Monoxide 
-    var GAS_CL2 = 0x1A; // Chlorine 
-    var GAS_H2 = 0x1B; // Hydrogen 
-    var GAS_H2S = 0x1C; // Hydrogen Sulphide
-    var GAS_HCl = 0x1D; // Hydrogen Chloride
-    var GAS_HCN = 0x1E; // Hydrogen Cyanide
-    var GAS_HF = 0x1F; // Hydrogen Fluoride
-    var GAS_NH3 = 0x20; // Ammonia
-    var GAS_NO2 = 0x21; // Nitrogen Dioxide
-    var GAS_O2 = 0x22; // Oxygen
-    var GAS_O3 = 0x23; // Ozone
-    var GAS_SO2 = 0x24; // Sulfur Dioxide (IUPAC) SO2
+    var GAS_HCHO_CH2O = 0x17;   // Formaldehyde 
+    var GAS_VOCs = 0x18;        // VOCs 
+    var GAS_CO = 0x19;          // Carbon Monoxide 
+    var GAS_CL2 = 0x1A;         // Chlorine 
+    var GAS_H2 = 0x1B;          // Hydrogen 
+    var GAS_H2S = 0x1C;         // Hydrogen Sulphide
+    var GAS_HCl = 0x1D;         // Hydrogen Chloride
+    var GAS_HCN = 0x1E;         // Hydrogen Cyanide
+    var GAS_HF = 0x1F;          // Hydrogen Fluoride
+    var GAS_NH3 = 0x20;         // Ammonia
+    var GAS_NO2 = 0x21;         // Nitrogen Dioxide
+    var GAS_O2 = 0x22;          // Oxygen
+    var GAS_O3 = 0x23;          // Ozone
+    var GAS_SO2 = 0x24;         // Sulfur Dioxide (IUPAC) SO2
 
     // Corrosion: Return metal name from id byte
     function GetCrnMetal(id_byte) {

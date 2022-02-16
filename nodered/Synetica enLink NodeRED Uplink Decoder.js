@@ -1,6 +1,6 @@
 // Used for decoding enLink Uplink LoRa Messages
 // --------------------------------------------------------------------------------------
-// 03 Dec 2021 (FW Ver:4.47)
+// 16 Feb 2022 (FW Ver:4.49)
 // --------------------------------------------------------------------------------------
 
 if (!msg.eui)
@@ -8,34 +8,19 @@ if (!msg.eui)
 
 // --------------------------------------------------------------------------------------
 // Ignore Port 0 Possible MAC Command
-// If there is no payload, there is no need for a port, thus it equals zero
 if (msg.port === 0) {
-    if (msg.eui) {
-        node.warn("Possible MAC Command Received from " + msg.eui);
-    } else {
-        node.warn("Possible MAC Command Received");
-    }
     return null;
 }
-// Ignore zero payloads
+// Ignore empty payloads
 if (msg.payload) {
     if (msg.payload.length === 0) {
-        if (msg.eui) {
-            node.warn("Zero-length Payload, message ignored from " + msg.eui);
-        } else {
-            node.warn("Zero-length Payload, message ignored");
-        }
         return null;
     }
 } else {
-    if (msg.eui) {
-        node.warn("No Payload, message ignored from " + msg.eui);
-    } else {
-        node.warn("No Payload, message ignored");
-    }
     return null;
 }
 // --------------------------------------------------------------------------------------
+// Telemetry data from all enLink Models
 const ENLINK_TEMP = 0x01;                                  // S16  -3276.8 C -> 3276.7 C (-10..80) [Divide word by 10]
 const ENLINK_RH = 0x02;                                    // U8   0 -> 255 %RH (Actually 0..100%)
 const ENLINK_LUX = 0x03;                                   // U16  0 -> 65535 Lux
@@ -122,7 +107,7 @@ const ENLINK_TVOC_IAQ = 0x69;                              // F32  Indoor Air Qu
 const ENLINK_TVOC = 0x6A;                                  // F32  TVOC mg/m3
 const ENLINK_TVOC_ECO2 = 0x6B;                             // F32  Estimate of CO2
 
-
+// --------------------------------------------------------------------------------------
 // Optional KPI values that can be included in the message
 const ENLINK_CPU_TEMP_DEP = 0x40;                          // [DEPRECIATED April 2020. Now 0x4E] 2 bytes 0.0 C -> 255.99 C
 const ENLINK_BATT_STATUS = 0x41;                           // U8   0=Charging; 1~254 (1.8 - 3.3V); 255=External Power
@@ -141,6 +126,44 @@ const ENLINK_FAN_RUN_TIME = 0x4D;                          // U32  0 -> 2^32 sec
 const ENLINK_CPU_TEMP = 0x4E;                              // S16  -3276.8 C -> 3276.7 C (-10..80) [Divide by 10]
 
 // --------------------------------------------------------------------------------------
+// V1 - Downlink reply message Header and ACK/NAK
+const ENLINK_HEADER = 0xA5;
+const ENLINK_ACK = 0x06;
+const ENLINK_NACK = 0x15;
+// Downlink reply message values
+const ENLINK_SET_PUBLIC = 0x02;
+const ENLINK_SET_APPEUI = 0x05;   // 8 bytes
+const ENLINK_SET_APPKEY = 0x06;   // 16 bytes
+const ENLINK_SET_ADR = 0x07;
+const ENLINK_SET_DUTY_CYCLE = 0x08;
+const ENLINK_SET_MSG_ACK = 0x09;
+const ENLINK_SET_TX_PORT = 0x0A;
+const ENLINK_SET_DR_INDEX = 0x0B;   // Data Rate Index 0~6
+const ENLINK_SET_TX_INDEX = 0x0C;   // Data Rate Index 0~10
+const ENLINK_SET_POW_INDEX = 0x0D;   // Data Rate Index 0~6
+const ENLINK_SET_RX_PORT = 0x0E;
+
+const ENLINK_SET_LUX_SCALE = 0x20;
+const ENLINK_SET_LUX_OFFSET = 0x21;
+
+const ENLINK_SET_CASE_FAN_RUN_TIME = 0x22;
+const ENLINK_SET_HPM_FAN_RUN_TIME = 0x23;
+
+// CO2 Sensors
+const ENLINK_SET_CO2_CALIB_ENABLE = 0x24;
+const ENLINK_SET_CO2_TARGET_PPM = 0x25;
+const ENLINK_SET_CO2_KNOWN_PPM = 0x26;
+// 0x27 Sunrise CO2 Only
+const ENLINK_SET_SR_CO2_FACTORY_CALIB = 0x27;
+const ENLINK_SET_CO2_REGULAR_INTERVAL = 0x28;
+// 0x29,0x30 GSS CO2 Only
+const ENLINK_SET_GSS_CO2_OOB_LIMITS = 0x29;
+const ENLINK_SET_GSS_CO2_INIT_INTERVAL = 0x2A;
+
+const ENLINK_REBOOT = 0xFF;
+
+// --------------------------------------------------------------------------------------
+
 // Convert binary value bit to Signed 16 bit
 function S16(bin) {
     var num = bin & 0xFFFF;
@@ -222,7 +245,7 @@ function GetGasName(gas_type) {
         case 0x1F:
             return "Hydrogen Fluoride";    //HF
         case 0x20:
-            return "Ammonia";              //NH2
+            return "Ammonia";              //NH3
         case 0x21:
             return "Nitrogen Dioxide";     //NO2
         case 0x22:
@@ -250,17 +273,16 @@ function GetCrnMetal(id_byte) {
     return "Error";
 }
 // --------------------------------------------------------------------------------------
-// Function to decode enLink Messages
-function DecodePayload(data) {
+// Function to decode enLink telemetry (sensor) messages
+function decodeTelemetry(data) {
     var cpn;
     var metal;
     var obj = {};
-    //obj.eui = msg.eui;
     obj.short_eui = msg.eui.slice(-11);
     var msg_ok = false;
     for (i = 0; i < data.length; i++) {
         switch (data[i]) {
-        // Parse Sensor Message Parts
+        // Parse enLink message for telemetry data
         case ENLINK_TEMP: // Temperature
             obj.temperature_c = (S16((data[i + 1] << 8) | (data[i + 2]))) / 10;
             obj.temperature_f = ((obj.temperature_c * 9/5) + 32).toFixed(2);
@@ -868,12 +890,109 @@ function DecodePayload(data) {
     }
 }
 // --------------------------------------------------------------------------------------
-var res = DecodePayload(msg.payload);
+// Function to decode enLink response to downlink message
+function decodeStdResponse(data) {
+    var obj = {};
+    obj.short_eui = msg.eui.slice(-11);
+    var msg_ok = false;
+    for (i = 0; i < data.length; i++) {
+        switch (data[i]) {
+		// Parse reply from device following a downlink command
+		case ENLINK_HEADER:
+			if (data[i + 1] == ENLINK_ACK) {
+				obj.reply = "ACK";
+				msg_ok = true;
+			} else if (data[i + 1] == ENLINK_NACK) {
+				obj.reply = "NACK";
+				msg_ok = true;
+			} else {
+				obj.reply = "Reply parse failure";
+			}
+
+			if (data[i + 2] == ENLINK_SET_PUBLIC) {
+				obj.command = "Set Public";
+			} else if (data[i + 2] == ENLINK_SET_APPEUI) {
+				obj.command = "Set AppEUI";
+			} else if (data[i + 2] == ENLINK_SET_APPKEY) {
+				obj.command = "Set AppKEY";
+			} else if (data[i + 2] == ENLINK_SET_ADR) {
+				obj.command = "Set ADR";
+			} else if (data[i + 2] == ENLINK_SET_DUTY_CYCLE) {
+				obj.command = "Set Duty Cycle";
+			} else if (data[i + 2] == ENLINK_SET_MSG_ACK) {
+				obj.command = "Set Message Confirmation";
+			} else if (data[i + 2] == ENLINK_SET_TX_PORT) {
+				obj.command = "Set TX Port";
+			} else if (data[i + 2] == ENLINK_SET_DR_INDEX) {
+				obj.command = "Set Data Rate";
+			} else if (data[i + 2] == ENLINK_SET_TX_INDEX) {
+				obj.command = "Set TX Interval";
+			} else if (data[i + 2] == ENLINK_SET_POW_INDEX) {
+				obj.command = "Set TX Power";
+			} else if (data[i + 2] == ENLINK_SET_RX_PORT) {
+				obj.command = "Set RX Port";
+			} else if (data[i + 2] == ENLINK_SET_LUX_SCALE) {
+				obj.command = "Set LUX Scale";
+			} else if (data[i + 2] == ENLINK_SET_LUX_OFFSET) {
+				obj.command = "Set LUX Offset";
+
+			} else if (data[i + 2] == ENLINK_SET_CASE_FAN_RUN_TIME) {
+				obj.command = "Set Case Fan Run Time";
+			} else if (data[i + 2] == ENLINK_SET_HPM_FAN_RUN_TIME) {
+				obj.command = "Set Particle Sensor Fan Run Time";
+
+			} else if (data[i + 2] == ENLINK_SET_CO2_CALIB_ENABLE) {
+				obj.command = "Set CO2 Sensor Auto-Calib Enable/Disable Flag";
+			} else if (data[i + 2] == ENLINK_SET_CO2_TARGET_PPM) {
+				obj.command = "Set CO2 Sensor Auto-Calib Target";
+			} else if (data[i + 2] == ENLINK_SET_CO2_KNOWN_PPM) {
+				obj.command = "Set CO2 Sensor to Known ppm";
+			// Sunrise Sensor Only
+			} else if (data[i + 2] == ENLINK_SET_SR_CO2_FACTORY_CALIB) {
+				obj.command = "Set SR CO2 Sensor to Factory Calib";
+			} else if (data[i + 2] == ENLINK_SET_CO2_REGULAR_INTERVAL) {
+				obj.command = "Set CO2 Sensor Regular Auto-Calib Interval";
+			// GSS CO2 Only
+			} else if (data[i + 2] == ENLINK_SET_GSS_CO2_OOB_LIMITS) {
+				obj.command = "Set GSS CO2 Sensor OOB Limits";
+			} else if (data[i + 2] == ENLINK_SET_GSS_CO2_INIT_INTERVAL) {
+				obj.command = "Set GSS CO2 Sensor Initial Auto-Calib Interval";
+
+			} else if (data[i + 2] == ENLINK_REBOOT) {
+				obj.command = "Reboot";
+			} else {
+				obj.command = "Command parse failure: " + data[i + 2];
+			}
+
+			i = data.length;
+			break;
+
+		default: // something is wrong with data
+			i = data.length;
+			break;
+        }
+    }
+    if (msg_ok) {
+        return obj;
+    } else {
+        return null;
+    }
+}
+// --------------------------------------------------------------------------------------
+
+var res = {};
+//Check message type
+if (msg.payload[0] == ENLINK_HEADER) {
+	// This is a response to a downlink command
+	res = decodeStdResponse(msg.payload);
+} else {
+	res = decodeTelemetry(msg.payload);
+}
+
 if (res !== null) {
-    msg.hex = bytesToHex(msg.payload);
+    //msg.hex = bytesToHex(msg.payload);
     msg.payload = res;  // use for further function processing
     msg.human_readable = JSON.stringify(res, null, 4);
     return msg;
 }
 return null;
-

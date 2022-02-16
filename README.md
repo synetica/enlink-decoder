@@ -4,21 +4,33 @@
 
 ## Table of Contents
 - [Preamble](#preable)
+- [Model to Payload Contents](#table-to-show-enlink-model-to-payload-contents)
+  - [AIR/AIR-X](#enlink-airair-x---indooroutdoor-air-quality-monitor)
+  - [IAQ/OAQ](#enlink-iaqoaq---indooroutdoor-air-quality)
+  - [ZonePlus](#enlink-zoneplus)
+  - [Zone](#enlink-zone)
+  - [Modbus](#enlink-modbus)
+  - [Status Pulse Counter](#enlink-status---pulse-counter)
+  - [Status Leak Sensor](#enlink-status---leak-sensor)
+  - [Status Differential Pressure](#enlink-status---differential-pressure--air-flow-velocity)
+  - [Status Temperature Probes](#enlink-status---temperature-probes)
+  - [Status Pura Sanitiser Liquid Level](#enlink-status---pura-sanitiser-liquid-level)
 - [Uplink Payload](#uplink-payload)
   - [Uplink Payload Structure](#uplink-payload-structure)
   - [Sensor Details](#sensor-details)
   - [Decoding Complex Messages](#decoding-complex-messages)
   - [enLink KPI Payload Data](#enlink-kpi-payload-data)
 - [Downlink Payload](#downlink-payload)
-  - [Configuration Payload Structure](#configuration-payload-structure)
+  - [Downlink Payload Structure](#downlink-payload-structure)
   - [Settings Data Details](#settings-data-details)
   - [Downlink Message Examples](#downlink-message-examples)
   - [Downlink Message Index Tables](#downlink-message-index-tables)
   - [Settings for Lux Sensor](#settings-for-lux-sensor)
   - [Settings for CO<sub>2</sub> Sensors](#settings-for-cosub2sub-sensors)
   - [Uplink Replies to Downlink Messages](#uplink-replies-to-downlink-messages)
+  - [Sample Code](#sample-code)
 
----
+<div style="page-break-after: always;"></div>
 
 ## Preamble
 
@@ -40,6 +52,114 @@ This version of the enLink firmware implements LoRa Mac 4.4.0 release from Semte
 This LoRaWAN stack implements all regions defined in "LoRaWAN Regional Parameters v1.0.2rB" document. Class A and Class C endpoint implementation is fully compatible with "LoRaWAN specification 1.0.2".
 
 ---
+
+## Model to Payload Contents
+
+Each model of enLink device has specific sensors. Each sensor exposes one or more data values. The **firmware model** is used to determine the sensors in the device. Note: the product code is similar to, but not the same as the firmware model. The following table can be used to determine the expected values in a uplink message. The [KPI](#enlink-kpi-payload-data) values are optional.
+
+The firmware model is a concatenation of the base model plus the options.
+
+>For example: `ENL-ZN-LVCM` is an enLink Zone with **L**ight, **V**OCs, **C**O<sub>2</sub> and **M**otion.
+
+### enLink AIR/AIR-X - Indoor/Outdoor Air Quality Monitor
+
+| Base Model | Options | Data Type(s) | Description |
+|:-----------|:--------|:-------------|:------------|
+| ENL-AQM  | (default) | `0x01`, `0x02` | Temperature, Humidity
+| | L | `0x03` | Light Level
+| | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e
+| | C | `0x08` | CO<sub>2</sub> ppm
+| | X | `0x06` | Oxygen
+| | K | `0x07`, `0x09`, `0x0A`, `0x0D`,<br/>`0x53`, `0x54`, `0x55`, `0x56` | Optional Gas Socket Sensors
+| | S | `0x50`, `0x51`, `0x52` | Sound
+| | P | `0x0B`, `0x0C` | Particles
+| | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`,<br/>`0x5F`, `0x60` | Particles extra
+| | O | `0x61` | Ozone
+| | G | `0x61`, `0x66` | Single Gas Sensor
+| | G+ | `0x61`, `0x66` | Up to 4 x Gas Sensors
+
+### enLink IAQ/OAQ - Indoor/Outdoor Air Quality
+
+| Base Model | Options | Data Type(s) | Description |
+|:-----------|:--------|:-------------|:------------|
+| ENL-AQ  | (default) | `0x01`, `0x02` | Temperature, Humidity
+| | L | `0x03` | Light Level
+| | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e
+| | C | `0x08` | CO<sub>2</sub> ppm
+| | M | `0x13`, `0x14` | Motion (PIR). Includes [ATI](#ati---adaptive-transmission-interval) feature
+| | D | `0x67`, `0x68` | Outdoor EPA Sensor
+| | O | `0x61` | Ozone
+| | G | `0x61`, `0x66` | Single Gas Sensor
+| | S | `0x50`, `0x51`, `0x52` | Sound
+| | P | `0x0B`, `0x0C` | Particles
+| | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`,<br/>`0x5F`, `0x60` | Particles extra
+
+### enLink ZonePlus
+
+| Base Model | Options | Data Type(s) | Description |
+|:-----------|:--------|:-------------|:------------|
+| ENL-ZNP  | (default) | `0x01`, `0x02` | Temperature, Humidity
+| | L | `0x03` | Light Level
+| | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e
+| | C | `0x08` | CO<sub>2</sub> ppm
+| | M | `0x13`, `0x14` | Motion (PIR). Includes [ATI](#ati---adaptive-transmission-interval) feature
+| | S | `0x50`, `0x51`, `0x52` | Sound
+| | P | `0x0B`, `0x0C` | Particles
+| | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`,<br/>`0x5F`, `0x60` | Particles extra
+
+### enLink Zone
+
+| Base Model | Options | Data Type(s) | Description |
+|:-----------|:--------|:-------------|:------------|
+| ENL-ZNP  | (default) | `0x01`, `0x02` | Temperature, Humidity
+| | L | `0x03` | Light Level
+| | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e
+| | C | `0x08` | CO<sub>2</sub> ppm
+| | M | `0x13`, `0x14` | Motion (PIR). Includes [ATI](#ati---adaptive-transmission-interval) feature
+
+### enLink Modbus
+
+| Base Model | Options | Data Type(s) | Description |
+|:-----------|:--------|:-------------|:------------|
+| ENL-MB-32  | (None)  | `0x0F`, `0x10`, `0x11` | Exception, Interval, Cumulative readings
+
+
+### enLink Status - Pulse Counter
+
+| Base Model | Options | Data Type(s) | Description |
+|:-----------|:--------|:-------------|:------------|
+| ENL-STS-P  | (None)  | `0x0E` | Count (0 to 2^32)
+
+### enLink Status - Leak Sensor
+
+| Base Model | Options | Data Type(s) | Description |
+|:-----------|:--------|:-------------|:------------|
+| ENL-STS-L  | (None)  | `0x30`, `0x31` | Resistance, Leak Event. Includes [ATI](#ati---adaptive-transmission-interval) feature on the leak event
+
+<div style="page-break-after: always;"></div>
+
+### enLink Status - Differential Pressure / Air Flow (Velocity)
+
+| Base Model | Options | Data Type(s) | Description |
+|:-----------|:--------|:-------------|:------------|
+| ENL-STS-DP/AF | (None)  | `0x2C`, `0x2D` | Pressure, Air flow. Either one or both can be selected
+
+### enLink Status - Temperature Probes
+
+| Base Model | Options | Data Type(s) | Description |
+|:-----------|:--------|:-------------|:------------|
+| ENL-STS  | 1T  | `0x17`, `0x1A`, `0x1D`, `0x20`,<br/>`0x23`, `0x26`, `0x29` | Temperature, alarm status (if set) Includes [ATI](#ati---adaptive-transmission-interval) feature
+| | 2T  | As above, plus<br/>`0x18`, `0x1B`, `0x1E`, `0x21`,<br/>`0x24`, `0x27`, `0x2A` | Temperature, alarm status (if set) Includes [ATI](#ati---adaptive-transmission-interval) feature
+
+### enLink Status - Pura Sanitiser Liquid Level
+
+| Base Model | Options | Data Type(s) | Description |
+|:-----------|:--------|:-------------|:------------|
+| ENL-STS-PURA  | (None)  | `0x16` | Status Changed
+
+### ATI - Adaptive Transmission Interval
+
+This is included on enLink devices where an alarm feature requires immediate transfer of a radio message. The Adaptive feature means the unit will transmit a message at a long interval. This _heart-beat_ is a normal radio message. If an alarm condition is detected, a message will be sent immediately. If the condition continues, the message will continue to send at a faster interval, but not any more frequently.
 
 <div style="page-break-after: always;"></div>
 
@@ -101,7 +221,7 @@ Each Data Type can use 1 or more bytes to send the value according to the follow
 | `0x02` | Humidity | 0 to 100 | % | 1 | U8
 | `0x03` | Ambient Light | 0.01 to 83k | lux | 2 | U16
 | `0x04` | Pressure | 300 to 1100 | mbar | 2 | U16
-| `0x05` | Volatile Organic Compounds (VOC) | 0 to 500 | IAQ | 2 | U16
+| `0x05` | Volatile Organic Compounds (VOC)<br />See: [BOSCH Datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme680-ds001.pdf) | 0 to 500 | IAQ | 2 | U16
 | `0x06` | Oxygen | 0 to 25 | % | 1 | U8 | / 10
 | `0x07` | Carbon Monoxide | 0 to 100  | ppm | 2 | U16 | / 100
 | `0x08` | Carbon Dioxide | 0 to 5000 | ppm | 2 | U16 | 
@@ -109,7 +229,7 @@ Each Data Type can use 1 or more bytes to send the value according to the follow
 | `0x0A` | Air Pollutants: CO, Ammonia, Ethanol, H2, Methane / Propane / Iso-Butane. | 100 to 1500 (Typ)| kΩ | 2 | U16 | / 10
 | `0x0B` | Particulate Matter 2.5 | 0 to 1000 | µg/m3 | 2 | U16
 | `0x0C` | Particulate Matter 10  | 0 to 1000 | µg/m3 | 2 | U16
-| `0x0D` | Hydrogen Sulphide (H2S) | 0 to 100 | ppm | 2 | U16 | / 100
+| `0x0D` | Hydrogen Sulphide (H<sub>2</sub>S) | 0 to 100 | ppm | 2 | U16 | / 100
 | `0x0E` | Pulse ID + Pulse Counter | ID: 0 to 3<br />Value: 0 to 2^32 | count | 1 + 4 | U32
 | `0x0F` | MB ID + Modbus Exception | ID: 0 to 31<br />Error Num | | 1 + 1 | U8
 | `0x10` | MB ID + Modbus Interval value | ID: 0 to 31<br />Interval Value | | 1 + 4 | F32
@@ -146,7 +266,7 @@ Each Data Type can use 1 or more bytes to send the value according to the follow
 | `0x2F` | Current | 0 to 20  | mA    | 2 | U16 | / 1000
 | `0x30` | Resistance | 0 to 10 | kΩ | 2 | U16 | / 1000
 | `0x31` | Leak Detection (resistance rope) | 0 = No Leak<br />1 = Detected | status | 1 | U8
-| `0x3F` | CO2e estimate equivalent |  | ppm | 4 | F32
+| `0x3F` | CO<sub>2</sub>e estimate equivalent |  | ppm | 4 | F32
 | `0x50` | Sound Level Minimum |  | dB(A) | 4 | F32
 | `0x51` | Sound Level Average |  | dB(A) | 4 | F32
 | `0x52` | Sound Level Maximum |  | dB(A) | 4 | F32
@@ -225,7 +345,7 @@ The Gas types are listed here:
 |--|--|--|
 | `0x17` - Formaldehyde - HCHO / CH<sub>2</sub>O</li> | |`0x1E` - Hydrogen Cyanide - HCN
 | `0x18` - Volatile Organic Compounds</li>            | | `0x1F` - Hydrogen Fluoride - HF
-| `0x19` - Carbon Monoxide - CO</li>                  | | `0x20` - Ammonia - NH<sub>2</sub>
+| `0x19` - Carbon Monoxide - CO</li>                  | | `0x20` - Ammonia - NH<sub>3</sub>
 | `0x1A` - Chlorine - Cl<sub>2</sub></li>             | | `0x21` - Nitrogen Dioxide - NO<sub>2</sub>
 | `0x1B` - Hydrogen - H<sub>2</sub></li>              | | `0x22` - Oxygen - O<sub>2</sub>
 | `0x1C` - Hydrogen Sulphide - H<sub>2</sub>S</li>    | | `0x23` - Ozone - O<sub>3</sub>
@@ -288,9 +408,9 @@ Example code for different LoRaWAN Network Servers (LNS) is including in the fol
 
 ## Downlink Payload
 
-Downlink payloads are sent to re-configure the device. When the device processes the payload, it acknowledges the message by transmitting an ACK/NACK and the identifier code. This is to notify the user that the message has been received. There is an extra decoder example that can decode the ACK/NACK messages that are sent from the end-node to the LNS.
+Downlink payloads are sent to re-configure the device. When the device processes the payload, it acknowledges the message by transmitting an ACK/NACK and the identifier code. This is to notify the user that the message has been received. An example to decode the ACK/NACK messages that are sent from the end-node to the LNS is included in the NodeRED source.
 
-### Configuration Payload Structure
+### Downlink Payload Structure
 | Header | Msg Len | Command | Value      |
 | ------ | ------- | ------- | ---------- |
 | 1 byte | 1 byte  | 1 byte  | *n* bytes  |
@@ -457,5 +577,6 @@ Return code: `A5 06 09`
 Failed to change the Transmit Port - **NACK**
 
 Return code: `A5 15 0A`
-
-Example code for decoding the **Uplink replies to Downlink messages** is included in the folders on this site.
+ 
+### Sample Code
+A NodeRED example for decoding these messages is included in the folders on this site. It is so visual feedback can be seen during evaluation. If you require these messages in your system, please modify the code to suit your platform.
