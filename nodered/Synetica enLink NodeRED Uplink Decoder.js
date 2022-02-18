@@ -1,6 +1,6 @@
 // Used for decoding enLink Uplink LoRa Messages
 // --------------------------------------------------------------------------------------
-// 16 Feb 2022 (FW Ver:4.49)
+// 18 Feb 2022 (FW Ver:4.49)
 // --------------------------------------------------------------------------------------
 
 if (!msg.eui)
@@ -161,6 +161,10 @@ const ENLINK_SET_GSS_CO2_OOB_LIMITS = 0x29;
 const ENLINK_SET_GSS_CO2_INIT_INTERVAL = 0x2A;
 
 const ENLINK_REBOOT = 0xFF;
+
+// --------------------------------------------------------------------------------------
+// OTA Modbus configuration Only
+const ENLINK_MB_SYS = 0xFF;	// Config reply from a MB unit
 
 // --------------------------------------------------------------------------------------
 
@@ -877,9 +881,20 @@ function decodeTelemetry(data) {
             msg_ok = true;
             break;
 
-        default: // something is wrong with data
+        case ENLINK_HEADER: // Ignore this message
             i = data.length;
-            msg_ok = true;
+            msg_ok = false;
+            break;
+
+        case ENLINK_MB_SYS: // Ignore this message
+            i = data.length;
+            msg_ok = false;
+            break;
+
+        default: // something is wrong with data
+            node.warn("Error at " + i + " byte value " + data[i]);
+            i = data.length;
+            msg_ok = false;
             break;
         }
     }
@@ -967,7 +982,7 @@ function decodeStdResponse(data) {
 			i = data.length;
 			break;
 
-		default: // something is wrong with data
+		default: // Ignore this message
 			i = data.length;
 			break;
         }
