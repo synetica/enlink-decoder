@@ -4,7 +4,7 @@
 
 ## Table of Contents
 - [Preamble](#preable)
-- [Model to Payload Contents](#table-to-show-enlink-model-to-payload-contents)
+- [Payload Contents of each enLink Model](#payload-contents-of-each-enlink-model)
   - [AIR/AIR-X](#enlink-airair-x---indooroutdoor-air-quality-monitor)
   - [IAQ/OAQ](#enlink-iaqoaq---indooroutdoor-air-quality)
   - [ZonePlus](#enlink-zoneplus)
@@ -14,6 +14,7 @@
   - [Status Leak Sensor](#enlink-status---leak-sensor)
   - [Status Differential Pressure](#enlink-status---differential-pressure--air-flow-velocity)
   - [Status Temperature Probes](#enlink-status---temperature-probes)
+  - [Status Voltage/Current Sensor](#enlink-status---voltagecurrent-sensor)
   - [Status Pura Sanitiser Liquid Level](#enlink-status---pura-sanitiser-liquid-level)
 - [Uplink Payload](#uplink-payload)
   - [Uplink Payload Structure](#uplink-payload-structure)
@@ -44,6 +45,7 @@ The **enLink** range of LoRaWAN devices are categorised into the following:
 - Leak Sensor
 - Differential Pressure / Air Flow
 - Temperature Probes
+- Voltage/Current Sensor
 
 This repository contains various decoders for the LoRaWAN data packets. The uplink data is telemetry data containing values like temperature, particulates and gas concentrations.
 
@@ -53,7 +55,7 @@ This LoRaWAN stack implements all regions defined in "LoRaWAN Regional Parameter
 
 ---
 
-## Model to Payload Contents
+## Payload Contents of each enLink Model
 
 Each model of enLink device has specific sensors. Each sensor exposes one or more data values. The **firmware model** is used to determine the sensors in the device. Note: the product code is similar to, but not the same as the firmware model. The following table can be used to determine the expected values in a uplink message. The [KPI](#enlink-kpi-payload-data) values are optional.
 
@@ -148,8 +150,14 @@ The firmware model is a concatenation of the base model plus the options.
 
 | Base Model | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| ENL-STS  | 1T  | `0x17`, `0x1A`, `0x1D`, `0x20`,<br/>`0x23`, `0x26`, `0x29` | Temperature, alarm status (if set) Includes [ATI](#ati---adaptive-transmission-interval) feature
+| ENL-STS | 1T | `0x17`, `0x1A`, `0x1D`, `0x20`,<br/>`0x23`, `0x26`, `0x29` | Temperature, alarm status (if set) Includes [ATI](#ati---adaptive-transmission-interval) feature
 | | 2T  | As above, plus<br/>`0x18`, `0x1B`, `0x1E`, `0x21`,<br/>`0x24`, `0x27`, `0x2A` | Temperature, alarm status (if set) Includes [ATI](#ati---adaptive-transmission-interval) feature
+
+### enLink Status - Voltage/Current Sensor
+
+| Base Model | Options | Data Type(s) | Description |
+|:-----------|:--------|:-------------|:------------|
+| ENL-STS-VC | (None)  | `0x2E`, `0x2F` | Voltage/Current
 
 ### enLink Status - Pura Sanitiser Liquid Level
 
@@ -202,7 +210,6 @@ These bytes can be split up as follows:
 </tr>
 </table>
 
-
 Finally, decoding the data:
 
 | Data Type Identifier | Data Value Calculation | Result |
@@ -215,83 +222,82 @@ Each Data Type can use 1 or more bytes to send the value according to the follow
 
 ### Sensor Details
 
-| Type | Sensor | Sensor Range | Units | Num Bytes | Format | Scaling |
+| Type Hex&nbsp;Dec| Sensor | Sensor Range | Units | Num Bytes | Format | Scaling |
 |:---------:| ------ | ------------ | ----- |:---------:|:-----------:| ------- |
-| `0x01` | Temperature | -40 to 85 | °C | 2 | S16 | / 10
-| `0x02` | Humidity | 0 to 100 | % | 1 | U8
-| `0x03` | Ambient Light | 0.01 to 83k | lux | 2 | U16
-| `0x04` | Pressure | 300 to 1100 | mbar | 2 | U16
-| `0x05` | Volatile Organic Compounds (VOC)<br />See: [BOSCH Datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme680-ds001.pdf) | 0 to 500 | IAQ | 2 | U16
-| `0x06` | Oxygen | 0 to 25 | % | 1 | U8 | / 10
-| `0x07` | Carbon Monoxide | 0 to 100  | ppm | 2 | U16 | / 100
-| `0x08` | Carbon Dioxide | 0 to 5000 | ppm | 2 | U16 | 
-| `0x09` | Ozone (O3) | 0 to 1<br />0 to 1000 | ppm<br />ppb | 2 | U16 | / 10000<br />/ 10
-| `0x0A` | Air Pollutants: CO, Ammonia, Ethanol, H2, Methane / Propane / Iso-Butane. | 100 to 1500 (Typ)| kΩ | 2 | U16 | / 10
-| `0x0B` | Particulate Matter 2.5 | 0 to 1000 | µg/m3 | 2 | U16
-| `0x0C` | Particulate Matter 10  | 0 to 1000 | µg/m3 | 2 | U16
-| `0x0D` | Hydrogen Sulphide (H<sub>2</sub>S) | 0 to 100 | ppm | 2 | U16 | / 100
-| `0x0E` | Pulse ID + Pulse Counter | ID: 0 to 3<br />Value: 0 to 2^32 | count | 1 + 4 | U32
-| `0x0F` | MB ID + Modbus Exception | ID: 0 to 31<br />Error Num | | 1 + 1 | U8
-| `0x10` | MB ID + Modbus Interval value | ID: 0 to 31<br />Interval Value | | 1 + 4 | F32
-| `0x11` | MB ID + Modbus Cumulative value | ID: 0 to 31<br />Cumulative&nbsp;Value | | 1 + 4 | F32
-| `0x12` | bVOC – VOC concentration |  | ppm | 4 | F32
-| `0x13` | Detection count (PIR etc.) |  | count | 4 | U32
-| `0x14` | Total occupied time |  | seconds | 4 | U32
-| `0x15` | Occupied Status | 0 = Unoccupied<br />1 = Occupied | status | 1 | U8
-| `0x16` | Liquid Level Status | 0 = No Liquid<br />1 = Detected | status | 1 | U8
-| `0x17` | Probe 1 Temperature | -55 to 125 | °C | 2 | S16 | / 10
-| `0x18` | Probe 2 Temperature | -55 to 125 | °C | 2 | S16 | / 10
-| `0x19` | Probe 3 Temperature | -55 to 125 | °C | 2 | S16 | / 10
-| `0x1A` | Time temperature probe 1 has spent in 'in band' zone |  | seconds | 4 | U32
-| `0x1B` | Time temperature probe 2 has spent in 'in band' zone |  | seconds | 4 | U32
-| `0x1C` | Time temperature probe 3 has spent in 'in band' zone |  | seconds | 4 | U32
-| `0x1D` | Number of times in band alarm has been activated for temperature probe 1 |  | count | 2 | U16
-| `0x1E` | Number of times in band alarm has been activated for temperature probe 2 |  | count | 2 | U16
-| `0x1F` | Number of times in band alarm has been activated for temperature probe 3 |  | count | 2 | U16
-| `0x20` | Time temperature probe 1 has spent below low threshold |  | seconds | 4 | U32
-| `0x21` | Time temperature probe 2 has spent below low threshold |  | seconds | 4 | U32
-| `0x22` | Time temperature probe 3 has spent below low threshold |  | seconds | 4 | U32
-| `0x23` | Number of times low threshold alarm has been activated for temperature probe 1  |  | count | 2 | U16
-| `0x24` | Number of times low threshold alarm has been activated for temperature probe 2 |  | count | 2 | U16
-| `0x25` | Number of times low threshold alarm has been activated for temperature probe 3 |  | count | 2 | U16
-| `0x26` | Time temperature probe 1 has spent above high threshold |  | seconds | 4 | U32
-| `0x27` | Time temperature probe 2 has spent above high threshold |  | seconds | 4 | U32
-| `0x28` | Time temperature probe 3 has spent above high threshold |  | seconds | 4 | U32
-| `0x29` | Number of times high threshold alarm has been activated for temperature probe 1  |  | count | 2 | U16
-| `0x2A` | Number of times high threshold alarm has been activated for temperature probe 2 |  | count | 2 | U16
-| `0x2B` | Number of times high threshold alarm has been activated for temperature probe 3 |  | count | 2 | U16
-| `0x2C` | Differential Pressure | +/- 5000 | Pa | 4 | F32
-| `0x2D` | Airflow | 0 to 100 | m/s   | 4 | F32
-| `0x2E` | Voltage | 0 to 10  | Volts | 2 | U16 | / 1000
-| `0x2F` | Current | 0 to 20  | mA    | 2 | U16 | / 1000
-| `0x30` | Resistance | 0 to 10 | kΩ | 2 | U16 | / 1000
-| `0x31` | Leak Detection (resistance rope) | 0 = No Leak<br />1 = Detected | status | 1 | U8
-| `0x3F` | CO<sub>2</sub>e estimate equivalent |  | ppm | 4 | F32
-| `0x50` | Sound Level Minimum |  | dB(A) | 4 | F32
-| `0x51` | Sound Level Average |  | dB(A) | 4 | F32
-| `0x52` | Sound Level Maximum |  | dB(A) | 4 | F32
-| `0x53` | Nitric Oxide     | 0 - 100 | ppm | 2 | U16 | / 100
-| `0x54` | Nitrogen Dioxide | 0 – 5   | ppm | 2 | U16 | / 10000
-| `0x55` | Nitrogen Dioxide | 0 – 20  | ppm | 2 | U16 | / 1000
-| `0x56` | Sulphur Dioxide  | 0 – 20  | ppm | 2 | U16 | / 1000
-| `0x57` | Particulate matter mass concentration at PM1.0 |  | µg/m³ | 4 | F32
-| `0x58` | As above, PM2.5  |  | µg/m³ | 4 | F32
-| `0x59` | As above, PM4.0  |  | µg/m³ | 4 | F32
-| `0x5A` | As above, PM10.0 |  | µg/m³ | 4 | F32
-| `0x5B` | Particulate matter number concentration at PM0.5 |  | #/cm³ | 4 | F32
-| `0x5C` | As above, PM1.0  |  | #/cm³ | 4 | F32
-| `0x5D` | As above, PM2.5  |  | #/cm³ | 4 | F32
-| `0x5E` | As above, PM4.0  |  | #/cm³ | 4 | F32
-| `0x5F` | As above, PM10.0 |  | #/cm³ | 4 | F32
-| `0x60` | Particulate matter typical particle size |  | µm | 4 | F32
-| `0x61` | Gas ID + Gas Concentration |  | ppb | 1 + 4 | F32
-| `0x62` | Corrosion: Metal ID + Metal Thickness | ~ 1000nm | nm | 1 + 4 | F32
-| `0x63` | Corrosion: Metal ID + Minimum thickness |  | nm | 1 + 2 | U16
-| `0x64` | Corrosion: Metal ID + Original thickness |  | nm | 1 + 2 | U16
-| `0x65` | Corrosion: percentage of thickness between original thickness (100%) and minimum (0%) |  | % | 1 + 4 | F32
-| `0x66` | Gas ID + Gas Concentration |  | µg/m³ | 1 + 4 | F32
-| `0x67` | Outdoor EPA Index Sensor Fast AQI (reading taken over 1 minute) | 0 to 500 | AQI | 2 | U16
-| `0x68` | Outdoor EPA Index Sensor EPA AQI<br />See: [AirNow Technical Doc](https://www.airnow.gov/sites/default/files/2020-05/aqi-technical-assistance-document-sept2018.pdf) | 0 to 500 | AQI | 2 | U16
+| `0x01` 001 | Temperature | -40 to 85 | °C | 2 | S16 | / 10
+| `0x02` 002 | Humidity | 0 to 100 | % | 1 | U8
+| `0x03` 003 | Ambient Light | 0.01 to 83k | lux | 2 | U16
+| `0x04` 004 | Pressure | 300 to 1100 | mbar | 2 | U16
+| `0x05` 005 | Volatile Organic Compounds (VOC)<br />See: [BOSCH Datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme680-ds001.pdf) | 0 to 500 | IAQ | 2 | U16
+| `0x06` 006 | Oxygen | 0 to 25 | % | 1 | U8 | / 10
+| `0x07` 007 | Carbon Monoxide | 0 to 100  | ppm | 2 | U16 | / 100
+| `0x08` 008 | Carbon Dioxide | 0 to 5000 | ppm | 2 | U16 | 
+| `0x09` 009 | Ozone (O3) | 0 to 1<br />0 to 1000 | ppm<br />ppb | 2 | U16 | / 10000<br />/ 10
+| `0x0A` 010 | Air Pollutants: CO, Ammonia, Ethanol, H2, Methane / Propane / Iso-Butane. | 100 to 1500 (Typ)| kΩ | 2 | U16 | / 10
+| `0x0B` 011 | Particulate Matter 2.5 | 0 to 1000 | µg/m3 | 2 | U16
+| `0x0C` 012 | Particulate Matter 10  | 0 to 1000 | µg/m3 | 2 | U16
+| `0x0D` 013 | Hydrogen Sulphide (H<sub>2</sub>S) | 0 to 100 | ppm | 2 | U16 | / 100
+| `0x0E` 014 | Pulse ID + Pulse Counter | ID: 0 to 3<br />Value: 0 to 2^32 | count | 1 + 4 | U32
+| `0x0F` 015 | MB ID + Modbus Exception | ID: 0 to 31<br />Error Num | | 1 + 1 | U8
+| `0x10` 016 | MB ID + Modbus Interval value | ID: 0 to 31<br />Interval Value | | 1 + 4 | F32
+| `0x11` 017 | MB ID + Modbus Cumulative value | ID: 0 to 31<br />Cumulative&nbsp;Value | | 1 + 4 | F32
+| `0x12` 018 | bVOC – VOC concentration |  | ppm | 4 | F32
+| `0x13` 019 | Detection count (PIR etc.) |  | count | 4 | U32
+| `0x14` 020 | Total occupied time |  | seconds | 4 | U32
+| `0x16` 022 | Liquid Level Status | 0 = No Liquid<br />1 = Detected | status | 1 | U8
+| `0x17` 023 | Probe 1 Temperature | -55 to 125 | °C | 2 | S16 | / 10
+| `0x18` 024 | Probe 2 Temperature | -55 to 125 | °C | 2 | S16 | / 10
+| `0x19` 025 | Probe 3 Temperature | -55 to 125 | °C | 2 | S16 | / 10
+| `0x1A` 026 | Time temperature probe 1 has spent in 'in band' zone |  | seconds | 4 | U32
+| `0x1B` 027 | Time temperature probe 2 has spent in 'in band' zone |  | seconds | 4 | U32
+| `0x1C` 028 | Time temperature probe 3 has spent in 'in band' zone |  | seconds | 4 | U32
+| `0x1D` 029 | Number of times in band alarm has been activated for temperature probe 1 |  | count | 2 | U16
+| `0x1E` 030 | Number of times in band alarm has been activated for temperature probe 2 |  | count | 2 | U16
+| `0x1F` 031| Number of times in band alarm has been activated for temperature probe 3 |  | count | 2 | U16
+| `0x20` 032 | Time temperature probe 1 has spent below low threshold |  | seconds | 4 | U32
+| `0x21` 033 | Time temperature probe 2 has spent below low threshold |  | seconds | 4 | U32
+| `0x22` 034 | Time temperature probe 3 has spent below low threshold |  | seconds | 4 | U32
+| `0x23` 035 | Number of times low threshold alarm has been activated for temperature probe 1  |  | count | 2 | U16
+| `0x24` 036 | Number of times low threshold alarm has been activated for temperature probe 2 |  | count | 2 | U16
+| `0x25` 037 | Number of times low threshold alarm has been activated for temperature probe 3 |  | count | 2 | U16
+| `0x26` 038 | Time temperature probe 1 has spent above high threshold |  | seconds | 4 | U32
+| `0x27` 039 | Time temperature probe 2 has spent above high threshold |  | seconds | 4 | U32
+| `0x28` 040 | Time temperature probe 3 has spent above high threshold |  | seconds | 4 | U32
+| `0x29` 041 | Number of times high threshold alarm has been activated for temperature probe 1  |  | count | 2 | U16
+| `0x2A` 042 | Number of times high threshold alarm has been activated for temperature probe 2 |  | count | 2 | U16
+| `0x2B` 043 | Number of times high threshold alarm has been activated for temperature probe 3 |  | count | 2 | U16
+| `0x2C` 044 | Differential Pressure | +/- 5000 | Pa | 4 | F32
+| `0x2D` 045 | Airflow | 0 to 100 | m/s   | 4 | F32
+| `0x2E` 046 | Voltage | 0 to 10  | Volts | 2 | U16 | / 1000
+| `0x2F` 047 | Current | 0 to 20  | mA    | 2 | U16 | / 1000
+| `0x30` 048 | Resistance | 0 to 10 | kΩ | 2 | U16 | / 1000
+| `0x31` 049 | Leak Detection (resistance rope) | 0 = No Leak<br />1 = Detected | status | 1 | U8
+| `0x3F` 063 | CO<sub>2</sub>e estimate equivalent |  | ppm | 4 | F32
+| `0x50` 080 | Sound Level Minimum |  | dB(A) | 4 | F32
+| `0x51` 081 | Sound Level Average |  | dB(A) | 4 | F32
+| `0x52` 082| Sound Level Maximum |  | dB(A) | 4 | F32
+| `0x53` 083 | Nitric Oxide     | 0 - 100 | ppm | 2 | U16 | / 100
+| `0x54` 084 | Nitrogen Dioxide | 0 – 5   | ppm | 2 | U16 | / 10000
+| `0x55` 085 | Nitrogen Dioxide | 0 – 20  | ppm | 2 | U16 | / 1000
+| `0x56` 086 | Sulphur Dioxide  | 0 – 20  | ppm | 2 | U16 | / 1000
+| `0x57` 087 | Particulate matter mass concentration at PM1.0 |  | µg/m³ | 4 | F32
+| `0x58` 088 | As above, PM2.5  |  | µg/m³ | 4 | F32
+| `0x59` 089 | As above, PM4.0  |  | µg/m³ | 4 | F32
+| `0x5A` 090 | As above, PM10.0 |  | µg/m³ | 4 | F32
+| `0x5B` 091 | Particulate matter number concentration at PM0.5 |  | #/cm³ | 4 | F32
+| `0x5C` 092 | As above, PM1.0  |  | #/cm³ | 4 | F32
+| `0x5D` 093 | As above, PM2.5  |  | #/cm³ | 4 | F32
+| `0x5E` 094 | As above, PM4.0  |  | #/cm³ | 4 | F32
+| `0x5F` 095 | As above, PM10.0 |  | #/cm³ | 4 | F32
+| `0x60` 096 | Particulate matter typical particle size |  | µm | 4 | F32
+| `0x61` 097 | Gas ID + Gas Concentration |  | ppb | 1 + 4 | F32
+| `0x62` 098 | Corrosion: Metal ID + Metal Thickness | ~ 1000nm | nm | 1 + 4 | F32
+| `0x63` 099 | Corrosion: Metal ID + Minimum thickness |  | nm | 1 + 2 | U16
+| `0x64` 100 | Corrosion: Metal ID + Original thickness |  | nm | 1 + 2 | U16
+| `0x65` 101 | Corrosion: percentage of thickness between original thickness (100%) and minimum (0%) |  | % | 1 + 4 | F32
+| `0x66` 102 | Gas ID + Gas Concentration |  | µg/m³ | 1 + 4 | F32
+| `0x67` 103 | Outdoor EPA Index Sensor Fast AQI (reading taken over 1 minute) | 0 to 500 | AQI | 2 | U16
+| `0x68` 104 | Outdoor EPA Index Sensor EPA AQI<br />See: [AirNow Technical Doc](https://www.airnow.gov/sites/default/files/2020-05/aqi-technical-assistance-document-sept2018.pdf) | 0 to 500 | AQI | 2 | U16
 
 ## Decoding Complex Messages
 
@@ -368,6 +374,8 @@ Payload (hexadecimal): `62 01 44 58 D0 27`
 
 The example shows Coupon #1 is Copper and the thickness is 867.252 nanometres (equivalent to 8672.52 Ångströms).
 
+<div style="page-break-after: always;"></div>
+
 Other Coupon/Metal types are:
 
 | Coupon #1 |  | Coupon #2 |
@@ -379,25 +387,25 @@ Other Coupon/Metal types are:
 
 ### enLink KPI Payload Data
 
-Each enLink end-node device can have optional Key Perfomance Indicators (KPI) added to the payload message. Each KPI can use 1 or more bytes to send the value according to the following table.
+Each enLink end-node device can have optional Key Performance Indicators (KPI) added to the payload message. Each KPI can use 1 or more bytes to send the value according to the following table.
 
-| Type      | KPI             | Comments     | Units | Num Bytes | Format |
+| Type Hex&nbsp;Dec | KPI             | Comments     | Units | Num Bytes | Format |
 |:---------:| --------------- | ------------ | ----- |:---------:| ------ |
-| `0x40` | CPU&nbsp;Temperature | Packed Byte. See JS Code | °C | 2 | S16
-| `0x41` | Battery Status | 0=Charging; 1 - 254 (1.8 - 3.3V); 255=Ext Power | status | 1 | U8
-| `0x42` | Battery Voltage | 0 -> 3600 mV (3600=Ext Power) | mV | 2 | U16
-| `0x43` | RX RSSI  | Received Signal Strength | dBm | 2 | S16
-| `0x44` | RX SNR   | Received Signal-Noise Ratio | dB | 1 | S8
-| `0x45` | RX Count | Downlink message count | count | 2 | U16
-| `0x46` | TX Time  | Time to send message | ms | 2 | U16
-| `0x47` | TX Power | Transmit power | dBm | 1 | S8
-| `0x48` | TX Count | Uplink message count | count | 2 | U16
-| `0x49` | Power up count | Number of times unit powered up | count | 2 | U16
-| `0x4A` | USB insertions count | Number of times USB activated | count | 2 | U16
-| `0x4B` | Login OK count | Successful logon count | count | 2 | U16
-| `0x4C` | Login fail count | Failed logon count | count | 2 | U16
-| `0x4D` | Fan runtime | Total time the air intake fan has run (AIR models only) | seconds | 4 | U32
-| `0x4E` | CPU Temperature | New from Ver: 4.9 | °C | 2 | S16 /10
+| `0x40` 064 | CPU&nbsp;Temperature | Packed Byte. See JS Code | °C | 2 | S16
+| `0x41` 065 | Battery Status | 0=Charging; 1 - 254 (1.8 - 3.3V); 255=Ext Power | status | 1 | U8
+| `0x42` 066 | Battery Voltage | 0 -> 3600 mV (3600=Ext Power) | mV | 2 | U16
+| `0x43` 067 | RX RSSI  | Received Signal Strength | dBm | 2 | S16
+| `0x44` 068 | RX SNR   | Received Signal-Noise Ratio | dB | 1 | S8
+| `0x45` 069 | RX Count | Downlink message count | count | 2 | U16
+| `0x46` 070 | TX Time  | Time to send message | ms | 2 | U16
+| `0x47` 071 | TX Power | Transmit power | dBm | 1 | S8
+| `0x48` 072 | TX Count | Uplink message count | count | 2 | U16
+| `0x49` 073 | Power up count | Number of times unit powered up | count | 2 | U16
+| `0x4A` 074 | USB insertions count | Number of times USB activated | count | 2 | U16
+| `0x4B` 075 | Login OK count | Successful logon count | count | 2 | U16
+| `0x4C` 076 | Login fail count | Failed logon count | count | 2 | U16
+| `0x4D` 077 | Fan runtime | Total time the air intake fan has run (AIR models only) | seconds | 4 | U32
+| `0x4E` 078 | CPU Temperature | New from Ver: 4.9 | °C | 2 | S16 /10
 
 Example code for different LoRaWAN Network Servers (LNS) is including in the folders on this site.
 
@@ -544,39 +552,39 @@ Defaults are:
 
 For example, set Scale to **12.345** (12345 in hexadecimal is `0x3039`)
 
-Message is: `A5 03 20 30 39`
+> Message is: `A5 03 20 30 39`
 
 ### Settings for CO<sub>2</sub> Sensors
 
 To Enable Auto-Calibration:
 
-Message is: `A5 02 24 01`
+> Message is: `A5 02 24 01`
 
 To set the auto-calibration target to 450ppm
 
-Message is: `A5 03 25 01 C2`
+> Message is: `A5 03 25 01 C2`
 
 To set the sensor to known CO2 concentration of 780ppm (`0x030C`)
 
-Message is: `A5 03 26 03 0C`
+> Message is: `A5 03 26 03 0C`
 
 To reset the sensor back to factory calibration (Sunrise Only)
 
-Message is: `A5 01 27`
+> Message is: `A5 01 27`
 
 To set the auto-calibration interval to 10 days (240 hours, 0x00F0)
 
-Message is: `A5 03 28 00 F0`
+> Message is: `A5 03 28 00 F0`
 
 ### Uplink Replies to Downlink Messages
 
 Successfully changed the Message Confirmation Option - **ACK**
 
-Return code: `A5 06 09`
+> Return code: `A5 06 09`
 
 Failed to change the Transmit Port - **NACK**
 
-Return code: `A5 15 0A`
+> Return code: `A5 15 0A`
  
 ### Sample Code
-A NodeRED example for decoding these messages is included in the folders on this site. It is so visual feedback can be seen during evaluation. If you require these messages in your system, please modify the code to suit your platform.
+A NodeRED example for decoding these messages is included in the folders on this site. It is so visual feedback can be seen during evaluation and commissioning. If you require these messages in your system, please modify the code to suit your platform.
