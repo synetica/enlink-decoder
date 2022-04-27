@@ -27,7 +27,7 @@
   - [Downlink Message Examples](#downlink-message-examples)
   - [Downlink Message Index Tables](#downlink-message-index-tables)
   - [Settings for Lux Sensor](#settings-for-lux-sensor)
-  - [Settings for CO<sub>2</sub> Sensors](#settings-for-cosub2sub-sensors)
+  - [Settings for CO<sub>2</sub> Sensors](#settings-for-co2-sensors)
   - [Uplink Replies to Downlink Messages](#uplink-replies-to-downlink-messages)
   - [Sample Code](#sample-code)
 
@@ -564,7 +564,7 @@ To set the auto-calibration target to 450ppm
 
 > Message is: `A5 03 25 01 C2`
 
-To set the sensor to known CO2 concentration of 780ppm (`0x030C`)
+To set the sensor to known CO<sub>2</sub> concentration of 780ppm (`0x030C`)
 
 > Message is: `A5 03 26 03 0C`
 
