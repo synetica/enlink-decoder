@@ -30,7 +30,7 @@
   - [Downlink Message Index Tables](#downlink-message-index-tables)
   - [Settings for Lux Sensor](#settings-for-lux-sensor)
   - [Settings for CO<sub>2</sub> Sensors](#settings-for-co2-sensors)
-  - [Uplink Replies to Downlink Messages](#uplink-replies-to-downlink-messages)
+  - [Example Uplink Replies to Downlink Messages](#example-uplink-replies-to-downlink-messages)
   - [Sample Code](#sample-code)
 
 <div style="page-break-after: always;"></div>
@@ -224,7 +224,9 @@ Finally, decoding the data:
 | `0x02` - Humidity      | `0x56` | 86 %rH |
 | `0x03` - Ambient Light | (`0x01` * 256) + `0xA4` = 256 + 164 | 420 Lux |
 
-Each Data Type can use 1 or more bytes to send the value according to the following table
+Each **Data Type** can use 1 or more bytes to send the value according to the following table:
+
+<div style="page-break-after: always;"></div>
 
 ### Sensor Details
 
@@ -305,6 +307,8 @@ Each Data Type can use 1 or more bytes to send the value according to the follow
 | `0x67` 103 | Outdoor EPA Index Sensor Fast AQI (reading taken over 1 minute) | 0 to 500 | AQI | 2 | U16
 | `0x68` 104 | Outdoor EPA Index Sensor EPA AQI<br />See: [AirNow Technical Doc](https://www.airnow.gov/sites/default/files/2020-05/aqi-technical-assistance-document-sept2018.pdf) | 0 to 500 | AQI | 2 | U16
 
+<div style="page-break-after: always;"></div>
+
 ## Decoding Complex Messages
 
 Most sensor data values are self-explanatory, additional information for decoding more complex sensor data is given in the sections below.
@@ -379,8 +383,6 @@ Payload (hexadecimal): `62 01 44 58 D0 27`
 </table>
 
 The example shows Coupon #1 is Copper and the thickness is 867.252 nanometres (equivalent to 8672.52 Ångströms).
-
-<div style="page-break-after: always;"></div>
 
 Other Coupon/Metal types are:
 
@@ -548,8 +550,6 @@ The Indexes for some settings depend on the region the unit is programmed for.
 | 7 | 4 dBm
 | 8 | 2 dBm 
 
-<div style="page-break-after: always;"></div>
-
 ### Settings for Lux Sensor
 
 To scale the lux reading to compensate for the enclosure light pipe, a scaling factor is applied to the sensor value:
@@ -586,15 +586,19 @@ To set the auto-calibration interval to 10 days (240 hours, 0x00F0)
 
 > Message is: `A5 03 28 00 F0`
 
-### Uplink Replies to Downlink Messages
+<div style="page-break-after: always;"></div>
 
-Successfully changed the Message Confirmation Option - **ACK**
+### Example Uplink Replies to Downlink Messages
+
+**ACK** (`0x06`) - Successfully changed the Message Confirmation Option (`0x09`)
 
 > Return code: `A5 06 09`
 
-Failed to change the Transmit Port - **NACK**
+**NACK** (`0x15`) - failed to change the Transmit Port (`0x0A`)
 
 > Return code: `A5 15 0A`
- 
+
+</br>
+
 ### Sample Code
 A NodeRED example for decoding these messages is included in the folders on this site. It is so visual feedback can be seen during evaluation and commissioning. If you require these messages in your system, please modify the code to suit your platform.
