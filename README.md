@@ -18,11 +18,13 @@
   - [Status Pura Sanitiser Liquid Level](#enlink-status---pura-sanitiser-liquid-level)
 - [Uplink Payload](#uplink-payload)
   - [Uplink Payload Structure](#uplink-payload-structure)
+  - [Uplink Transmission Port](#uplink-transmission-port)
   - [Sensor Details](#sensor-details)
   - [Decoding Complex Messages](#decoding-complex-messages)
   - [enLink KPI Payload Data](#enlink-kpi-payload-data)
 - [Downlink Payload](#downlink-payload)
   - [Downlink Payload Structure](#downlink-payload-structure)
+  - [Downlink Receive Port](#downlink-receive-port)
   - [Settings Data Details](#settings-data-details)
   - [Downlink Message Examples](#downlink-message-examples)
   - [Downlink Message Index Tables](#downlink-message-index-tables)
@@ -174,6 +176,10 @@ This is included on enLink devices where an alarm feature requires immediate tra
 ## Uplink Payload
 
 The enLink payload structure is designed to be as efficient as possible. Data for multiple sensor values can be concatenated into a single payload which can be easily decoded. If the payload length is restricted due to channel time limits, the whole message will be split into multiple payloads. Each payload will always be split on a **Sensor Data** boundary. This is done so each payload can be easily decoded. A payload will always have the first byte as a **Data Type Identifier**.
+
+### Uplink Transmission Port
+
+The enLink device design uses a single port byte value to transmit uplink messages. This is by default set to 1. This can be changed to allow the user to easily decode packets from different manufacturers, if needed. This can be changed either via the serial port menu, accessed by a USB cable or with a downlink message.
 
 ### Uplink Payload Structure
 
@@ -427,6 +433,10 @@ The header byte is is always `0xA5`.
 
 **Msg Len** is the number of bytes in the settings data. The settings data starts with a **Command** byte and then the command **Value**. The Value can be blank.
 
+### Downlink Receive Port
+
+When the enLink device receives a downlink message, it first checks the port byte value. If this value matches the expected value, it then attempts to decode the message and process the result. By default the expected value is set to **All**, so it will, in effect, ignore the port value and simple decode and process the message. Only valid port values are allowed, as per the LoRaWAN Specification. These values are 1 to 223.
+
 ### Settings Data Details
 
 | Name | Msg Len | Command | Value | Reboot Required? |
@@ -438,11 +448,11 @@ The header byte is is always `0xA5`.
 | Auto Data Rate (ADR) | 2  | `0x07` | `0`/`1` (Disable/Enable)
 | Duty Cycle | 2  | `0x08` | `0`/`1` (Disable/Enable)
 | Message Confirmation | 2  | `0x09` | `0`/`1` (Disable/Enable)
-| Transmit Port | 2  | `0x0A` | `1` to `223`
+| Transmit Port | 2  | `0x0A` | `1` to `223` (Default is 1)
 | Default Data Rate Index | 2  | `0x0B` | `1` to `6` (Requires ADR disabled)
 | Transmit Interval Index | 2  | `0x0C` | `1` to `10`
 | Transmit Power Index | 2  | `0x0D` | `1` to `6`
-| Receive Port | 2  | `0x0E` | `0` to `223` (`0` indicates **All** Ports)
+| Receive Port | 2  | `0x0E` | `0` to `223` (`0` indicates **All** Ports. Default is **All**)
 
 The following are used in the AQM/Air, Zone and ZonePlus (with Light Sensor)
 
