@@ -3,7 +3,7 @@
 [![GitHub](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/synetica/enlink-decoder/blob/master/LICENSE)
 
 ## Table of Contents
-- [Preamble](#preable)
+- [Preamble](#preamble)
 - [Payload Contents of each enLink Model](#payload-contents-of-each-enlink-model)
   - [AIR/AIR-X](#enlink-airair-x---indooroutdoor-air-quality-monitor)
   - [IAQ/OAQ](#enlink-iaqoaq---indooroutdoor-air-quality)
@@ -159,7 +159,9 @@ The firmware model is a concatenation of the base model plus the options.
 
 | Base Model | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| ENL-STS-VC | (None)  | `0x2E`, `0x2F` | Voltage/Current
+| ENL-STS-VC | (None)  | `0x2E` | Mode: Voltage
+|            |         | `0x2F` | Mode: Current
+|            |         | `0x30` | Mode: Resistance
 
 ### enLink Status - Pura Sanitiser Liquid Level
 
@@ -239,7 +241,7 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x05` 005 | Volatile Organic Compounds (VOC)<br />See: [BOSCH Datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme680-ds001.pdf) | 0 to 500 | IAQ | 2 | U16
 | `0x06` 006 | Oxygen | 0 to 25 | % | 1 | U8 | / 10
 | `0x07` 007 | Carbon Monoxide | 0 to 100  | ppm | 2 | U16 | / 100
-| `0x08` 008 | Carbon Dioxide | 0 to 5000 | ppm | 2 | U16 | 
+| `0x08` 008 | Carbon Dioxide (2 sensor ranges) | 0 to 5000 or 0 to 50,000 | ppm | 2 | U16 | 
 | `0x09` 009 | Ozone (O3) | 0 to 1<br />0 to 1000 | ppm<br />ppb | 2 | U16 | / 10000<br />/ 10
 | `0x0A` 010 | Air Pollutants: CO, Ammonia, Ethanol, H2, Methane / Propane / Iso-Butane. | 100 to 1500 (Typ)| kΩ | 2 | U16 | / 10
 | `0x0B` 011 | Particulate Matter 2.5 | 0 to 1000 | µg/m3 | 2 | U16
