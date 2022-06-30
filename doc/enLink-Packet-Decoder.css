@@ -1,0 +1,143 @@
+ .u-section-1 {
+  background-image: url("images/bg-3.png");
+  background-position: 50% 100%;
+}
+
+.u-section-1 .u-sheet-1 {
+  min-height: 805px;
+}
+
+.u-section-1 .u-text-1 {
+  margin: 8px auto 0 30px;
+}
+
+.u-section-1 .u-layout-wrap-1 {
+  width: 975px;
+  margin: 0 auto 0 0;
+}
+
+.u-section-1 .u-layout-cell-1 {
+  min-height: 745px;
+}
+
+.u-section-1 .u-container-layout-1 {
+  padding: 18px 21px;
+}
+
+.u-section-1 .u-text-2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 12px 638px 0 10px;
+}
+
+.u-section-1 .u-text-3 {
+  margin: 12px auto 0 10px;
+}
+
+.u-section-1 .u-form-1 {
+  height: 254px;
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+.u-section-1 .u-input-1 {
+  background-image: none;
+  font-family: "Fira Mono";
+}
+
+.u-section-1 .u-btn-1 {
+  box-shadow: 5px 5px 20px 0 rgba(0,0,0,0.4);
+}
+
+.u-section-1 .u-custom-html-1 {
+  min-height: 283px;
+  width: 934px;
+  margin: 0;
+}
+
+@media (max-width: 1199px) {
+  .u-section-1 .u-sheet-1 {
+    min-height: 637px;
+  }
+
+  .u-section-1 .u-layout-wrap-1 {
+    width: 940px;
+  }
+
+  .u-section-1 .u-layout-cell-1 {
+    min-height: 718px;
+  }
+
+  .u-section-1 .u-text-2 {
+    margin-right: 612px;
+    margin-left: 0;
+  }
+
+  .u-section-1 .u-text-3 {
+    margin-left: 0;
+  }
+
+  .u-section-1 .u-custom-html-1 {
+    height: auto;
+    width: 899px;
+  }
+}
+
+@media (max-width: 991px) {
+  .u-section-1 .u-sheet-1 {
+    min-height: 237px;
+  }
+
+  .u-section-1 .u-layout-wrap-1 {
+    width: 720px;
+  }
+
+  .u-section-1 .u-layout-cell-1 {
+    min-height: 100px;
+  }
+
+  .u-section-1 .u-text-2 {
+    margin-right: 392px;
+  }
+
+  .u-section-1 .u-custom-html-1 {
+    width: 679px;
+  }
+}
+
+@media (max-width: 767px) {
+  .u-section-1 .u-layout-wrap-1 {
+    width: 540px;
+  }
+
+  .u-section-1 .u-container-layout-1 {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .u-section-1 .u-text-2 {
+    margin-right: 233px;
+  }
+
+  .u-section-1 .u-custom-html-1 {
+    width: 520px;
+  }
+}
+
+@media (max-width: 575px) {
+   .u-section-1 {
+    background-position: 13.65% 50%;
+  }
+
+  .u-section-1 .u-layout-wrap-1 {
+    width: 340px;
+  }
+
+  .u-section-1 .u-text-2 {
+    margin-right: 33px;
+  }
+
+  .u-section-1 .u-custom-html-1 {
+    width: 320px;
+  }
+}

@@ -1,4 +1,4 @@
-// Synetica Payload Decoder for The Things Stack V3
+// Synetica Payload Decoder for Chirpstack
 // Published 30 Sep 2021
 // FW Ver:4.43
 
