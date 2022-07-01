@@ -1,239 +1,135 @@
 <!DOCTYPE html>
-<html style="font-size: 14px" lang="en">
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta charset="utf-8" />
-    <meta name="keywords" content="enLink LoRaWAN decoder" />
-    <meta name="description" content="" />
+<html style="font-size: 14px;" lang="en"><head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="keywords" content="enLink LoRaWAN decoder">
+    <meta name="description" content="">
     <title>enLink Packet Decoder</title>
-    <link rel="stylesheet" href="nicepage.css" media="screen" />
-    <link rel="stylesheet" href="enLink-Packet-Decoder.css" media="screen" />
-    <script
-      class="u-script"
-      type="text/javascript"
-      src="jquery.js"
-      defer=""
-    ></script>
-    <script
-      class="u-script"
-      type="text/javascript"
-      src="nicepage.js"
-      defer=""
-    ></script>
-    <meta name="generator" content="Hand Hacked" />
-    <link
-      id="u-theme-google-font"
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i|Open+Sans:300,300i,400,400i,500,500i,600,600i,700,700i,800,800i"
-    />
-    <link
-      id="u-page-google-font"
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css?family=Fira+Mono:400,500,700"
-    />
-
-    <script type="application/ld+json">
-      {
+    <link rel="stylesheet" href="nicepage.css" media="screen">
+    <link rel="stylesheet" href="enLink-Packet-Decoder.css" media="screen">
+    <script class="u-script" type="text/javascript" src="jquery.js" defer=""></script>
+    <script class="u-script" type="text/javascript" src="nicepage.js" defer=""></script>
+    <meta name="generator" content="Hand Hacked">
+    <link rel="icon" href="images/favicon.png">
+    <link id="u-theme-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i|Open+Sans:300,300i,400,400i,500,500i,600,600i,700,700i,800,800i">
+    <link id="u-page-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:400,500,700">
+    <script type="application/ld+json">{
         "@context": "http://schema.org",
         "@type": "Organization",
-        "name": "Live Decoder"
-      }
-    </script>
-    <meta name="theme-color" content="#8eafce" />
-    <meta property="og:title" content="enLink Packet Decoder" />
-    <meta property="og:description" content="" />
-    <meta property="og:type" content="website" />
+        "name": "Live Decoder",
+        "logo": "images/synetica.png"
+    }</script>
+    <meta name="theme-color" content="#32546c">
+    <meta property="og:title" content="enLink Packet Decoder">
+    <meta property="og:description" content="">
+    <meta property="og:type" content="website">
   </head>
-  <body
-    data-home-page="enLink-Packet-Decoder.html"
-    data-home-page-title="enLink Packet Decoder"
-    class="u-body u-xl-mode"
-  >
-    <header class="u-clearfix u-header u-header" id="sec-e3d4">
-      <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
-        <nav
-          class="u-align-left u-menu u-menu-dropdown u-offcanvas u-menu-1"
-          data-responsive-from="XL"
-        >
-          <div class="menu-collapse">
-            <a
-              class="u-button-style u-nav-link"
-              href="#"
-              style="padding: 4px 0px; font-size: calc(1em + 8px)"
-            >
-              <svg
-                class="u-svg-link"
-                preserveAspectRatio="xMidYMin slice"
-                viewBox="0 0 302 302"
-                style=""
-              >
-                <use
-                  xmlns:xlink="http://www.w3.org/1999/xlink"
-                  xlink:href="#svg-5c50"
-                ></use>
-              </svg>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                xmlns:xlink="http://www.w3.org/1999/xlink"
-                version="1.1"
-                id="svg-5c50"
-                x="0px"
-                y="0px"
-                viewBox="0 0 302 302"
-                style="enable-background: new 0 0 302 302"
-                xml:space="preserve"
-                class="u-svg-content"
-              >
-                <g>
-                  <rect y="36" width="302" height="30"></rect>
-                  <rect y="236" width="302" height="30"></rect>
-                  <rect y="136" width="302" height="30"></rect>
-                </g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
-                <g></g>
-              </svg>
+  <body data-home-page="enLink-Packet-Decoder.html" data-home-page-title="enLink Packet Decoder" class="u-body u-xl-mode"><header class="u-clearfix u-grey-80 u-header u-header" id="sec-e3d4"><div class="u-clearfix u-sheet u-sheet-1">
+        <a href="https://synetica.net" class="u-image u-logo u-image-1" data-image-width="320" data-image-height="100" title="Synetica Homepage" target="_blank">
+          <img src="images/synetica.png" class="u-logo-image u-logo-image-1">
+        </a>
+        <nav class="u-menu u-menu-dropdown u-offcanvas u-menu-1">
+          <div class="menu-collapse" style="font-size: 1rem; letter-spacing: 0px;">
+            <a class="u-button-style u-custom-left-right-menu-spacing u-custom-padding-bottom u-custom-text-active-color u-custom-text-color u-custom-text-hover-color u-custom-top-bottom-menu-spacing u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base" href="#">
+              <svg class="u-svg-link" viewBox="0 0 24 24"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#menu-hamburger"></use></svg>
+              <svg class="u-svg-content" version="1.1" id="menu-hamburger" viewBox="0 0 16 16" x="0px" y="0px" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><g><rect y="1" width="16" height="2"></rect><rect y="7" width="16" height="2"></rect><rect y="13" width="16" height="2"></rect>
+</g></svg>
             </a>
           </div>
           <div class="u-custom-menu u-nav-container">
-            <ul class="u-nav u-unstyled u-nav-1">
-              <li class="u-nav-item">
-                <a
-                  class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base"
-                  href="https://github.com/synetica/enlink-decoder"
-                  style="padding: 10px 20px"
-                  >Documentation</a
-                >
-              </li>
-              <li class="u-nav-item">
-                <a
-                  class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base"
-                  href="https://synetica.net"
-                  style="padding: 10px 20px"
-                  >Synetica Homepage</a
-                >
-              </li>
-            </ul>
+            <ul class="u-nav u-unstyled u-nav-1"><li class="u-nav-item"><a class="u-button-style u-nav-link u-text-active-palette-4-dark-1 u-text-body-alt-color u-text-hover-palette-4-light-2" href="https://github.com/synetica/enlink-decoder" style="padding: 10px 20px;">Documentation</a>
+</li><li class="u-nav-item"><a class="u-button-style u-nav-link u-text-active-palette-4-dark-1 u-text-body-alt-color u-text-hover-palette-4-light-2" href="https://synetica.net" style="padding: 10px 20px;">Synetica Home</a>
+</li></ul>
           </div>
           <div class="u-custom-menu u-nav-container-collapse">
-            <div
-              class="u-align-center u-black u-container-style u-inner-container-layout u-opacity u-opacity-95 u-sidenav"
-            >
+            <div class="u-black u-container-style u-inner-container-layout u-opacity u-opacity-95 u-sidenav">
               <div class="u-inner-container-layout u-sidenav-overflow">
                 <div class="u-menu-close"></div>
-                <ul
-                  class="u-align-center u-nav u-popupmenu-items u-unstyled u-nav-2"
-                >
-                  <li class="u-nav-item">
-                    <a
-                      class="u-button-style u-nav-link"
-                      href="https://github.com/synetica/enlink-decoder"
-                      >Documentation</a
-                    >
-                  </li>
-                  <li class="u-nav-item">
-                    <a
-                      class="u-button-style u-nav-link"
-                      href="https://synetica.net"
-                      >Synetica Homepage</a
-                    >
-                  </li>
-                </ul>
+                <ul class="u-align-center u-nav u-popupmenu-items u-unstyled u-nav-2"><li class="u-nav-item"><a class="u-button-style u-nav-link" href="https://github.com/synetica/enlink-decoder">Documentation</a>
+</li><li class="u-nav-item"><a class="u-button-style u-nav-link" href="https://synetica.net">Synetica Home</a>
+</li></ul>
               </div>
             </div>
             <div class="u-black u-menu-overlay u-opacity u-opacity-70"></div>
           </div>
         </nav>
-      </div>
-    </header>
-    <section
-      class="u-align-left u-clearfix u-image u-section-1"
-      id="carousel_5990"
-      data-image-width="978"
-      data-image-height="648"
-    >
+      </div></header>
+    <section class="u-align-left u-clearfix u-image u-section-1" id="carousel_5990" data-image-width="978" data-image-height="648">
       <div class="u-clearfix u-sheet u-sheet-1">
-        <h1 class="u-text u-text-default u-text-palette-2-base u-text-1">
-          enLink LoRaWA​N Packet Decoder
-        </h1>
-        <div class="u-clearfix u-layout-wrap u-layout-wrap-1">
-          <div class="u-layout">
-            <div class="u-layout-col">
-              <div
-                class="u-align-left u-container-style u-layout-cell u-size-60 u-layout-cell-1"
-              >
-                <div class="u-container-layout u-container-layout-1">
-                  <p class="u-text u-text-2">
-                    Enter a hex string, for example:
-                  </p>
-                  <p
-                    class="u-large-text u-text u-text-black u-text-default u-text-variant u-text-3"
-                  >
-                    01 00 ED 02 3D 03 02 18 04 03 E3 05 00 63 12 3F C6 39 CF
-                  </p>
-                  <div class="u-expanded-width u-form u-form-1">
+        <h1 class="u-text u-text-default u-text-palette-1-base u-text-1">enLink LoRaWAN Packet Decoder </h1>
+        <div class="u-expanded-width u-tabs u-tabs-1">
+          <ul class="u-tab-list u-unstyled" role="tablist">
+            <li class="u-tab-item" role="presentation">
+              <a class="active u-active-custom-color-6 u-button-style u-custom-color-5 u-tab-link u-tab-link-1" id="link-tab-1f17" href="#tab-1f17" role="tab" aria-controls="tab-1f17" aria-selected="true">Hexadecimal</a>
+            </li>
+            <li class="u-tab-item" role="presentation">
+              <a class="u-active-custom-color-6 u-button-style u-custom-color-5 u-tab-link u-tab-link-2" id="link-tab-2e6d" href="#tab-2e6d" role="tab" aria-controls="tab-2e6d" aria-selected="false">Base64</a>
+            </li>
+          </ul>
+          <div class="u-tab-content">
+
+            <div class="u-container-style u-custom-color-1 u-shape-rectangle u-tab-active u-tab-pane u-tab-pane-1" id="tab-1f17" role="tabpanel" aria-labelledby="link-tab-1f17">
+              <div class="u-container-layout u-valign-top u-container-layout-1">
+                <p class="u-text u-text-2">Enter a hex string, with or without spaces; for example:</p>
+                <p class="u-large-text u-text u-text-black u-text-default u-text-variant u-text-3">01 00 ED 02 3D 03 02 18 04 03 E3 05 00 63 12 3F C6 39 CF</p>
+                <div class="u-expanded-width u-form u-form-1">
+                  <form class="u-clearfix u-form-spacing-10 u-form-vertical u-inner-form" source="custom" name="form" style="padding: 20px;">
                     <div class="u-form-group u-form-message">
-                      <label
-                        for="encoded-bytes"
-                        class="u-custom-font u-label u-text-font"
-                        >Encoded bytes:</label
-                      >
-                      <textarea
-                        placeholder="Enter the byte string"
-                        rows="5"
-                        cols="50"
-                        id="encoded-bytes"
-                        name="encoded-bytes"
-                        class="u-border-1 u-border-grey-30 u-custom-font u-input u-input-rectangle u-palette-2-light-3 u-radius-10 u-input-1"
-                        required=""
-                      ></textarea>
-
-                      <h2>Decoded Output</h2>
-                      <textarea id="output" class="u-border-1 u-border-grey-30 u-custom-font u-input u-input-rectangle u-palette-2-light-3 u-radius-10 u-input-1" rows="15">Enter a hexadecimal string above</textarea>
-
-                      <div class="u-align-left u-form-group u-form-submit">
-                        <button
-                          id="decode"
-                          onclick="decode_packet(); return false;"
-                          class="u-active-palette-1-dark-1 u-border-none u-btn u-btn-submit u-button-style u-hover-palette-1-light-1 u-btn-1"
-                        >
-                          Decode
-                        </button>
-                      </div>
+                      <label for="encoded-bytes" class="u-label">Encoded Bytes</label>
+                      <textarea placeholder="Enter your hexadecimal byte string" rows="4" cols="50" id="encoded-bytes" name="encoded-bytes" class="u-border-1 u-border-grey-40 u-custom-color-1 u-custom-font u-input u-input-rectangle u-radius-10 u-input-1" required=""></textarea>
                     </div>
-                  </div>
+                    <div class="u-form-checkbox u-form-group u-form-group-2">
+                      <button
+                        id="decode-bytes" onclick="decode_bytes(); return false;"
+                        class="u-border-none u-btn u-btn-round u-button-style u-hover-palette-4-dark-1 u-palette-1-base u-radius-20 u-btn-1">Decode</button>
+                    </div>
+                    <div class="u-form-group u-form-textarea u-form-group-3">
+                      <label for="output-bytes" class="u-label">Decoded String</label>
+                      <textarea rows="15" cols="50" readonly="true" id="output-bytes" name="output-bytes" class="u-border-1 u-border-grey-40 u-custom-color-1 u-custom-font u-input u-input-rectangle u-radius-10 u-input-2" placeholder="Result"></textarea>
+                    </div>
+                  </form>
                 </div>
               </div>
             </div>
+
+            <div class="u-container-style u-custom-color-1 u-shape-rectangle u-tab-pane u-tab-pane-2" id="tab-2e6d" role="tabpanel" aria-labelledby="link-tab-2e6d">
+              <div class="u-container-layout u-valign-top u-container-layout-2">
+                <p class="u-text u-text-4">Enter a base64 string; for example:</p>
+                <p class="u-large-text u-text u-text-black u-text-default u-text-variant u-text-5">AQDtAj0DAhgEA+MFAGMSP8Y5zw==</p>
+                <div class="u-expanded-width u-form u-form-2">
+                  <form class="u-clearfix u-form-spacing-10 u-form-vertical u-inner-form" source="custom" name="form" style="padding: 20px;">
+
+                    <div class="u-form-group u-form-message">
+                      <label for="encoded-base64" class="u-label">Encoded String</label>
+                      <textarea placeholder="Enter your base64 string" rows="4" cols="50" id="encoded-base64" name="encoded-base64" class="u-border-1 u-border-grey-40 u-custom-color-1 u-custom-font u-input u-input-rectangle u-radius-10 u-input-3" required=""></textarea>
+                    </div>
+
+                    <div class="u-form-checkbox u-form-group u-form-group-6">
+                      <button
+                      id="decode-base64" onclick="decode_base64(); return false;"
+                      class="u-border-none u-btn u-btn-round u-button-style u-hover-palette-4-dark-1 u-palette-1-base u-radius-20 u-btn-1">Decode</button>
+                    </div>
+
+                    <div class="u-form-group u-form-textarea u-form-group-7">
+                      <label for="output-base64" class="u-label">Decoded String</label>
+                      <textarea rows="15" cols="50" readonly="true" id="output-base64" name="output-base64" class="u-border-1 u-border-grey-40 u-custom-color-1 u-custom-font u-input u-input-rectangle u-radius-10 u-input-4" placeholder="Result"></textarea>
+                    </div>
+
+                  </form>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
     </section>
-
-    <footer
-      class="u-align-center u-clearfix u-footer u-grey-80 u-footer"
-      id="sec-57d0"
-    >
-      <div class="u-clearfix u-sheet u-sheet-1">
-        <p class="u-small-text u-text u-text-variant u-text-1">
-          Copyright (c) 2022 Synetica.net
+    
+    <footer class="u-align-center u-clearfix u-footer u-grey-80 u-footer" id="sec-57d0"><div class="u-clearfix u-sheet u-sheet-1">
+        <p class="u-small-text u-text u-text-palette-4-base u-text-variant u-text-1">
+          <a class="u-active-none u-border-none u-btn u-button-link u-button-style u-hover-none u-none u-text-hover-palette-4-light-2 u-text-palette-1-light-1 u-btn-1" href="https://synetica.net" target="_blank">Copyright&nbsp;© 2022 Synetica Limited</a>
         </p>
-      </div>
-    </footer>
-
-    <script src="script.js"></script>
-    <noscript>You need to enable JavaScript to enable interactivity.</noscript>
-  </body>
-</html>
+      </div></footer>
+      <script src="script.js"></script>
+      <noscript>You need to enable JavaScript to enable interactivity.</noscript>
+</body></html>

@@ -4,38 +4,58 @@
 }
 
 .u-section-1 .u-sheet-1 {
-  min-height: 805px;
+  min-height: 818px;
 }
 
 .u-section-1 .u-text-1 {
-  margin: 8px auto 0 30px;
+  margin: 8px auto 0 10px;
 }
 
-.u-section-1 .u-layout-wrap-1 {
-  width: 975px;
-  margin: 0 auto 0 0;
+.u-section-1 .u-tabs-1 {
+  min-height: 730px;
+  margin-top: 24px;
+  margin-bottom: 10px;
+  height: auto;
+  width: 100%;
 }
 
-.u-section-1 .u-layout-cell-1 {
-  min-height: 745px;
+.u-section-1 .u-tab-link-1 {
+  background-image: none;
+}
+
+.u-section-1 .u-tab-link-2 {
+  background-image: none;
+}
+
+.u-section-1 .u-tab-pane-1 {
+  background-image: none;
 }
 
 .u-section-1 .u-container-layout-1 {
-  padding: 18px 21px;
+  padding: 6px 0;
 }
 
 .u-section-1 .u-text-2 {
   font-size: 1.125rem;
   font-weight: 700;
-  margin: 12px 638px 0 10px;
+  margin: 0 685px 0 20px;
 }
 
 .u-section-1 .u-text-3 {
-  margin: 12px auto 0 10px;
+  margin: 10px auto 0 20px;
+}
+
+.u-section-1 .u-btn-1 {
+  font-size: 0.9375rem;
+  letter-spacing: 1px;
+  border-style: none;
+  font-weight: 700;
+  box-shadow: 5px 5px 20px 0 rgba(0,0,0,0.4);
+  margin: 10px auto 0 0;
 }
 
 .u-section-1 .u-form-1 {
-  height: 254px;
+  height: 548px;
   margin-top: 10px;
   margin-bottom: 0;
 }
@@ -45,82 +65,105 @@
   font-family: "Fira Mono";
 }
 
-.u-section-1 .u-btn-1 {
-  box-shadow: 5px 5px 20px 0 rgba(0,0,0,0.4);
+.u-section-1 .u-form-group-2 {
+  margin-left: 0;
 }
 
-.u-section-1 .u-custom-html-1 {
-  min-height: 283px;
-  width: 934px;
-  margin: 0;
+.u-section-1 .u-form-group-3 {
+  margin-left: 0;
+}
+
+.u-section-1 .u-input-2 {
+  background-image: none;
+  font-family: "Fira Mono";
+}
+
+.u-section-1 .u-btn-2 {
+  border-style: none;
+  font-weight: 700;
+  letter-spacing: 1px;
+  box-shadow: 5px 5px 20px 0 rgba(0,0,0,0.4);
+  text-transform: none;
+}
+
+.u-section-1 .u-tab-pane-2 {
+  background-image: none;
+}
+
+.u-section-1 .u-container-layout-2 {
+  padding: 6px 0;
+}
+
+.u-section-1 .u-text-4 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0 685px 0 20px;
+}
+
+.u-section-1 .u-text-5 {
+  margin: 10px auto 0 20px;
+}
+
+.u-section-1 .u-btn-3 {
+  font-size: 0.9375rem;
+  letter-spacing: 1px;
+  border-style: none;
+  font-weight: 700;
+  box-shadow: 5px 5px 20px 0 rgba(0,0,0,0.4);
+  margin: 10px auto 0 0;
+}
+
+.u-section-1 .u-form-2 {
+  height: 548px;
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+.u-section-1 .u-input-3 {
+  background-image: none;
+  font-family: "Fira Mono";
+}
+
+.u-section-1 .u-form-group-6 {
+  margin-left: 0;
+}
+
+.u-section-1 .u-form-group-7 {
+  margin-left: 0;
+}
+
+.u-section-1 .u-input-4 {
+  background-image: none;
+  font-family: "Fira Mono";
+}
+
+.u-section-1 .u-btn-4 {
+  border-style: none;
+  font-weight: 700;
+  letter-spacing: 1px;
+  box-shadow: 5px 5px 20px 0 rgba(0,0,0,0.4);
+  text-transform: none;
 }
 
 @media (max-width: 1199px) {
   .u-section-1 .u-sheet-1 {
-    min-height: 637px;
+    min-height: 674px;
   }
 
-  .u-section-1 .u-layout-wrap-1 {
-    width: 940px;
-  }
-
-  .u-section-1 .u-layout-cell-1 {
-    min-height: 718px;
-  }
-
-  .u-section-1 .u-text-2 {
-    margin-right: 612px;
-    margin-left: 0;
-  }
-
-  .u-section-1 .u-text-3 {
-    margin-left: 0;
-  }
-
-  .u-section-1 .u-custom-html-1 {
-    height: auto;
-    width: 899px;
+  .u-section-1 .u-tabs-1 {
+    width: auto;
   }
 }
 
 @media (max-width: 991px) {
   .u-section-1 .u-sheet-1 {
-    min-height: 237px;
-  }
-
-  .u-section-1 .u-layout-wrap-1 {
-    width: 720px;
-  }
-
-  .u-section-1 .u-layout-cell-1 {
-    min-height: 100px;
-  }
-
-  .u-section-1 .u-text-2 {
-    margin-right: 392px;
-  }
-
-  .u-section-1 .u-custom-html-1 {
-    width: 679px;
+    min-height: 516px;
   }
 }
 
 @media (max-width: 767px) {
-  .u-section-1 .u-layout-wrap-1 {
-    width: 540px;
-  }
-
-  .u-section-1 .u-container-layout-1 {
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-
-  .u-section-1 .u-text-2 {
-    margin-right: 233px;
-  }
-
-  .u-section-1 .u-custom-html-1 {
-    width: 520px;
+  .u-section-1 .u-sheet-1 {
+    min-height: 387px;
   }
 }
 
@@ -129,15 +172,7 @@
     background-position: 13.65% 50%;
   }
 
-  .u-section-1 .u-layout-wrap-1 {
-    width: 340px;
-  }
-
-  .u-section-1 .u-text-2 {
-    margin-right: 33px;
-  }
-
-  .u-section-1 .u-custom-html-1 {
-    width: 320px;
+  .u-section-1 .u-sheet-1 {
+    min-height: 244px;
   }
 }

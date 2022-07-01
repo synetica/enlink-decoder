@@ -3,6 +3,7 @@
 ## 2022 June Updates
 
 - Added Status-VC payload table
+- Added live decoder website
 
 ## 2022 April Updates
 

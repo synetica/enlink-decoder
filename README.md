@@ -2,6 +2,8 @@
 
 [![GitHub](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/synetica/enlink-decoder/blob/master/LICENSE)
 
+Online decoder can be found here: [Live Decoder](https://synetica.github.io/enlink-decoder/)
+
 ## Table of Contents
 - [Preamble](#preamble)
 - [Payload Contents of each enLink Model](#payload-contents-of-each-enlink-model)
