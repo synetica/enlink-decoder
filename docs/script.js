@@ -68,7 +68,7 @@ function js_decoder(msg) {
   // --------------------------------------------------------------------------------------
   if (msg.payload) {
     if (msg.payload.length === 0) {
-      return "Error: there is to data to decode";
+      return "Error: there is no data to decode";
     }
   } else {
     return "Error: no data to decode";
