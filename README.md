@@ -51,71 +51,66 @@ The **enLink** range of LoRaWAN devices are categorised into the following:
 
 This repository contains various decoders for the LoRaWAN data packets. The uplink data is telemetry data containing values like temperature, particulates and gas concentrations.
 
-This version of the enLink firmware implements LoRa Mac 4.4.0 release from Semtech/StackForce [LoRaMac-Node](https://github.com/Lora-net/LoRaMac-node/tree/f42be67be402a40b3586724800771bfe13fb18e6).
+This enLink firmware implements LoRa Mac 4.4.0 release from Semtech/StackForce [LoRaMac-Node](https://github.com/Lora-net/LoRaMac-node/tree/f42be67be402a40b3586724800771bfe13fb18e6).
 
-This LoRaWAN stack implements all regions defined in "LoRaWAN Regional Parameters v1.0.2rB" document. Class A and Class C endpoint implementation is fully compatible with "LoRaWAN specification 1.0.2".
+We implement EU863-870 and US902-928 (Hybrid mode) as defined in [LoRaWAN Regional Parameters v1.0.2rB](https://lora-alliance.org/resource_hub/lorawan-regional-parameters-v1-0-2rb/) document. Class A endpoint implementation is fully compatible with "LoRaWAN specification 1.0.2".
 
 ---
 
 ## Payload Contents of each enLink Model
 
-Each model of enLink device has specific sensors. Each sensor exposes one or more data values. The **firmware model** is used to determine the sensors in the device. Note: the product code is similar to, but not the same as the firmware model. The following table can be used to determine the expected values in a uplink message. The [KPI](#enlink-kpi-payload-data) values are optional.
+Each model of enLink device has specific sensors. Each sensor exposes one or more data values. The **firmware code** is used to determine the sensors in the device. Note: the product code is similar to, but not the same as the firmware code. The following table can be used to determine the expected values in a uplink message. The [KPI](#enlink-kpi-payload-data) values are optional.
 
-The firmware model is a concatenation of the base model plus the options.
+The firmware code is a concatenation of the base model plus the options.
 
->For example: `ENL-ZN-LVCM` is an enLink Zone with **L**ight, **V**OCs, **C**O<sub>2</sub> and **M**otion.
+>For example: `FW-ZN-LVCM` is the firmware code for an enLink Zone(**ZN**) with **L**ight, **V**OCs, **C**O<sub>2</sub> and **M**otion.
 
 ### enLink AIR/AIR-X - Indoor/Outdoor Air Quality Monitor
 
-| Base Model | Options | Data Type(s) | Description |
+| Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| ENL-AQM  | (default) | `0x01`, `0x02` | Temperature, Humidity
-| | L | `0x03` | Light Level
+| FW-AQM  | (default) | `0x01`, `0x02` | Temperature, Humidity
+| | L | `0x03` | Light Level (Indoor only)
 | | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e
 | | C | `0x08` | CO<sub>2</sub> ppm
 | | X | `0x06` | Oxygen
 | | K | `0x07`, `0x09`, `0x0A`, `0x0D`,<br/>`0x53`, `0x54`, `0x55`, `0x56` | Optional Gas Socket Sensors
 | | S | `0x50`, `0x51`, `0x52` | Sound
-| | P | `0x0B`, `0x0C` | Particles
-| | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`,<br/>`0x5F`, `0x60` | Particles extra
+| | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`,<br/>`0x5F`, `0x60` | Particles
 | | O | `0x61` | Ozone
 | | G | `0x61`, `0x66` | Single Gas Sensor
 | | G+ | `0x61`, `0x66` | Up to 4 x Gas Sensors
 
 ### enLink IAQ/OAQ - Indoor/Outdoor Air Quality
 
-| Base Model | Options | Data Type(s) | Description |
+| Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| ENL-AQ  | (default) | `0x01`, `0x02` | Temperature, Humidity
-| | L | `0x03` | Light Level
+| FW-AQ  | (default) | `0x01`, `0x02` | Temperature, Humidity
 | | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e
 | | C | `0x08` | CO<sub>2</sub> ppm
-| | M | `0x13`, `0x14` | Motion (PIR). Includes [ATI](#ati---adaptive-transmission-interval) feature
 | | D | `0x67`, `0x68` | Outdoor EPA Sensor
 | | O | `0x61` | Ozone
 | | G | `0x61`, `0x66` | Single Gas Sensor
 | | S | `0x50`, `0x51`, `0x52` | Sound
-| | P | `0x0B`, `0x0C` | Particles
-| | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`,<br/>`0x5F`, `0x60` | Particles extra
+| | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`,<br/>`0x5F`, `0x60` | Particles
 
 ### enLink ZonePlus
 
-| Base Model | Options | Data Type(s) | Description |
+| Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| ENL-ZNP  | (default) | `0x01`, `0x02` | Temperature, Humidity
+| FW-ZNP  | (default) | `0x01`, `0x02` | Temperature, Humidity
 | | L | `0x03` | Light Level
 | | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e
 | | C | `0x08` | CO<sub>2</sub> ppm
 | | M | `0x13`, `0x14` | Motion (PIR). Includes [ATI](#ati---adaptive-transmission-interval) feature
 | | S | `0x50`, `0x51`, `0x52` | Sound
-| | P | `0x0B`, `0x0C` | Particles
-| | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`,<br/>`0x5F`, `0x60` | Particles extra
+| | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`,<br/>`0x5F`, `0x60` | Particles
 
 ### enLink Zone
 
-| Base Model | Options | Data Type(s) | Description |
+| Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| ENL-ZNP  | (default) | `0x01`, `0x02` | Temperature, Humidity
+| FW-ZNP  | (default) | `0x01`, `0x02` | Temperature, Humidity
 | | L | `0x03` | Light Level
 | | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e
 | | C | `0x08` | CO<sub>2</sub> ppm
@@ -123,51 +118,51 @@ The firmware model is a concatenation of the base model plus the options.
 
 ### enLink Modbus
 
-| Base Model | Options | Data Type(s) | Description |
+| Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| ENL-MB-32  | (None)  | `0x0F`, `0x10`, `0x11` | Exception, Interval, Cumulative readings
+| FW-MB-32  | (None)  | `0x0F`, `0x10`, `0x11` | Exception, Interval, Cumulative readings
 
 
 ### enLink Status - Pulse Counter
 
-| Base Model | Options | Data Type(s) | Description |
+| Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| ENL-STS-P  | (None)  | `0x0E` | Count (0 to 2^32)
+| FW-STS-P  | (None)  | `0x0E` | Count (0 to 2^32)
 
 ### enLink Status - Leak Sensor
 
-| Base Model | Options | Data Type(s) | Description |
+| Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| ENL-STS-L  | (None)  | `0x30`, `0x31` | Resistance, Leak Event. Includes [ATI](#ati---adaptive-transmission-interval) feature on the leak event
+| FW-STS-L  | (None)  | `0x30`, `0x31` | Resistance, Leak Event. Includes [ATI](#ati---adaptive-transmission-interval) feature on the leak event
 
 <div style="page-break-after: always;"></div>
 
 ### enLink Status - Differential Pressure / Air Flow (Velocity)
 
-| Base Model | Options | Data Type(s) | Description |
+| Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| ENL-STS-DP/AF | (None)  | `0x2C`, `0x2D` | Pressure, Air flow. Either one or both can be selected
+| FW-STS-DP/AF | (None)  | `0x2C`, `0x2D` | Pressure, Air flow. Either one or both can be selected
 
 ### enLink Status - Temperature Probes
 
-| Base Model | Options | Data Type(s) | Description |
+| Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| ENL-STS | 1T | `0x17`, `0x1A`, `0x1D`, `0x20`,<br/>`0x23`, `0x26`, `0x29` | Temperature, alarm status (if set) Includes [ATI](#ati---adaptive-transmission-interval) feature
+| FW-STS | 1T | `0x17`, `0x1A`, `0x1D`, `0x20`,<br/>`0x23`, `0x26`, `0x29` | Temperature, alarm status (if set) Includes [ATI](#ati---adaptive-transmission-interval) feature
 | | 2T  | As above, plus<br/>`0x18`, `0x1B`, `0x1E`, `0x21`,<br/>`0x24`, `0x27`, `0x2A` | Temperature, alarm status (if set) Includes [ATI](#ati---adaptive-transmission-interval) feature
 
 ### enLink Status - Voltage/Current Sensor
 
-| Base Model | Options | Data Type(s) | Description |
+| Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| ENL-STS-VC | (None)  | `0x2E` | Mode: Voltage
+| FW-STS-VC | (None)  | `0x2E` | Mode: Voltage
 |            |         | `0x2F` | Mode: Current
 |            |         | `0x30` | Mode: Resistance
 
 ### enLink Status - Pura Sanitiser Liquid Level
 
-| Base Model | Options | Data Type(s) | Description |
+| Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| ENL-STS-PURA  | (None)  | `0x16` | Status Changed
+| FW-STS-PURA  | (None)  | `0x16` | Status Changed
 
 ### ATI - Adaptive Transmission Interval
 

@@ -1,5 +1,11 @@
 # Change Log
 
+## 2022 July Updates
+
+- Updated readme to refer to **firmware code**. Firmware from version 5.x onwards uses new **firmware code** name e.g. `FW-ZN-LVCM`
+- Simplify the tables of data for payload codes for the different models.
+- Reformat Chirpstack script (white space)
+
 ## 2022 June Updates
 
 - Added Status-VC payload table

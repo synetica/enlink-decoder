@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html style="font-size: 14px" lang="en">
+<html style="font-size: 12px" lang="en">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="utf-8" />
@@ -65,7 +65,7 @@
                 class="u-svg-link"
                 preserveAspectRatio="xMidYMin slice"
                 viewBox="0 0 302 302"
-                style=""
+                style="enable-background: new 0 0 302 302"
               >
                 <use
                   xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -176,7 +176,7 @@
               >
                 <div class="u-container-layout u-container-layout-1">
                   <p class="u-text u-text-2">
-                    Enter a hex string, for example:
+                    Enter a hex string, with or without spacing; for example:
                   </p>
                   <p
                     class="u-large-text u-text u-text-black u-text-default u-text-variant u-text-3"
@@ -187,7 +187,7 @@
                     <div class="u-form-group u-form-message">
                       <label
                         for="encoded-bytes"
-                        class="u-custom-font u-label u-text-font"
+                        class="u-text u-text-2"
                         >Encoded bytes:</label
                       >
                       <textarea
@@ -199,8 +199,9 @@
                         class="u-border-1 u-border-grey-30 u-custom-font u-input u-input-rectangle u-palette-2-light-3 u-radius-10 u-input-1"
                         required=""
                       ></textarea>
-
-                      <h2>Decoded Output</h2>
+                      <p class="u-text u-text-2">
+                        Decoded Output:
+                      </p>
                       <textarea id="output" class="u-border-1 u-border-grey-30 u-custom-font u-input u-input-rectangle u-palette-2-light-3 u-radius-10 u-input-1" rows="15">Enter a hexadecimal string above</textarea>
 
                       <div class="u-align-left u-form-group u-form-submit">
