@@ -67,6 +67,8 @@ The firmware code is a concatenation of the base model plus the options.
 
 >For example: `FW-ZN-LVCM` is the firmware code for an enLink Zone(**ZN**) with **L**ight, **V**OCs, **C**O<sub>2</sub> and **M**otion.
 
+<div style="page-break-after: always;"></div>
+
 ### enLink AIR/AIR-X - Indoor/Outdoor Air Quality Monitor
 
 | Firmware Code | Options | Data Type(s) | Description |
@@ -95,6 +97,8 @@ The firmware code is a concatenation of the base model plus the options.
 | | G | `0x61`, `0x66` | Single Gas Sensor
 | | S | `0x50`, `0x51`, `0x52` | Sound
 | | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`,<br/>`0x5F`, `0x60` | Particles
+
+<div style="page-break-after: always;"></div>
 
 ### enLink ZonePlus
 
@@ -129,7 +133,7 @@ The firmware code is a concatenation of the base model plus the options.
 
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| FW-STS-P  | (None)  | `0x0E` | Count (0 to 2^32)
+| FW-STS-P/PX | (None) | `0x0E`, `0x15` | Count (0 to 2^32), [Change of State](#pulse-counters---change-of-state-–-type-0x15) - Includes [ATI](#ati---adaptive-transmission-interval) feature
 
 ### enLink Status - Leak Sensor
 
@@ -168,7 +172,7 @@ The firmware code is a concatenation of the base model plus the options.
 
 ### ATI - Adaptive Transmission Interval
 
-This is included on enLink devices where an alarm feature requires immediate transfer of a radio message. The Adaptive feature means the unit will transmit a message at a long interval. This _heart-beat_ is a normal radio message. If an alarm condition is detected, a message will be sent immediately. If the condition continues, the message will continue to send at a faster interval, but not any more frequently.
+This is included on enLink devices where an alarm or status feature requires immediate transfer of a radio message. The Adaptive feature means the unit will transmit a message at a long interval. This *heart-beat* is a normal radio message. If an alarm/status condition is detected, a message will be sent immediately. If the condition continues, the message will continue to send at a shorter interval, but not any more frequently.
 
 <div style="page-break-after: always;"></div>
 
@@ -251,6 +255,7 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x12` 018 | bVOC – VOC concentration |  | ppm | 4 | F32
 | `0x13` 019 | Detection count (PIR etc.) |  | count | 4 | U32
 | `0x14` 020 | Total occupied time |  | seconds | 4 | U32
+| `0x15` 021 | Change of State information | [Change of State](#pulse-counters---change-of-state-–-type-0x15) |  | 3 | U16
 | `0x16` 022 | Liquid Level Status | 0 = No Liquid<br />1 = Detected | status | 1 | U8
 | `0x17` 023 | Probe 1 Temperature | -55 to 125 | °C | 2 | S16 | / 10
 | `0x18` 024 | Probe 2 Temperature | -55 to 125 | °C | 2 | S16 | / 10
@@ -312,7 +317,9 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 
 Most sensor data values are self-explanatory, additional information for decoding more complex sensor data is given in the sections below.
 
-#### Modbus - Types: `0x0F`, `0x10`, `0x11`
+### Modbus - Types: `0x0F`, `0x10`, `0x11`
+
+---
 
 The enLink Modbus data types for Interval and Cumulative values use 5 bytes to encode the item index and value.
 
@@ -337,7 +344,66 @@ This is an interval data value, from configured item number 5. The value is 23.5
 
 For an online converter, see [Hex to Float Converter](https://gregstoll.com/~gregstoll/floattohex/)
 
-#### Gas Readings – Types: `0x61`, `0x66`
+### Pulse Counters - Change of State – Type: `0x15`
+
+---
+
+The full message is sent as 3 bytes. The second byte indicates the reason for the radio transmission (Trigger Status), the third byte gives the open/close state of this inputs (Input State).
+
+> Note: To enable the Change-of-State feature to transmit when a change is detected, the device configuration requires that **[ATI](#ati---adaptive-transmission-interval)** is enabled, and the **Transmit on Change of State** option is enabled.
+
+The two data value bytes are bit-encoded as follows:
+
+<div style="page-break-after: always;"></div>
+
+### Trigger Status
+
+- Bit 0 - Set to 1 when Input 1 Changed from *Closed* to *Open*
+- Bit 1 - Set to 1 when Input 2 Changed from *Closed* to *Open*
+- Bit 2 - Set to 1 when Input 3 Changed from *Closed* to *Open*
+- Bit 3 - Not used
+- Bit 4 - Set to 1 when Input 1 Changed from *Open* to *Closed*
+- Bit 5 - Set to 1 when Input 2 Changed from *Open* to *Closed*
+- Bit 6 - Set to 1 when Input 3 Changed from *Open* to *Closed*
+- Bit 7 - Not used
+
+If a message is received and the *trigger status* byte value is zero, then the message was either sent after a config button press, or because a regular transmission was scheduled. I.e. the ATI maximum interval has expired. In the NodeRed example decoder, this event is marked as a *heartbeat*.
+
+You may receive a *trigger status* byte value where multiple bits are set. This could be that these events occurred before the radio packet could be sent. For example, a fast transition from *open* -> *closed* -> *open*. This may also be caused by a duty cycle restriction delaying the transmission, or the message sending was paused because a previous message was sent within the minimum ATI interval.
+
+### Input State
+
+- Bit 0 - Input 1 state. Set to 1 when *Closed*
+- Bit 1 - Input 2 state. Set to 1 when *Closed*
+- Bit 2 - Input 3 state. Set to 1 when *Closed*
+- Bit 3 - Not used
+- Bit 4 - Not used
+- Bit 5 - Not used
+- Bit 6 - Not used
+- Bit 7 - Not used
+
+Example Payload (hexadecimal): `15 01 05`
+
+<table>
+<tr>
+<td>Payload Data:</td>
+<td style="background-color:darkgreen;color:white">15</td>
+<td style="background-color:darkgoldenrod;color:white">01 05</td>
+</tr>
+</table>
+
+
+The example shows the transmission was triggered when Input #1 changed from *Closed* to *Open*, and the state of the inputs are:
+
+- Input 1: Closed
+- Input 2: Open
+- Input 3: Closed
+
+<div style="page-break-after: always;"></div>
+
+### Gas Readings – Types: `0x61`, `0x66`
+
+---
 
 The full message is sent as 6 bytes. For example:
 
@@ -366,7 +432,9 @@ The Gas types are listed here:
 | `0x1C` - Hydrogen Sulphide - H<sub>2</sub>S</li>    | | `0x23` - Ozone - O<sub>3</sub>
 | `0x1D` - Hydrogen Chloride - HCl</li>               | | `0x24` - Sulphur Dioxide / Sulfur Dioxide (IUPAC) - SO<sub>2</sub>
 
-#### Corrosion – Types: `0x62`, `0x63`, `0x64`, `0x65`
+### Corrosion – Types: `0x62`, `0x63`, `0x64`, `0x65`
+
+---
 
 The full message is sent as 6 bytes. The second byte indicates the coupon and sacrificial metal of the sensor.
 
@@ -392,6 +460,8 @@ Other Coupon/Metal types are:
 | `0x02` - Silver                | | `0x82` - Silver
 | `0x03` - Chromium              | | `0x83` - Chromium
 
+</br>
+
 ### enLink KPI Payload Data
 
 Each enLink end-node device can have optional Key Performance Indicators (KPI) added to the payload message. Each KPI can use 1 or more bytes to send the value according to the following table.
@@ -414,7 +484,7 @@ Each enLink end-node device can have optional Key Performance Indicators (KPI) a
 | `0x4D` 077 | Fan runtime | Total time the air intake fan has run (AIR models only) | seconds | 4 | U32
 | `0x4E` 078 | CPU Temperature | New from Ver: 4.9 | °C | 2 | S16 /10
 
-Example code for different LoRaWAN Network Servers (LNS) is including in the folders on this site.
+Example code for different LoRaWAN Network Servers (LNS) is included in the folders on this site.
 
 ![pic01](_img/nr-01.png)
 *Screenshot of example using NodeRED*

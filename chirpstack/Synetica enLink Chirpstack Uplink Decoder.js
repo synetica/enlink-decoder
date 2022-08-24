@@ -1,6 +1,5 @@
 // Synetica Payload Decoder for Chirpstack
-// Published 30 Sep 2021
-// FW Ver:4.43
+// 20 Aug 2022 (FW Ver:5.02)
 
 var data = {};
 var warnings = [];
@@ -27,7 +26,7 @@ var ENLINK_MB_CUMULATIVE = 0x11;
 var ENLINK_BVOC = 0x12;
 var ENLINK_DETECTION_COUNT = 0x13;
 var ENLINK_OCC_TIME = 0x14;
-var ENLINK_OCC_STATUS = 0x15;
+var ENLINK_COS_STATUS = 0x15;
 var ENLINK_LIQUID_LEVEL_STATUS = 0x16;
 var ENLINK_TEMP_PROBE1 = 0x17;
 var ENLINK_TEMP_PROBE2 = 0x18;
@@ -303,10 +302,51 @@ var obj = new Object();
 				obj.occ_time_s = U32((data[i + 1] << 24) | (data[i + 2] << 16) | (data[i + 3] << 8) | (data[i + 4]));
 				i += 4;
 				break;
-			case ENLINK_OCC_STATUS: // 1 byte U8, 1 or 0, occupancy status
-				obj.occupied = (data[i + 1]) ? true : false;
-				i += 1;
+			case ENLINK_COS_STATUS: // Change-of-State U16
+				// Byte 1 = Triggered, Byte 2 = Input state
+				var cos = {};
+				cos.trig_byte = '0x' + ('0' + (data[i + 1]).toString(16).toUpperCase()).slice(-2);
+				if (data[i + 1] === 0) {
+					// Transmission was triggered with button press or ATI timeout
+					// So it's a 'heartbeat'
+					cos.hb = true;
+				} else {
+					// Transmission was triggered with a Change of State
+					// Transition detected for Closed to Open
+					var b = false;
+					b = (data[i + 1] & 0x01) > 0;
+					if (b) cos.ip_1_hl = true;
+					
+					b = (data[i + 1] & 0x02) > 0;
+					if (b) cos.ip_2_hl = true;
+					
+					b = (data[i + 1] & 0x04) > 0;
+					if (b) cos.ip_3_hl = true;
+					
+					// Transition detected for Open to Closed
+					b = (data[i + 1] & 0x10) > 0;
+					if (b) cos.ip_1_lh = true;
+					
+					b = (data[i + 1] & 0x20) > 0;
+					if (b) cos.ip_2_lh = true;
+					
+					b = (data[i + 1] & 0x40) > 0;
+					if (b) cos.ip_3_lh = true;
+				}
+				// Input State
+				var state = {};
+				state.byte = '0x' + ('0' + (data[i + 2]).toString(16).toUpperCase()).slice(-2);
+				state.ip_1 = (data[i + 2] & 0x01) > 0;
+				state.ip_2 = (data[i + 2] & 0x02) > 0;
+				state.ip_3 = (data[i + 2] & 0x04) > 0;
+				
+				obj.cos = cos;
+				obj.state = state;
+				
+				i += 2;
+				msg_ok = true;
 				break;
+				
 			case ENLINK_LIQUID_LEVEL_STATUS: // 1 byte U8, 1 or 0, liquid level status
 				obj.liquid_detected = (data[i + 1]) ? true : false;
 				i += 1;

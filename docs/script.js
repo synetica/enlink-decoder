@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 function decode_base64() {
   const tb = document.getElementById("encoded-base64");
   var base64_string = tb.value;
@@ -8,27 +8,26 @@ function decode_base64() {
     var obj = decode_hex_string(hex_string);
     const out = document.getElementById("output-base64");
     if (obj !== null) {
-        out.value = obj;
+      out.value = obj;
     } else {
-        out.value = "Error!";
+      out.value = "Error!";
     }
   }
-};
+}
 function base64ToHex(str) {
   try {
     const raw = atob(str);
-    let result = '';
+    let result = "";
     for (let i = 0; i < raw.length; i++) {
       const hex = raw.charCodeAt(i).toString(16);
-      result += (hex.length === 2 ? hex : '0' + hex);
+      result += hex.length === 2 ? hex : "0" + hex;
     }
     return result.toUpperCase();
-  }
-  catch(err) {
+  } catch (err) {
     document.getElementById("output-base64").value = err.message;
     return null;
   }
-};
+}
 
 function decode_bytes() {
   const tb = document.getElementById("encoded-bytes");
@@ -36,11 +35,11 @@ function decode_bytes() {
   var obj = decode_hex_string(hex_string);
   const out = document.getElementById("output-bytes");
   if (obj !== null) {
-      out.value = obj;
+    out.value = obj;
   } else {
-      out.value = "Error!";
+    out.value = "Error!";
   }
-};
+}
 function decode_hex_string(hex_string) {
   function hexStringToByte(hexString) {
     var result = [];
@@ -59,12 +58,12 @@ function decode_hex_string(hex_string) {
   } else {
     return reply.human_readable;
   }
-};
-  
+}
+
 function js_decoder(msg) {
   // Used for decoding enLink Uplink LoRa Messages
   // --------------------------------------------------------------------------------------
-  // 18 Feb 2022 (FW Ver:4.49)
+  // 20 Aug 2022 (FW Ver:5.02)
   // --------------------------------------------------------------------------------------
   if (msg.payload) {
     if (msg.payload.length === 0) {
@@ -95,7 +94,7 @@ function js_decoder(msg) {
   const ENLINK_BVOC = 0x12; // F32  ppm Breath VOC Estimate equivalent
   const ENLINK_DETECTION_COUNT = 0x13; // U32  Counter. Num of detections for PIR/RangeFinder
   const ENLINK_OCC_TIME = 0x14; // U32  Total Occupied Time (seconds)
-  const ENLINK_OCC_STATUS = 0x15; // U8   Occupied Status. 1=Occupied, 0=Unoccupied
+  const ENLINK_COS_STATUS = 0x15; // U16   Change-of-State Trigger/State Value
   const ENLINK_LIQUID_LEVEL_STATUS = 0x16; // U8   Level Status. 1=Detected, 0=Not Detected
   const ENLINK_TEMP_PROBE1 = 0x17; // S16  As 0x01
   const ENLINK_TEMP_PROBE2 = 0x18; // S16  As 0x01
@@ -266,7 +265,7 @@ function js_decoder(msg) {
   function bytesToHex(bytes) {
     var result = "";
     for (var i = 0; i < bytes.length; i += 1) {
-      result += ("0" + bytes[i].toString(16).toUpperCase() + " ").substr(-3);
+      result += ("0" + bytes[i].toString(16).toUpperCase() + " ").slice(-3);
     }
     return result.trim();
   }
@@ -334,7 +333,7 @@ function js_decoder(msg) {
     var cpn;
     var metal;
     var obj = {};
-    
+
     for (var i = 0; i < data.length; i++) {
       switch (data[i]) {
         // Parse enLink message for telemetry data
@@ -402,7 +401,7 @@ function js_decoder(msg) {
                   (data[i + 3] << 16) |
                   (data[i + 4] << 8) |
                   data[i + 5]
-              )
+              ),
             ]);
           } else {
             obj.counter = [
@@ -413,8 +412,8 @@ function js_decoder(msg) {
                     (data[i + 3] << 16) |
                     (data[i + 4] << 8) |
                     data[i + 5]
-                )
-              ]
+                ),
+              ],
             ];
           }
           i += 5;
@@ -436,7 +435,7 @@ function js_decoder(msg) {
                 data[i + 3],
                 data[i + 4],
                 data[i + 5]
-              ).toFixed(2)
+              ).toFixed(2),
             ]);
           } else {
             obj.mb_int_val = [
@@ -447,8 +446,8 @@ function js_decoder(msg) {
                   data[i + 3],
                   data[i + 4],
                   data[i + 5]
-                ).toFixed(2)
-              ]
+                ).toFixed(2),
+              ],
             ];
           }
           i += 5;
@@ -462,7 +461,7 @@ function js_decoder(msg) {
                 data[i + 3],
                 data[i + 4],
                 data[i + 5]
-              ).toFixed(2)
+              ).toFixed(2),
             ]);
           } else {
             obj.mb_cum_val = [
@@ -473,8 +472,8 @@ function js_decoder(msg) {
                   data[i + 3],
                   data[i + 4],
                   data[i + 5]
-                ).toFixed(2)
-              ]
+                ).toFixed(2),
+              ],
             ];
           }
           i += 5;
@@ -508,10 +507,54 @@ function js_decoder(msg) {
           );
           i += 4;
           break;
-        case ENLINK_OCC_STATUS: // 1 byte U8, 1 or 0, occupancy status
-          obj.occupied = data[i + 1] ? true : false;
-          i += 1;
+
+        case ENLINK_COS_STATUS: // Change-of-State U16
+          // Byte 1 = Triggered, Byte 2 = Input state
+          var cos = {};
+          cos.trig_byte =
+            "0x" + ("0" + data[i + 1].toString(16).toUpperCase()).slice(-2);
+          if (data[i + 1] === 0) {
+            // Transmission was triggered with button press or ATI timeout
+            // So it's a 'heartbeat'
+            cos.hb = true;
+          } else {
+            // Transmission was triggered with a Change of State
+            // Transition detected for Closed to Open
+            var b = false;
+            b = (data[i + 1] & 0x01) > 0;
+            if (b) cos.ip_1_hl = true;
+
+            b = (data[i + 1] & 0x02) > 0;
+            if (b) cos.ip_2_hl = true;
+
+            b = (data[i + 1] & 0x04) > 0;
+            if (b) cos.ip_3_hl = true;
+
+            // Transition detected for Open to Closed
+            b = (data[i + 1] & 0x10) > 0;
+            if (b) cos.ip_1_lh = true;
+
+            b = (data[i + 1] & 0x20) > 0;
+            if (b) cos.ip_2_lh = true;
+
+            b = (data[i + 1] & 0x40) > 0;
+            if (b) cos.ip_3_lh = true;
+          }
+          // Input State
+          var state = {};
+          state.byte =
+            "0x" + ("0" + data[i + 2].toString(16).toUpperCase()).slice(-2);
+          state.ip_1 = (data[i + 2] & 0x01) > 0;
+          state.ip_2 = (data[i + 2] & 0x02) > 0;
+          state.ip_3 = (data[i + 2] & 0x04) > 0;
+
+          obj.cos = cos;
+          obj.state = state;
+
+          i += 2;
+          msg_ok = true;
           break;
+
         case ENLINK_LIQUID_LEVEL_STATUS: // 1 byte U8, 1 or 0, liquid level status
           obj.liquid_detected = data[i + 1] ? true : false;
           i += 1;
@@ -881,7 +924,7 @@ function js_decoder(msg) {
             obj.gas_ppb.push([
               data[i + 1],
               GetGasName(data[i + 1]),
-              gas_ppb_val
+              gas_ppb_val,
             ]);
           } else {
             obj.gas_ppb = [[data[i + 1], GetGasName(data[i + 1]), gas_ppb_val]];
@@ -902,11 +945,11 @@ function js_decoder(msg) {
             obj.gas_ugm3.push([
               data[i + 1],
               GetGasName(data[i + 1]),
-              gas_ugm3_val
+              gas_ugm3_val,
             ]);
           } else {
             obj.gas_ugm3 = [
-              [data[i + 1], GetGasName(data[i + 1]), gas_ugm3_val]
+              [data[i + 1], GetGasName(data[i + 1]), gas_ugm3_val],
             ];
           }
           i += 5;
@@ -1035,7 +1078,7 @@ function js_decoder(msg) {
           i += 1;
           break;
         case ENLINK_BATT_VOLT:
-          obj.batt_volt = U16((data[i + 1] << 8) | data[i + 2]) / 1000;
+          //obj.batt_volt = U16((data[i + 1] << 8) | data[i + 2]) / 1000;
           obj.batt_mv = U16((data[i + 1] << 8) | data[i + 2]);
           i += 2;
           break;
@@ -1093,7 +1136,9 @@ function js_decoder(msg) {
           // something is wrong with data
           obj.error =
             "Telemetry: Data Error at byte index " +
-            (i + 1) + "   Data: " + bytesToHex(data);
+            (i + 1) +
+            "   Data: " +
+            bytesToHex(data);
           i = data.length;
           return obj;
       }
@@ -1175,7 +1220,9 @@ function js_decoder(msg) {
           // Ignore this message
           obj.error =
             "Std Response: Data Error at byte index " +
-            (i + 1) + "   Data: " + bytesToHex(data);
+            (i + 1) +
+            "   Data: " +
+            bytesToHex(data);
           i = data.length;
           return obj;
       }
@@ -1202,4 +1249,4 @@ function js_decoder(msg) {
     return msg;
   }
   return null;
-};
+}

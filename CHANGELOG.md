@@ -1,5 +1,11 @@
 # Change Log
 
+## 2022 August Updates
+
+- Updated firmware to 5.02
+- Added new **Change-of-State** feature to Status Pulse model, where any change to an input will transmit immediately. This requires the ATI feature enabled. This adds new *Data Type Identifier* byte of value `0x15`
+- Added a new Status Pulse model - STS-PX. This is new hardware with extra battery capacity (D-Cell) and option for external power.
+
 ## 2022 July Updates
 
 - Updated readme to refer to **firmware code**. Firmware from version 5.x onwards uses new **firmware code** name e.g. `FW-ZN-LVCM`
