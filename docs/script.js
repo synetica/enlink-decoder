@@ -398,9 +398,9 @@ function js_decoder(msg) {
               data[i + 1],
               U32(
                 (data[i + 2] << 24) |
-                  (data[i + 3] << 16) |
-                  (data[i + 4] << 8) |
-                  data[i + 5]
+                (data[i + 3] << 16) |
+                (data[i + 4] << 8) |
+                data[i + 5]
               ),
             ]);
           } else {
@@ -409,9 +409,9 @@ function js_decoder(msg) {
                 data[i + 1],
                 U32(
                   (data[i + 2] << 24) |
-                    (data[i + 3] << 16) |
-                    (data[i + 4] << 8) |
-                    data[i + 5]
+                  (data[i + 3] << 16) |
+                  (data[i + 4] << 8) |
+                  data[i + 5]
                 ),
               ],
             ];
@@ -492,18 +492,18 @@ function js_decoder(msg) {
         case ENLINK_DETECTION_COUNT:
           obj.det_count = U32(
             (data[i + 1] << 24) |
-              (data[i + 2] << 16) |
-              (data[i + 3] << 8) |
-              data[i + 4]
+            (data[i + 2] << 16) |
+            (data[i + 3] << 8) |
+            data[i + 4]
           );
           i += 4;
           break;
         case ENLINK_OCC_TIME: // Occupied time in seconds
           obj.occ_time_s = U32(
             (data[i + 1] << 24) |
-              (data[i + 2] << 16) |
-              (data[i + 3] << 8) |
-              data[i + 4]
+            (data[i + 2] << 16) |
+            (data[i + 3] << 8) |
+            data[i + 4]
           );
           i += 4;
           break;
@@ -552,7 +552,6 @@ function js_decoder(msg) {
           obj.state = state;
 
           i += 2;
-          msg_ok = true;
           break;
 
         case ENLINK_LIQUID_LEVEL_STATUS: // 1 byte U8, 1 or 0, liquid level status
@@ -576,9 +575,9 @@ function js_decoder(msg) {
           /* Cumulative detection time u32 */
           obj.temp_probe_in_band_duration_s_1 = U32(
             (data[i + 1] << 24) |
-              (data[i + 2] << 16) |
-              (data[i + 3] << 8) |
-              data[i + 4]
+            (data[i + 2] << 16) |
+            (data[i + 3] << 8) |
+            data[i + 4]
           );
           i += 4;
           break;
@@ -586,9 +585,9 @@ function js_decoder(msg) {
           /* Cumulative detection time u32 */
           obj.temp_probe_in_band_duration_s_2 = U32(
             (data[i + 1] << 24) |
-              (data[i + 2] << 16) |
-              (data[i + 3] << 8) |
-              data[i + 4]
+            (data[i + 2] << 16) |
+            (data[i + 3] << 8) |
+            data[i + 4]
           );
           i += 4;
           break;
@@ -596,9 +595,9 @@ function js_decoder(msg) {
           /* Cumulative detection time u32 */
           obj.temp_probe_in_band_duration_s_3 = U32(
             (data[i + 1] << 24) |
-              (data[i + 2] << 16) |
-              (data[i + 3] << 8) |
-              data[i + 4]
+            (data[i + 2] << 16) |
+            (data[i + 3] << 8) |
+            data[i + 4]
           );
           i += 4;
           break;
@@ -627,9 +626,9 @@ function js_decoder(msg) {
           /* Cumulative detection time u32 */
           obj.temp_probe_low_duration_s_1 = U32(
             (data[i + 1] << 24) |
-              (data[i + 2] << 16) |
-              (data[i + 3] << 8) |
-              data[i + 4]
+            (data[i + 2] << 16) |
+            (data[i + 3] << 8) |
+            data[i + 4]
           );
           i += 4;
           break;
@@ -637,9 +636,9 @@ function js_decoder(msg) {
           /* Cumulative detection time u32 */
           obj.temp_probe_low_duration_s_2 = U32(
             (data[i + 1] << 24) |
-              (data[i + 2] << 16) |
-              (data[i + 3] << 8) |
-              data[i + 4]
+            (data[i + 2] << 16) |
+            (data[i + 3] << 8) |
+            data[i + 4]
           );
           i += 4;
           break;
@@ -647,9 +646,9 @@ function js_decoder(msg) {
           /* Cumulative detection time u32 */
           obj.temp_probe_low_duration_s_3 = U32(
             (data[i + 1] << 24) |
-              (data[i + 2] << 16) |
-              (data[i + 3] << 8) |
-              data[i + 4]
+            (data[i + 2] << 16) |
+            (data[i + 3] << 8) |
+            data[i + 4]
           );
           i += 4;
           break;
@@ -678,9 +677,9 @@ function js_decoder(msg) {
           /* Cumulative detection time u32 */
           obj.temp_probe_high_duration_s_1 = U32(
             (data[i + 1] << 24) |
-              (data[i + 2] << 16) |
-              (data[i + 3] << 8) |
-              data[i + 4]
+            (data[i + 2] << 16) |
+            (data[i + 3] << 8) |
+            data[i + 4]
           );
           i += 4;
           break;
@@ -688,9 +687,9 @@ function js_decoder(msg) {
           /* Cumulative detection time u32 */
           obj.temp_probe_high_duration_s_2 = U32(
             (data[i + 1] << 24) |
-              (data[i + 2] << 16) |
-              (data[i + 3] << 8) |
-              data[i + 4]
+            (data[i + 2] << 16) |
+            (data[i + 3] << 8) |
+            data[i + 4]
           );
           i += 4;
           break;
@@ -698,9 +697,9 @@ function js_decoder(msg) {
           /* Cumulative detection time u32 */
           obj.temp_probe_high_duration_s_3 = U32(
             (data[i + 1] << 24) |
-              (data[i + 2] << 16) |
-              (data[i + 3] << 8) |
-              data[i + 4]
+            (data[i + 2] << 16) |
+            (data[i + 3] << 8) |
+            data[i + 4]
           );
           i += 4;
           break;
@@ -1125,9 +1124,9 @@ function js_decoder(msg) {
         case ENLINK_FAN_RUN_TIME:
           obj.fan_run_time_s = U32(
             (data[i + 1] << 24) |
-              (data[i + 2] << 16) |
-              (data[i + 3] << 8) |
-              data[i + 4]
+            (data[i + 2] << 16) |
+            (data[i + 3] << 8) |
+            data[i + 4]
           );
           i += 4;
           break;

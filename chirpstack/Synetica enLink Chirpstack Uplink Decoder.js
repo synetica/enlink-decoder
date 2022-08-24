@@ -344,7 +344,6 @@ var obj = new Object();
 				obj.state = state;
 				
 				i += 2;
-				msg_ok = true;
 				break;
 				
 			case ENLINK_LIQUID_LEVEL_STATUS: // 1 byte U8, 1 or 0, liquid level status
