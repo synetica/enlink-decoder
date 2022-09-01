@@ -1,5 +1,5 @@
 // Synetica Payload Decoder for Chirpstack
-// 20 Aug 2022 (FW Ver:5.02)
+// 31 Aug 2022 (FW Ver:5.02)
 
 var data = {};
 var warnings = [];
@@ -304,45 +304,39 @@ var obj = new Object();
 				break;
 			case ENLINK_COS_STATUS: // Change-of-State U16
 				// Byte 1 = Triggered, Byte 2 = Input state
-				var cos = {};
-				cos.trig_byte = '0x' + ('0' + (data[i + 1]).toString(16).toUpperCase()).slice(-2);
+				//obj.cos_trig_byte = '0x' + ('0' + (data[i + 1]).toString(16).toUpperCase()).slice(-2);
 				if (data[i + 1] === 0) {
 					// Transmission was triggered with button press or ATI timeout
 					// So it's a 'heartbeat'
-					cos.hb = true;
+					//obj.cos_hb = 1;
 				} else {
 					// Transmission was triggered with a Change of State
 					// Transition detected for Closed to Open
 					var b = false;
 					b = (data[i + 1] & 0x01) > 0;
-					if (b) cos.ip_1_hl = true;
+					obj.cos_ip_1_hl = b ? 1 : 0;
 					
 					b = (data[i + 1] & 0x02) > 0;
-					if (b) cos.ip_2_hl = true;
+					obj.cos_ip_2_hl = b ? 1 : 0;
 					
 					b = (data[i + 1] & 0x04) > 0;
-					if (b) cos.ip_3_hl = true;
+					obj.cos_ip_3_hl = b ? 1 : 0;
 					
 					// Transition detected for Open to Closed
 					b = (data[i + 1] & 0x10) > 0;
-					if (b) cos.ip_1_lh = true;
+					obj.cos_ip_1_lh = b ? 1 : 0;
 					
 					b = (data[i + 1] & 0x20) > 0;
-					if (b) cos.ip_2_lh = true;
+					obj.cos_ip_2_lh = b ? 1 : 0;
 					
 					b = (data[i + 1] & 0x40) > 0;
-					if (b) cos.ip_3_lh = true;
+					obj.cos_ip_3_lh = b ? 1 : 0;
 				}
 				// Input State
-				var state = {};
-				state.byte = '0x' + ('0' + (data[i + 2]).toString(16).toUpperCase()).slice(-2);
-				state.ip_1 = (data[i + 2] & 0x01) > 0;
-				state.ip_2 = (data[i + 2] & 0x02) > 0;
-				state.ip_3 = (data[i + 2] & 0x04) > 0;
-				
-				obj.cos = cos;
-				obj.state = state;
-				
+				//obj.state_byte = '0x' + ('0' + (data[i + 2]).toString(16).toUpperCase()).slice(-2);
+				obj.state_ip_1 = (data[i + 2] & 0x01) > 0 ? 1 : 0;
+				obj.state_ip_2 = (data[i + 2] & 0x02) > 0 ? 1 : 0;
+				obj.state_ip_3 = (data[i + 2] & 0x04) > 0 ? 1 : 0;
 				i += 2;
 				break;
 				
