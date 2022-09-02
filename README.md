@@ -255,7 +255,7 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x12` 018 | bVOC – VOC concentration |  | ppm | 4 | F32
 | `0x13` 019 | Detection count (PIR etc.) |  | count | 4 | U32
 | `0x14` 020 | Total occupied time |  | seconds | 4 | U32
-| `0x15` 021 | Change of State information | [Change of State](#pulse-counters---change-of-state-–-type-0x15) |  | 3 | U16
+| `0x15` 021 | Change of State information | [Change of State](#pulse-counters---change-of-state) |  | 3 | U16
 | `0x16` 022 | Liquid Level Status | 0 = No Liquid<br />1 = Detected | status | 1 | U8
 | `0x17` 023 | Probe 1 Temperature | -55 to 125 | °C | 2 | S16 | / 10
 | `0x18` 024 | Probe 2 Temperature | -55 to 125 | °C | 2 | S16 | / 10
