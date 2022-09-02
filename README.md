@@ -133,7 +133,7 @@ The firmware code is a concatenation of the base model plus the options.
 
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| FW-STS-P/PX | (None) | `0x0E`, `0x15` | Count (0 to 2^32), [Change of State](#pulse-counters---change-of-state-–-type-0x15) - Includes [ATI](#ati---adaptive-transmission-interval) feature
+| FW-STS-P/PX | (None) | `0x0E`, `0x15` | Count (0 to 2^32), [Change of State](#pulse-counters---change-of-state) - Includes [ATI](#ati---adaptive-transmission-interval) feature
 
 ### enLink Status - Leak Sensor
 
@@ -317,9 +317,11 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 
 Most sensor data values are self-explanatory, additional information for decoding more complex sensor data is given in the sections below.
 
-### Modbus - Types: `0x0F`, `0x10`, `0x11`
+### Modbus
 
 ---
+
+Types: `0x0F`, `0x10`, `0x11`
 
 The enLink Modbus data types for Interval and Cumulative values use 5 bytes to encode the item index and value.
 
@@ -344,9 +346,11 @@ This is an interval data value, from configured item number 5. The value is 23.5
 
 For an online converter, see [Hex to Float Converter](https://gregstoll.com/~gregstoll/floattohex/)
 
-### Pulse Counters - Change of State – Type: `0x15`
+### Pulse Counters - Change of State
 
 ---
+
+Type: `0x15`
 
 The full message is sent as 3 bytes. The second byte indicates the reason for the radio transmission (Trigger Status), the third byte gives the open/close state of this inputs (Input State).
 
@@ -401,9 +405,11 @@ The example shows the transmission was triggered when Input #1 changed from *Clo
 
 <div style="page-break-after: always;"></div>
 
-### Gas Readings – Types: `0x61`, `0x66`
+### Gas Readings
 
 ---
+
+Types: `0x61`, `0x66`
 
 The full message is sent as 6 bytes. For example:
 
@@ -432,9 +438,11 @@ The Gas types are listed here:
 | `0x1C` - Hydrogen Sulphide - H<sub>2</sub>S</li>    | | `0x23` - Ozone - O<sub>3</sub>
 | `0x1D` - Hydrogen Chloride - HCl</li>               | | `0x24` - Sulphur Dioxide / Sulfur Dioxide (IUPAC) - SO<sub>2</sub>
 
-### Corrosion – Types: `0x62`, `0x63`, `0x64`, `0x65`
+### Corrosion
 
 ---
+
+Types: `0x62`, `0x63`, `0x64`, `0x65`
 
 The full message is sent as 6 bytes. The second byte indicates the coupon and sacrificial metal of the sensor.
 

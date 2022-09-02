@@ -262,9 +262,9 @@ function decodeUplink(input) {
 				case ENLINK_COUNTER:
 					var inputN = data[i + 1];
 					var pulseCount = (data[i + 2] << 24) | (data[i + 3] << 16) | (data[i + 4] << 8) | (data[i + 5]);
-					if (inputN === 0x00) { obj.pulseAbs = pulseCount; }
-					if (inputN === 0x01) { obj.pulseAbs2 = pulseCount; }
-					if (inputN === 0x02) { obj.pulseAbs3 = pulseCount; }
+					if (inputN === 0x00) { obj.pulse_ip1 = pulseCount; }
+					if (inputN === 0x01) { obj.pulse_ip2 = pulseCount; }
+					if (inputN === 0x02) { obj.pulse_ip3 = pulseCount; }
 					i += 5;
 					break;
 				case ENLINK_MB_EXCEPTION: // Modbus Error Code
@@ -305,47 +305,43 @@ function decodeUplink(input) {
 					obj.occ_time_s = U32((data[i + 1] << 24) | (data[i + 2] << 16) | (data[i + 3] << 8) | (data[i + 4]));
 					i += 4;
 					break;
-				case ENLINK_COS_STATUS: // Change-of-State U16
+					case ENLINK_COS_STATUS: // Change-of-State U16
 					// Byte 1 = Triggered, Byte 2 = Input state
-					var cos = {};
-					cos.trig_byte = '0x' + ('0' + (data[i + 1]).toString(16).toUpperCase()).slice(-2);
+					/*
+					obj.cos_trig_byte = '0x' + ('0' + (data[i + 1]).toString(16).toUpperCase()).slice(-2);
 					if (data[i + 1] === 0) {
 						// Transmission was triggered with button press or ATI timeout
 						// So it's a 'heartbeat'
-						cos.hb = true;
+						//obj.cos_hb = 1;
 					} else {
-						// Transmission was triggered with a Change of State
-						// Transition detected for Closed to Open
-						var b = false;
-						b = (data[i + 1] & 0x01) > 0;
-						if (b) cos.ip_1_hl = true;
-						
-						b = (data[i + 1] & 0x02) > 0;
-						if (b) cos.ip_2_hl = true;
-						
-						b = (data[i + 1] & 0x04) > 0;
-						if (b) cos.ip_3_hl = true;
-						
-						// Transition detected for Open to Closed
-						b = (data[i + 1] & 0x10) > 0;
-						if (b) cos.ip_1_lh = true;
-						
-						b = (data[i + 1] & 0x20) > 0;
-						if (b) cos.ip_2_lh = true;
-						
-						b = (data[i + 1] & 0x40) > 0;
-						if (b) cos.ip_3_lh = true;
-					}
+					*/
+					// If (data[i + 1] > 0) transmission was triggered with a Change of State
+					// Transition detected for Closed to Open
+					var b = false;
+					b = (data[i + 1] & 0x01) > 0;
+					obj.cos_ip_1_hl = b ? 1 : 0;
+					
+					b = (data[i + 1] & 0x02) > 0;
+					obj.cos_ip_2_hl = b ? 1 : 0;
+					
+					b = (data[i + 1] & 0x04) > 0;
+					obj.cos_ip_3_hl = b ? 1 : 0;
+					
+					// Transition detected for Open to Closed
+					b = (data[i + 1] & 0x10) > 0;
+					obj.cos_ip_1_lh = b ? 1 : 0;
+					
+					b = (data[i + 1] & 0x20) > 0;
+					obj.cos_ip_2_lh = b ? 1 : 0;
+					
+					b = (data[i + 1] & 0x40) > 0;
+					obj.cos_ip_3_lh = b ? 1 : 0;
+					
 					// Input State
-					var state = {};
-					state.byte = '0x' + ('0' + (data[i + 2]).toString(16).toUpperCase()).slice(-2);
-					state.ip_1 = (data[i + 2] & 0x01) > 0;
-					state.ip_2 = (data[i + 2] & 0x02) > 0;
-					state.ip_3 = (data[i + 2] & 0x04) > 0;
-					
-					obj.cos = cos;
-					obj.state = state;
-					
+					//obj.state_byte = '0x' + ('0' + (data[i + 2]).toString(16).toUpperCase()).slice(-2);
+					obj.state_ip_1 = (data[i + 2] & 0x01) > 0 ? 1 : 0;
+					obj.state_ip_2 = (data[i + 2] & 0x02) > 0 ? 1 : 0;
+					obj.state_ip_3 = (data[i + 2] & 0x04) > 0 ? 1 : 0;
 					i += 2;
 					break;
 					

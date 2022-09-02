@@ -197,13 +197,13 @@ function GetCrnMetal(id_byte) {
 function DecodePayload(data) {
 	var cpn;
 	var metal;
-var obj = new Object();
+	var obj = new Object();
 	for (i = 0; i < data.length; i++) {
 		switch (data[i]) {
 			// Parse Sensor Message Parts
 			case ENLINK_TEMP: // Temperature
 				obj.temp_c = (S16((data[i + 1] << 8) | (data[i + 2]))) / 10;
-				obj.temp_f = ((obj.temp_c * 9 / 5) + 32);
+				//obj.temp_f = ((obj.temp_c * 9 / 5) + 32);
 				i += 2;
 				break;
 			case ENLINK_RH: // Humidity %rH
@@ -259,9 +259,9 @@ var obj = new Object();
 			case ENLINK_COUNTER:
 				var inputN = data[i + 1];
 				var pulseCount = (data[i + 2] << 24) | (data[i + 3] << 16) | (data[i + 4] << 8) | (data[i + 5]);
-				if (inputN === 0x00) { obj.pulseAbs = pulseCount; }
-				if (inputN === 0x01) { obj.pulseAbs2 = pulseCount; }
-				if (inputN === 0x02) { obj.pulseAbs3 = pulseCount; }
+				if (inputN === 0x00) { obj.pulse_ip1 = pulseCount; }
+				if (inputN === 0x01) { obj.pulse_ip2 = pulseCount; }
+				if (inputN === 0x02) { obj.pulse_ip3 = pulseCount; }
 				i += 5;
 				break;
 			case ENLINK_MB_EXCEPTION: // Modbus Error Code
@@ -304,34 +304,36 @@ var obj = new Object();
 				break;
 			case ENLINK_COS_STATUS: // Change-of-State U16
 				// Byte 1 = Triggered, Byte 2 = Input state
-				//obj.cos_trig_byte = '0x' + ('0' + (data[i + 1]).toString(16).toUpperCase()).slice(-2);
+				/*
+				obj.cos_trig_byte = '0x' + ('0' + (data[i + 1]).toString(16).toUpperCase()).slice(-2);
 				if (data[i + 1] === 0) {
 					// Transmission was triggered with button press or ATI timeout
 					// So it's a 'heartbeat'
 					//obj.cos_hb = 1;
 				} else {
-					// Transmission was triggered with a Change of State
-					// Transition detected for Closed to Open
-					var b = false;
-					b = (data[i + 1] & 0x01) > 0;
-					obj.cos_ip_1_hl = b ? 1 : 0;
-					
-					b = (data[i + 1] & 0x02) > 0;
-					obj.cos_ip_2_hl = b ? 1 : 0;
-					
-					b = (data[i + 1] & 0x04) > 0;
-					obj.cos_ip_3_hl = b ? 1 : 0;
-					
-					// Transition detected for Open to Closed
-					b = (data[i + 1] & 0x10) > 0;
-					obj.cos_ip_1_lh = b ? 1 : 0;
-					
-					b = (data[i + 1] & 0x20) > 0;
-					obj.cos_ip_2_lh = b ? 1 : 0;
-					
-					b = (data[i + 1] & 0x40) > 0;
-					obj.cos_ip_3_lh = b ? 1 : 0;
-				}
+				*/
+				// If (data[i + 1] > 0) transmission was triggered with a Change of State
+				// Transition detected for Closed to Open
+				var b = false;
+				b = (data[i + 1] & 0x01) > 0;
+				obj.cos_ip_1_hl = b ? 1 : 0;
+				
+				b = (data[i + 1] & 0x02) > 0;
+				obj.cos_ip_2_hl = b ? 1 : 0;
+				
+				b = (data[i + 1] & 0x04) > 0;
+				obj.cos_ip_3_hl = b ? 1 : 0;
+				
+				// Transition detected for Open to Closed
+				b = (data[i + 1] & 0x10) > 0;
+				obj.cos_ip_1_lh = b ? 1 : 0;
+				
+				b = (data[i + 1] & 0x20) > 0;
+				obj.cos_ip_2_lh = b ? 1 : 0;
+				
+				b = (data[i + 1] & 0x40) > 0;
+				obj.cos_ip_3_lh = b ? 1 : 0;
+				
 				// Input State
 				//obj.state_byte = '0x' + ('0' + (data[i + 2]).toString(16).toUpperCase()).slice(-2);
 				obj.state_ip_1 = (data[i + 2] & 0x01) > 0 ? 1 : 0;
@@ -753,7 +755,7 @@ var obj = new Object();
 				i += 1;
 				break;
 			case ENLINK_BATT_VOLT:
-				obj.batt_v = U16((data[i + 1] << 8) | (data[i + 2])) / 1000;
+				//obj.batt_v = U16((data[i + 1] << 8) | (data[i + 2])) / 1000;
 				obj.batt_mv = U16((data[i + 1] << 8) | (data[i + 2]));
 				i += 2;
 				break;
