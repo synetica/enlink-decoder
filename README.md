@@ -97,6 +97,7 @@ The firmware code is a concatenation of the base model plus the options.
 | | G | `0x61`, `0x66` | Single Gas Sensor
 | | S | `0x50`, `0x51`, `0x52` | Sound
 | | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`,<br/>`0x5F`, `0x60` | Particles
+| | PP | `0x69`, `0x6A`, `0x6B`, `0x57`, `0x58`, `0x6C`, `0x5A`, <br/>`0x6D`, `0x6E`, `0x5B`, `0x5C`, `0x5D`, `0x6F`, `0x5F` | Particles
 
 <div style="page-break-after: always;"></div>
 
@@ -310,6 +311,14 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x66` 102 | Gas ID + Gas Concentration |  | µg/m³ | 1 + 4 | F32
 | `0x67` 103 | Outdoor EPA Index Sensor Fast AQI (reading taken over 1 minute) | 0 to 500 | AQI | 2 | U16
 | `0x68` 104 | Outdoor EPA Index Sensor EPA AQI<br />See: [AirNow Technical Doc](https://www.airnow.gov/sites/default/files/2020-05/aqi-technical-assistance-document-sept2018.pdf) | 0 to 500 | AQI | 2 | U16
+| `0x69` 105 | Particulate matter mass concentration at PM0.1 |  | µg/m³ | 4 | F32
+| `0x6A` 106 | As above, PM0.3  |  | µg/m³ | 4 | F32
+| `0x6B` 107 | As above, PM0.5  |  | µg/m³ | 4 | F32
+| `0x6C` 108 | As above, PM5.0  |  | µg/m³ | 4 | F32
+| `0x6D` 109 | Particulate matter number concentration at PM0.1 |  | #/cm³ | 4 | F32
+| `0x6E` 110 | As above, PM0.3  |  | #/cm³ | 4 | F32
+| `0x6F` 111 | As above, PM5.0  |  | #/cm³ | 4 | F32
+
 
 <div style="page-break-after: always;"></div>
 

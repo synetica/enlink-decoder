@@ -1,5 +1,10 @@
 # Change Log
 
+## 2022 September Updates
+
+- Removed TVOC decoders from examples as it's not yet implemented
+- Added extra particulate decoders for new PM sensor
+
 ## 2022 August Updates
 
 - Updated firmware to 5.02

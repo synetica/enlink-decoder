@@ -1,6 +1,6 @@
 // Used for decoding enLink Uplink LoRa Messages
 // --------------------------------------------------------------------------------------
-// 20 Aug 2022 (FW Ver:5.02)
+// 08 Sep 2022 (FW Ver:5.03)
 // --------------------------------------------------------------------------------------
 
 if (!msg.eui)
@@ -81,16 +81,16 @@ const ENLINK_NO2_20 = 0x55;                                // U16  0 -> 65.535 p
 const ENLINK_SO2 = 0x56;                                   // U16  0 -> 65.535 ppm (0..20 ppm) [Divide by 1000]
 
 // Particulate Matter (Advanced Data)
-const ENLINK_MC_PM1_0 = 0x57;                              // F32   g/m  Mass Concentration
-const ENLINK_MC_PM2_5 = 0x58;                              // F32   g/m 
-const ENLINK_MC_PM4_0 = 0x59;                              // F32   g/m 
-const ENLINK_MC_PM10_0 = 0x5A;                             // F32   g/m 
-const ENLINK_NC_PM0_5 = 0x5B;                              // F32  #/cm  Number Concentration
-const ENLINK_NC_PM1_0 = 0x5C;                              // F32  #/cm 
-const ENLINK_NC_PM2_5 = 0x5D;                              // F32  #/cm 
-const ENLINK_NC_PM4_0 = 0x5E;                              // F32  #/cm 
-const ENLINK_NC_PM10_0 = 0x5F;                             // F32  #/cm 
-const ENLINK_PM_TPS = 0x60;                                // F32   m    Typical Particle Size
+const ENLINK_MC_PM1_0 = 0x57;                              // F32  ug/m3 Mass Concentration
+const ENLINK_MC_PM2_5 = 0x58;                              // F32  ug/m3
+const ENLINK_MC_PM4_0 = 0x59;                              // F32  ug/m3
+const ENLINK_MC_PM10_0 = 0x5A;                             // F32  ug/m3
+const ENLINK_NC_PM0_5 = 0x5B;                              // F32  #/cm3 Number Concentration
+const ENLINK_NC_PM1_0 = 0x5C;                              // F32  #/cm3
+const ENLINK_NC_PM2_5 = 0x5D;                              // F32  #/cm3
+const ENLINK_NC_PM4_0 = 0x5E;                              // F32  #/cm3
+const ENLINK_NC_PM10_0 = 0x5F;                             // F32  #/cm3
+const ENLINK_PM_TPS = 0x60;                                // F32  um    Typical Particle Size
 
 const ENLINK_GAS_PPB = 0x61;                               // Gas-Type byte + F32 Concentration in ppb
 const ENLINK_GAS_UGM3 = 0x66;                              // Gas-Type byte + F32 Volumetric mass as ug/m3
@@ -103,9 +103,16 @@ const ENLINK_CRN_PERC = 0x65;                              // Coupon No. + Metal
 const ENLINK_FAST_AQI = 0x67;                              // U16  AQI (1 min calculation)
 const ENLINK_EPA_AQI = 0x68;                               // U16  EPA AQI (8hr or 1hr, whichever is worst) See online docs.
 
-const ENLINK_TVOC_IAQ = 0x69;                              // F32  Indoor Air Quality (0.0 -> 5.0+)
-const ENLINK_TVOC = 0x6A;                                  // F32  TVOC mg/m3
-const ENLINK_TVOC_ECO2 = 0x6B;                             // F32  Estimate of CO2
+// More Particulate Matter
+const ENLINK_MC_PM0_1 = 0x69;                              // F32  ug/m3 Mass Concentration
+const ENLINK_MC_PM0_3 = 0x6A;                              // F32  ug/m3
+const ENLINK_MC_PM0_5 = 0x6B;                              // F32  ug/m3
+const ENLINK_MC_PM5_0 = 0x6C;                              // F32  ug/m3
+
+const ENLINK_NC_PM0_1 = 0x6D;                              // F32  #/cm3 Number Concentration
+const ENLINK_NC_PM0_3 = 0x6E;                              // F32  #/cm3
+const ENLINK_NC_PM5_0 = 0x6F;                              // F32  #/cm3
+
 
 // --------------------------------------------------------------------------------------
 // Optional KPI values that can be included in the message
@@ -672,6 +679,21 @@ function decodeTelemetry(data) {
             msg_ok = true;
             break;
 
+        case ENLINK_MC_PM0_1:
+            obj.mc_pm0_1 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
+            i += 4;
+            msg_ok = true;
+            break;
+        case ENLINK_MC_PM0_3:
+            obj.mc_pm0_3 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
+            i += 4;
+            msg_ok = true;
+            break;
+        case ENLINK_MC_PM0_5:
+            obj.mc_pm1_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
+            i += 4;
+            msg_ok = true;
+            break;
         case ENLINK_MC_PM1_0:
             obj.mc_pm1_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
             i += 4;
@@ -687,12 +709,27 @@ function decodeTelemetry(data) {
             i += 4;
             msg_ok = true;
             break;
+        case ENLINK_MC_PM5_0:
+            obj.mc_pm5_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
+            i += 4;
+            msg_ok = true;
+            break;
         case ENLINK_MC_PM10_0:
             obj.mc_pm10_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
             i += 4;
             msg_ok = true;
             break;
 
+        case ENLINK_NC_PM0_1:
+            obj.nc_pm0_1 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
+            i += 4;
+            msg_ok = true;
+            break;
+        case ENLINK_NC_PM0_3:
+            obj.nc_pm0_3 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
+            i += 4;
+            msg_ok = true;
+            break;
         case ENLINK_NC_PM0_5:
             obj.nc_pm0_5 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
             i += 4;
@@ -710,6 +747,11 @@ function decodeTelemetry(data) {
             break;
         case ENLINK_NC_PM4_0:
             obj.nc_pm4_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
+            i += 4;
+            msg_ok = true;
+            break;
+        case ENLINK_NC_PM5_0:
+            obj.nc_pm5_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
             i += 4;
             msg_ok = true;
             break;
@@ -821,24 +863,6 @@ function decodeTelemetry(data) {
         case ENLINK_EPA_AQI:
             obj.epa_aqi = U16((data[i + 1] << 8) | (data[i + 2]));
             i += 2;
-            msg_ok = true;
-            break;
-
-        case ENLINK_TVOC_IAQ:
-            obj.tvoc_iaq = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
-            i += 4;
-            msg_ok = true;
-            break;
-            
-        case ENLINK_TVOC:
-            obj.tvoc = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(3);
-            i += 4;
-            msg_ok = true;
-            break;
-            
-        case ENLINK_TVOC_ECO2:
-            obj.tvoc_eco2 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(0);
-            i += 4;
             msg_ok = true;
             break;
 

@@ -63,7 +63,7 @@ function decode_hex_string(hex_string) {
 function js_decoder(msg) {
   // Used for decoding enLink Uplink LoRa Messages
   // --------------------------------------------------------------------------------------
-  // 20 Aug 2022 (FW Ver:5.02)
+  // 08 Sep 2022 (FW Ver:5.03)
   // --------------------------------------------------------------------------------------
   if (msg.payload) {
     if (msg.payload.length === 0) {
@@ -74,109 +74,115 @@ function js_decoder(msg) {
   }
   // --------------------------------------------------------------------------------------
   // Telemetry data from all enLink Models
-  const ENLINK_TEMP = 0x01; // S16  -3276.8 C -> 3276.7 C (-10..80) [Divide word by 10]
-  const ENLINK_RH = 0x02; // U8   0 -> 255 %RH (Actually 0..100%)
-  const ENLINK_LUX = 0x03; // U16  0 -> 65535 Lux
-  const ENLINK_PRESSURE = 0x04; // U16  0 -> 65535 mbar or hPa
-  const ENLINK_VOC_IAQ = 0x05; // U16  0 -> 500 IAQ Index
-  const ENLINK_O2PERC = 0x06; // U8   0 -> 25.5% [Divide byte by 10]
-  const ENLINK_CO = 0x07; // U16  0 -> 655.35 ppm (0..100 ppm) [Divide by 100]
-  const ENLINK_CO2 = 0x08; // U16  0 -> 65535 ppm (0..2000 ppm)
-  const ENLINK_OZONE = 0x09; // U16  0 -> 6.5535 ppm or 6553.5 ppb (0..1 ppm) [Divide by 10000]
-  const ENLINK_POLLUTANTS = 0x0a; // U16  0 -> 6553.5 kOhm (Typically 100..1500 kOhm) [Divide by 10]
-  const ENLINK_PM25 = 0x0b; // U16  0 -> 65535 ug/m3 (0..1000 ug/m3)
-  const ENLINK_PM10 = 0x0c; // U16  0 -> 65535 ug/m3 (0..1000 ug/m3)
-  const ENLINK_H2S = 0x0d; // U16  0 -> 655.35 ppm (0..100 ppm) [Divide by 100]
-  const ENLINK_COUNTER = 0x0e; // U32  0 -> 2^32
-  const ENLINK_MB_EXCEPTION = 0x0f; // Type Byte + MBID + Exception Code so it's Type + 2 bytes
-  const ENLINK_MB_INTERVAL = 0x10; // Type Byte + MBID + F32 Value - so 6 bytes
-  const ENLINK_MB_CUMULATIVE = 0x11; // Type Byte + MBID + F32 Value - so 6 bytes
-  const ENLINK_BVOC = 0x12; // F32  ppm Breath VOC Estimate equivalent
-  const ENLINK_DETECTION_COUNT = 0x13; // U32  Counter. Num of detections for PIR/RangeFinder
-  const ENLINK_OCC_TIME = 0x14; // U32  Total Occupied Time (seconds)
-  const ENLINK_COS_STATUS = 0x15; // U16   Change-of-State Trigger/State Value
-  const ENLINK_LIQUID_LEVEL_STATUS = 0x16; // U8   Level Status. 1=Detected, 0=Not Detected
-  const ENLINK_TEMP_PROBE1 = 0x17; // S16  As 0x01
-  const ENLINK_TEMP_PROBE2 = 0x18; // S16  As 0x01
-  const ENLINK_TEMP_PROBE3 = 0x19; // S16  As 0x01
-  const ENLINK_TEMP_PROBE_IN_BAND_DURATION_S_1 = 0x1a; // U32  Seconds. Time temperature probe 1 has spent in 'in band' zone
-  const ENLINK_TEMP_PROBE_IN_BAND_DURATION_S_2 = 0x1b; // U32  Seconds. Time temperature probe 2 has spent in 'in band' zone
-  const ENLINK_TEMP_PROBE_IN_BAND_DURATION_S_3 = 0x1c; // U32  Seconds. Time temperature probe 3 has spent in 'in band' zone
-  const ENLINK_TEMP_PROBE_IN_BAND_ALARM_COUNT_1 = 0x1d; // U16  Count. Num times in band alarm has activated for probe 1
-  const ENLINK_TEMP_PROBE_IN_BAND_ALARM_COUNT_2 = 0x1e; // U16  Count. Num times in band alarm has activated for probe 2
-  const ENLINK_TEMP_PROBE_IN_BAND_ALARM_COUNT_3 = 0x1f; // U16  Count. Num times in band alarm has activated for probe 3
-  const ENLINK_TEMP_PROBE_LOW_DURATION_S_1 = 0x20; // U32  Seconds. Time probe 1 has spent below low threshold
-  const ENLINK_TEMP_PROBE_LOW_DURATION_S_2 = 0x21; // U32  Seconds. Time probe 2 has spent below low threshold
-  const ENLINK_TEMP_PROBE_LOW_DURATION_S_3 = 0x22; // U32  Seconds. Time probe 3 has spent below low threshold
-  const ENLINK_TEMP_PROBE_LOW_ALARM_COUNT_1 = 0x23; // U16  Count. Num times low threshold alarm has activated for probe 1
-  const ENLINK_TEMP_PROBE_LOW_ALARM_COUNT_2 = 0x24; // U16  Count. Num times low threshold alarm has activated for probe 2
-  const ENLINK_TEMP_PROBE_LOW_ALARM_COUNT_3 = 0x25; // U16  Count. Num times low threshold alarm has activated for probe 3
-  const ENLINK_TEMP_PROBE_HIGH_DURATION_S_1 = 0x26; // U32  Seconds. Time probe 1 has spent above high threshold
-  const ENLINK_TEMP_PROBE_HIGH_DURATION_S_2 = 0x27; // U32  Seconds. Time probe 2 has spent above high threshold
-  const ENLINK_TEMP_PROBE_HIGH_DURATION_S_3 = 0x28; // U32  Seconds. Time probe 3 has spent above high threshold
-  const ENLINK_TEMP_PROBE_HIGH_ALARM_COUNT_1 = 0x29; // U16  Count. Num times high threshold alarm has activated for probe 1
-  const ENLINK_TEMP_PROBE_HIGH_ALARM_COUNT_2 = 0x2a; // U16  Count. Num times high threshold alarm has activated for probe 2
-  const ENLINK_TEMP_PROBE_HIGH_ALARM_COUNT_3 = 0x2b; // U16  Count. Num times high threshold alarm has activated for probe 3
-  const ENLINK_DIFF_PRESSURE = 0x2c; // F32  +- 5000 Pa
-  const ENLINK_AIR_FLOW = 0x2d; // F32  0 -> 100 m/s
-  const ENLINK_VOLTAGE = 0x2e; // U16  0 -> 65.535V [Divide by 1000]
-  const ENLINK_CURRENT = 0x2f; // U16  0 -> 65.535mA [Divide by 1000]
-  const ENLINK_RESISTANCE = 0x30; // U16  0 -> 65.535kOhm [Divide by 1000]
-  const ENLINK_LEAK_DETECT_EVT = 0x31; // U8   1 or 0, Leak status on resistance rope
-  const ENLINK_CO2E = 0x3f; // F32  ppm CO2e Estimate Equivalent
+  const ENLINK_TEMP = 0x01;
+  const ENLINK_RH = 0x02;
+  const ENLINK_LUX = 0x03;
+  const ENLINK_PRESSURE = 0x04;
+  const ENLINK_VOC_IAQ = 0x05;
+  const ENLINK_O2PERC = 0x06;
+  const ENLINK_CO = 0x07;
+  const ENLINK_CO2 = 0x08;
+  const ENLINK_OZONE = 0x09;
+  const ENLINK_POLLUTANTS = 0x0a;
+  const ENLINK_PM25 = 0x0b;
+  const ENLINK_PM10 = 0x0c;
+  const ENLINK_H2S = 0x0d;
+  const ENLINK_COUNTER = 0x0e;
+  const ENLINK_MB_EXCEPTION = 0x0f;
+  const ENLINK_MB_INTERVAL = 0x10;
+  const ENLINK_MB_CUMULATIVE = 0x11;
+  const ENLINK_BVOC = 0x12;
+  const ENLINK_DETECTION_COUNT = 0x13;
+  const ENLINK_OCC_TIME = 0x14;
+  const ENLINK_COS_STATUS = 0x15;
+  const ENLINK_LIQUID_LEVEL_STATUS = 0x16;
+  const ENLINK_TEMP_PROBE1 = 0x17;
+  const ENLINK_TEMP_PROBE2 = 0x18;
+  const ENLINK_TEMP_PROBE3 = 0x19;
+  const ENLINK_TEMP_PROBE_IN_BAND_DURATION_S_1 = 0x1a;
+  const ENLINK_TEMP_PROBE_IN_BAND_DURATION_S_2 = 0x1b;
+  const ENLINK_TEMP_PROBE_IN_BAND_DURATION_S_3 = 0x1c;
+  const ENLINK_TEMP_PROBE_IN_BAND_ALARM_COUNT_1 = 0x1d;
+  const ENLINK_TEMP_PROBE_IN_BAND_ALARM_COUNT_2 = 0x1e;
+  const ENLINK_TEMP_PROBE_IN_BAND_ALARM_COUNT_3 = 0x1f;
+  const ENLINK_TEMP_PROBE_LOW_DURATION_S_1 = 0x20;
+  const ENLINK_TEMP_PROBE_LOW_DURATION_S_2 = 0x21;
+  const ENLINK_TEMP_PROBE_LOW_DURATION_S_3 = 0x22;
+  const ENLINK_TEMP_PROBE_LOW_ALARM_COUNT_1 = 0x23;
+  const ENLINK_TEMP_PROBE_LOW_ALARM_COUNT_2 = 0x24;
+  const ENLINK_TEMP_PROBE_LOW_ALARM_COUNT_3 = 0x25;
+  const ENLINK_TEMP_PROBE_HIGH_DURATION_S_1 = 0x26;
+  const ENLINK_TEMP_PROBE_HIGH_DURATION_S_2 = 0x27;
+  const ENLINK_TEMP_PROBE_HIGH_DURATION_S_3 = 0x28;
+  const ENLINK_TEMP_PROBE_HIGH_ALARM_COUNT_1 = 0x29;
+  const ENLINK_TEMP_PROBE_HIGH_ALARM_COUNT_2 = 0x2a;
+  const ENLINK_TEMP_PROBE_HIGH_ALARM_COUNT_3 = 0x2b;
+  const ENLINK_DIFF_PRESSURE = 0x2c;
+  const ENLINK_AIR_FLOW = 0x2d;
+  const ENLINK_VOLTAGE = 0x2e;
+  const ENLINK_CURRENT = 0x2f;
+  const ENLINK_RESISTANCE = 0x30;
+  const ENLINK_LEAK_DETECT_EVT = 0x31;
+  const ENLINK_CO2E = 0x3f;
 
-  const ENLINK_SOUND_MIN = 0x50; // F32  dB(A)
-  const ENLINK_SOUND_AVG = 0x51; // F32  dB(A)
-  const ENLINK_SOUND_MAX = 0x52; // F32  dB(A)
-  const ENLINK_NO = 0x53; // U16  0 -> 655.35 ppm (0..100 ppm) [Divide by 100]
-  const ENLINK_NO2 = 0x54; // U16  0 -> 6.5535 ppm (0..5 ppm) [Divide by 10000]
-  const ENLINK_NO2_20 = 0x55; // U16  0 -> 65.535 ppm (0..20 ppm) [Divide by 1000]
-  const ENLINK_SO2 = 0x56; // U16  0 -> 65.535 ppm (0..20 ppm) [Divide by 1000]
+  const ENLINK_SOUND_MIN = 0x50;
+  const ENLINK_SOUND_AVG = 0x51;
+  const ENLINK_SOUND_MAX = 0x52;
+  const ENLINK_NO = 0x53;
+  const ENLINK_NO2 = 0x54;
+  const ENLINK_NO2_20 = 0x55;
+  const ENLINK_SO2 = 0x56;
 
   // Particulate Matter (Advanced Data)
-  const ENLINK_MC_PM1_0 = 0x57; // F32   g/m  Mass Concentration
-  const ENLINK_MC_PM2_5 = 0x58; // F32   g/m
-  const ENLINK_MC_PM4_0 = 0x59; // F32   g/m
-  const ENLINK_MC_PM10_0 = 0x5a; // F32   g/m
-  const ENLINK_NC_PM0_5 = 0x5b; // F32  #/cm  Number Concentration
-  const ENLINK_NC_PM1_0 = 0x5c; // F32  #/cm
-  const ENLINK_NC_PM2_5 = 0x5d; // F32  #/cm
-  const ENLINK_NC_PM4_0 = 0x5e; // F32  #/cm
-  const ENLINK_NC_PM10_0 = 0x5f; // F32  #/cm
-  const ENLINK_PM_TPS = 0x60; // F32   m    Typical Particle Size
+  const ENLINK_MC_PM1_0 = 0x57;
+  const ENLINK_MC_PM2_5 = 0x58;
+  const ENLINK_MC_PM4_0 = 0x59;
+  const ENLINK_MC_PM10_0 = 0x5a;
+  const ENLINK_NC_PM0_5 = 0x5b;
+  const ENLINK_NC_PM1_0 = 0x5c;
+  const ENLINK_NC_PM2_5 = 0x5d;
+  const ENLINK_NC_PM4_0 = 0x5e;
+  const ENLINK_NC_PM10_0 = 0x5f;
+  const ENLINK_PM_TPS = 0x60;
 
-  const ENLINK_GAS_PPB = 0x61; // Gas-Type byte + F32 Concentration in ppb
-  const ENLINK_GAS_UGM3 = 0x66; // Gas-Type byte + F32 Volumetric mass as ug/m3
+  const ENLINK_GAS_PPB = 0x61;
+  const ENLINK_GAS_UGM3 = 0x66;
 
-  const ENLINK_CRN_THK = 0x62; // Coupon No. + Metal Type byte + F32 nm. Thickness
-  const ENLINK_CRN_MIN_THK = 0x63; // Coupon No. + Metal Type byte + U16 nm. Min Thickness (when depleted)
-  const ENLINK_CRN_MAX_THK = 0x64; // Coupon No. + Metal Type byte + U16 nm. Max/Original Thickness
-  const ENLINK_CRN_PERC = 0x65; // Coupon No. + Metal Type byte + F32 nm.
-  //    PERC: Percentage of corrosion between Max(0%) to Min(100%)
-  const ENLINK_FAST_AQI = 0x67; // U16  AQI (1 min calculation)
-  const ENLINK_EPA_AQI = 0x68; // U16  EPA AQI (8hr or 1hr, whichever is worst) See online docs.
+  const ENLINK_CRN_THK = 0x62;
+  const ENLINK_CRN_MIN_THK = 0x63;
+  const ENLINK_CRN_MAX_THK = 0x64;
+  const ENLINK_CRN_PERC = 0x65;
 
-  const ENLINK_TVOC_IAQ = 0x69; // F32  Indoor Air Quality (0.0 -> 5.0+)
-  const ENLINK_TVOC = 0x6a; // F32  TVOC mg/m3
-  const ENLINK_TVOC_ECO2 = 0x6b; // F32  Estimate of CO2
+  const ENLINK_FAST_AQI = 0x67;
+  const ENLINK_EPA_AQI = 0x68;
+
+  // More Particulate Matter
+  const ENLINK_MC_PM0_1 = 0x69;
+  const ENLINK_MC_PM0_3 = 0x6A;
+  const ENLINK_MC_PM0_5 = 0x6B;
+  const ENLINK_MC_PM5_0 = 0x6C;
+
+  const ENLINK_NC_PM0_1 = 0x6D;
+  const ENLINK_NC_PM0_3 = 0x6E;
+  const ENLINK_NC_PM5_0 = 0x6F;
 
   // --------------------------------------------------------------------------------------
   // Optional KPI values that can be included in the message
-  const ENLINK_CPU_TEMP_DEP = 0x40; // [DEPRECIATED April 2020. Now 0x4E] 2 bytes 0.0 C -> 255.99 C
-  const ENLINK_BATT_STATUS = 0x41; // U8   0=Charging; 1~254 (1.8 - 3.3V); 255=External Power
-  const ENLINK_BATT_VOLT = 0x42; // U16  0 -> 3600mV (3600mV=External Power)
-  const ENLINK_RX_RSSI = 0x43; // S16  +-32767 RSSI
-  const ENLINK_RX_SNR = 0x44; // S8   +-128 Signal to Noise Ratio
-  const ENLINK_RX_COUNT = 0x45; // U16  0 -> 65535 downlink message count
-  const ENLINK_TX_TIME = 0x46; // U16  0 -> 65535 ms
-  const ENLINK_TX_POWER = 0x47; // S8   +-128 dBm
-  const ENLINK_TX_COUNT = 0x48; // U16  0 -> 65535 uplink message count
-  const ENLINK_POWER_UP_COUNT = 0x49; // U16  0 -> 65535 counts
-  const ENLINK_USB_IN_COUNT = 0x4a; // U16  0 -> 65535 counts
-  const ENLINK_LOGIN_OK_COUNT = 0x4b; // U16  0 -> 65535 counts
-  const ENLINK_LOGIN_FAIL_COUNT = 0x4c; // U16  0 -> 65535 counts
-  const ENLINK_FAN_RUN_TIME = 0x4d; // U32  0 -> 2^32 seconds = 136 years
-  const ENLINK_CPU_TEMP = 0x4e; // S16  -3276.8 C -> 3276.7 C (-10..80) [Divide by 10]
+  const ENLINK_CPU_TEMP_DEP = 0x40;
+  const ENLINK_BATT_STATUS = 0x41;
+  const ENLINK_BATT_VOLT = 0x42;
+  const ENLINK_RX_RSSI = 0x43;
+  const ENLINK_RX_SNR = 0x44;
+  const ENLINK_RX_COUNT = 0x45;
+  const ENLINK_TX_TIME = 0x46;
+  const ENLINK_TX_POWER = 0x47;
+  const ENLINK_TX_COUNT = 0x48;
+  const ENLINK_POWER_UP_COUNT = 0x49;
+  const ENLINK_USB_IN_COUNT = 0x4a;
+  const ENLINK_LOGIN_OK_COUNT = 0x4b;
+  const ENLINK_LOGIN_FAIL_COUNT = 0x4c;
+  const ENLINK_FAN_RUN_TIME = 0x4d;
+  const ENLINK_CPU_TEMP = 0x4e;
 
   // --------------------------------------------------------------------------------------
   // V1 - Downlink reply message Header and ACK/NAK
@@ -809,6 +815,33 @@ function js_decoder(msg) {
           i += 2;
           break;
 
+        case ENLINK_MC_PM0_1:
+          obj.mc_pm0_1 = fromF32(
+            data[i + 1],
+            data[i + 2],
+            data[i + 3],
+            data[i + 4]
+          ).toFixed(2);
+          i += 4;
+          break;
+        case ENLINK_MC_PM0_3:
+          obj.mc_pm0_3 = fromF32(
+            data[i + 1],
+            data[i + 2],
+            data[i + 3],
+            data[i + 4]
+          ).toFixed(2);
+          i += 4;
+          break;
+        case ENLINK_MC_PM0_5:
+          obj.mc_pm0_5 = fromF32(
+            data[i + 1],
+            data[i + 2],
+            data[i + 3],
+            data[i + 4]
+          ).toFixed(2);
+          i += 4;
+          break;
         case ENLINK_MC_PM1_0:
           obj.mc_pm1_0 = fromF32(
             data[i + 1],
@@ -836,6 +869,15 @@ function js_decoder(msg) {
           ).toFixed(2);
           i += 4;
           break;
+        case ENLINK_MC_PM5_0:
+          obj.mc_pm5_0 = fromF32(
+            data[i + 1],
+            data[i + 2],
+            data[i + 3],
+            data[i + 4]
+          ).toFixed(2);
+          i += 4;
+          break;  
         case ENLINK_MC_PM10_0:
           obj.mc_pm10_0 = fromF32(
             data[i + 1],
@@ -846,6 +888,24 @@ function js_decoder(msg) {
           i += 4;
           break;
 
+        case ENLINK_NC_PM0_1:
+          obj.nc_pm0_1 = fromF32(
+            data[i + 1],
+            data[i + 2],
+            data[i + 3],
+            data[i + 4]
+          ).toFixed(2);
+          i += 4;
+          break;
+        case ENLINK_NC_PM0_3:
+          obj.nc_pm0_3 = fromF32(
+            data[i + 1],
+            data[i + 2],
+            data[i + 3],
+            data[i + 4]
+          ).toFixed(2);
+          i += 4;
+          break;
         case ENLINK_NC_PM0_5:
           obj.nc_pm0_5 = fromF32(
             data[i + 1],
@@ -875,6 +935,15 @@ function js_decoder(msg) {
           break;
         case ENLINK_NC_PM4_0:
           obj.nc_pm4_0 = fromF32(
+            data[i + 1],
+            data[i + 2],
+            data[i + 3],
+            data[i + 4]
+          ).toFixed(2);
+          i += 4;
+          break;
+        case ENLINK_NC_PM5_0:
+          obj.nc_pm5_0 = fromF32(
             data[i + 1],
             data[i + 2],
             data[i + 3],
@@ -1021,36 +1090,6 @@ function js_decoder(msg) {
         case ENLINK_EPA_AQI:
           obj.epa_aqi = U16((data[i + 1] << 8) | data[i + 2]);
           i += 2;
-          break;
-
-        case ENLINK_TVOC_IAQ:
-          obj.tvoc_iaq = fromF32(
-            data[i + 1],
-            data[i + 2],
-            data[i + 3],
-            data[i + 4]
-          ).toFixed(2);
-          i += 4;
-          break;
-
-        case ENLINK_TVOC:
-          obj.tvoc = fromF32(
-            data[i + 1],
-            data[i + 2],
-            data[i + 3],
-            data[i + 4]
-          ).toFixed(3);
-          i += 4;
-          break;
-
-        case ENLINK_TVOC_ECO2:
-          obj.tvoc_eco2 = fromF32(
-            data[i + 1],
-            data[i + 2],
-            data[i + 3],
-            data[i + 4]
-          ).toFixed(0);
-          i += 4;
           break;
 
         // < -------------------------------------------------------------------------------->

@@ -1,5 +1,5 @@
 // Synetica Payload Decoder for The Things Stack V3
-// 20 Aug 2022 (FW Ver:5.02)
+// 08 Sep 2022 (FW Ver:5.03)
 
 function decodeUplink(input) {
     var bytes = input.bytes;
@@ -90,11 +90,17 @@ function decodeUplink(input) {
   	const ENLINK_FAST_AQI = 0x67;
   	const ENLINK_EPA_AQI = 0x68;
   
-  	const ENLINK_TVOC_IAQ = 0x69;
-  	const ENLINK_TVOC = 0x6A;
-  	const ENLINK_TVOC_ECO2 = 0x6B;
+	// More Particulate Matter
+	const ENLINK_MC_PM0_1 = 0x69;
+	const ENLINK_MC_PM0_3 = 0x6A;
+	const ENLINK_MC_PM0_5 = 0x6B;
+	const ENLINK_MC_PM5_0 = 0x6C;
 
-    // Optional KPI values that can be included in the message
+	const ENLINK_NC_PM0_1 = 0x6D;
+	const ENLINK_NC_PM0_3 = 0x6E;
+	const ENLINK_NC_PM5_0 = 0x6F;
+
+	// Optional KPI values that can be included in the message
     const ENLINK_CPU_TEMP_DEP = 0x40;
     const ENLINK_BATT_STATUS = 0x41;
     const ENLINK_BATT_VOLT = 0x42;
@@ -524,6 +530,18 @@ function decodeUplink(input) {
 					i += 2;
 					break;
 
+				case ENLINK_MC_PM0_1:
+					obj.mc_pm0_1 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+					i += 4;
+					break;
+				case ENLINK_MC_PM0_3:
+					obj.mc_pm0_3 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+					i += 4;
+					break;
+				case ENLINK_MC_PM0_5:
+					obj.mc_pm0_5 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+					i += 4;
+					break;
 				case ENLINK_MC_PM1_0:
 					obj.mc_pm1_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
 					i += 4;
@@ -536,11 +554,23 @@ function decodeUplink(input) {
 					obj.mc_pm4_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
 					i += 4;
 					break;
+				case ENLINK_MC_PM5_0:
+					obj.mc_pm5_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+					i += 4;
+					break;
 				case ENLINK_MC_PM10_0:
 					obj.mc_pm10_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
 					i += 4;
 					break;
 
+				case ENLINK_NC_PM0_1:
+					obj.nc_pm0_1 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+					i += 4;
+					break;
+				case ENLINK_NC_PM0_3:
+					obj.nc_pm0_3 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+					i += 4;
+					break;
 				case ENLINK_NC_PM0_5:
 					obj.nc_pm0_5 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
 					i += 4;
@@ -555,6 +585,10 @@ function decodeUplink(input) {
 					break;
 				case ENLINK_NC_PM4_0:
 					obj.nc_pm4_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+					i += 4;
+					break;
+				case ENLINK_NC_PM5_0:
+					obj.nc_pm5_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
 					i += 4;
 					break;
 				case ENLINK_NC_PM10_0:
@@ -729,21 +763,7 @@ function decodeUplink(input) {
 					obj.epa_aqi = U16((data[i + 1] << 8) | (data[i + 2]));
 					i += 2;
 					break;
-
-				case ENLINK_TVOC_IAQ:
-					obj.tvoc_iaq = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
-					i += 4;
-					break;
 					
-				case ENLINK_TVOC:
-					obj.tvoc = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
-					i += 4;
-					break;
-					
-				case ENLINK_TVOC_ECO2:
-					obj.tvoc_eco2 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
-					i += 4;
-					break;
 				// < -------------------------------------------------------------------------------->
 				// Optional KPIs
 				case ENLINK_CPU_TEMP_DEP:    // Optional from April 2020
