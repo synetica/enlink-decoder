@@ -2,8 +2,10 @@
 
 ## 2022 September Updates
 
-- Removed TVOC decoders from examples as it's not yet implemented
-- Added extra particulate decoders for new PM sensor
+- Updated firmware to 5.03
+- Removed TVOC uplink decoders from examples as it's not implemented
+- Added extra particulate uplink decoders for new PM sensor
+- Added downlink messages for particulate sensors to set runtime and cleaning values
 
 ## 2022 August Updates
 

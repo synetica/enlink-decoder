@@ -32,6 +32,7 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
   - [Downlink Message Index Tables](#downlink-message-index-tables)
   - [Settings for Lux Sensor](#settings-for-lux-sensor)
   - [Settings for CO<sub>2</sub> Sensors](#settings-for-co2-sensors)
+  - [Settings for Particulate Sensors](#settings-for-particulate-sensors)
   - [Example Uplink Replies to Downlink Messages](#example-uplink-replies-to-downlink-messages)
   - [Sample Code](#sample-code)
 
@@ -361,7 +362,7 @@ For an online converter, see [Hex to Float Converter](https://gregstoll.com/~gre
 
 Type: `0x15`
 
-The full message is sent as 3 bytes. The second byte indicates the reason for the radio transmission (Trigger Status), the third byte gives the open/close state of this inputs (Input State).
+The full message is sent as 3 bytes. The second byte indicates the reason for the radio transmission (Trigger Status), the third byte gives the open/close state of the inputs (Input State).
 
 > Note: To enable the Change-of-State feature to transmit when a change is detected, the device configuration requires that **[ATI](#ati---adaptive-transmission-interval)** is enabled, and the **Transmit on Change of State** option is enabled.
 
@@ -568,6 +569,14 @@ The following are used in devices with CO<sub>2</sub> sensor
 | Set the Out-of-Bounds limits<br />**Only GSS model** | 3 | `0x29` | `10` to `5000` ppm
 | Set initial auto-cal interval<br />**Only GSS model** | 3 | `0x2A` | `1` to `8760` hours
 
+The following are used in devices with particulate sensors (SPS30 or IPS7100)
+
+| Name | Msg Len | Command | Value |
+| ---- | ------- | ------- | ----- |
+| Set fan run period (Sample time) | 2 | `0x2B` | `3` to `180` Seconds
+| Set cleaning interval | 3 | `0x2C` | `6` to `1440` hours
+
+
 ### Downlink Message Examples
 
 #### Reboot
@@ -671,6 +680,16 @@ To reset the sensor back to factory calibration (Sunrise Only)
 To set the auto-calibration interval to 10 days (240 hours, 0x00F0)
 
 > Message is: `A5 03 28 00 F0`
+
+### Settings for Particulate Sensors
+
+To set the fan run period to 35 seconds:
+
+> Message is: `A5 02 2B 23`
+
+To set the cleaning interval to 8 days (192 hours, 0x00C0)
+
+> Message is: `A5 03 2C 00 C0`
 
 <div style="page-break-after: always;"></div>
 
