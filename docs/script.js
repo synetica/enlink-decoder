@@ -65,6 +65,8 @@ function js_decoder(msg) {
   // --------------------------------------------------------------------------------------
   // 08 Sep 2022 (FW Ver:5.03)
   // --------------------------------------------------------------------------------------
+  // https://github.com/synetica/enlink-decoder
+  
   if (msg.payload) {
     if (msg.payload.length === 0) {
       return "Error: there is no data to decode";

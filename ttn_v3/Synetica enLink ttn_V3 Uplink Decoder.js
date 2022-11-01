@@ -1,5 +1,6 @@
 // Synetica Payload Decoder for The Things Stack V3
 // 08 Sep 2022 (FW Ver:5.03)
+// https://github.com/synetica/enlink-decoder
 
 function decodeUplink(input) {
     var bytes = input.bytes;

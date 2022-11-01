@@ -1,5 +1,11 @@
 # Change Log
 
+## 2022 November Updates
+
+- Updated firmware to 5.06
+- Added options for gas sensor (Option 'G') to improve noise reduction
+- Added OTA configuration for gas sensor options
+
 ## 2022 September Updates
 
 - Updated firmware to 5.03

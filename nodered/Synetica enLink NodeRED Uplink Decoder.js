@@ -1,7 +1,8 @@
 // Used for decoding enLink Uplink LoRa Messages
 // --------------------------------------------------------------------------------------
-// 08 Sep 2022 (FW Ver:5.03)
+// 01 Nov 2022 (FW Ver:5.06)
 // --------------------------------------------------------------------------------------
+// https://github.com/synetica/enlink-decoder
 
 if (!msg.eui)
     return null;
@@ -166,6 +167,20 @@ const ENLINK_SET_CO2_REGULAR_INTERVAL = 0x28;
 // 0x29,0x30 GSS CO2 Only
 const ENLINK_SET_GSS_CO2_OOB_LIMITS = 0x29;
 const ENLINK_SET_GSS_CO2_INIT_INTERVAL = 0x2A;
+
+// Set PM options
+const ENLINK_SET_PM_RUN_PERIOD = 0x2B;
+const ENLINK_SET_PM_CLEANING_PERIOD = 0x2C;
+
+// Set Gas Sensor options
+const ENLINK_SET_GAS_IDLE_STATE = 0x2D;
+const ENLINK_SET_GAS_PRE_DELAY = 0x2E;
+const ENLINK_SET_GAS_NUM_READS = 0x2F;
+const ENLINK_SET_GAS_READ_INT = 0x30;
+const ENLINK_SET_GAS_AGG_METHOD = 0x31;
+const ENLINK_SET_GAS_EMA_FACTOR = 0x32;
+const ENLINK_SET_GAS_TRIM_PPB = 0x33;
+const ENLINK_SET_GAS_TRIM_UGM3 = 0x34;
 
 const ENLINK_REBOOT = 0xFF;
 
@@ -1039,6 +1054,28 @@ function decodeStdResponse(data) {
 				obj.command = "Set GSS CO2 Sensor OOB Limits";
 			} else if (data[i + 2] == ENLINK_SET_GSS_CO2_INIT_INTERVAL) {
 				obj.command = "Set GSS CO2 Sensor Initial Auto-Calib Interval";
+            // PM Sensors
+            } else if (data[i + 2] == ENLINK_SET_PM_RUN_PERIOD) {
+				obj.command = "Set PM Sensor Run Period";
+			} else if (data[i + 2] == ENLINK_SET_PM_CLEANING_PERIOD) {
+				obj.command = "Set PM Sensor Cleaning Interval";
+            // Gas Sensors
+            } else if (data[i + 2] == ENLINK_SET_GAS_IDLE_STATE) {
+                obj.command = "Set Gas Idle State";
+            } else if (data[i + 2] == ENLINK_SET_GAS_PRE_DELAY) {
+                obj.command = "Set Gas Preamble Delay";
+            } else if (data[i + 2] == ENLINK_SET_GAS_NUM_READS) {
+                obj.command = "Set Gas Number of Reads";
+            } else if (data[i + 2] == ENLINK_SET_GAS_READ_INT) {
+                obj.command = "Set Gas Read Interval";
+            } else if (data[i + 2] == ENLINK_SET_GAS_AGG_METHOD) {
+                obj.command = "Set Gas Aggregation Method";
+            } else if (data[i + 2] == ENLINK_SET_GAS_EMA_FACTOR) {
+                obj.command = "Set Gas EMA Factor";
+            } else if (data[i + 2] == ENLINK_SET_GAS_TRIM_PPB) {
+                obj.command = "Set Gas PPB trim value";
+            } else if (data[i + 2] == ENLINK_SET_GAS_TRIM_UGM3) {
+                obj.command = "Set Gas UGM3 trim value";
 
 			} else if (data[i + 2] == ENLINK_REBOOT) {
 				obj.command = "Reboot";

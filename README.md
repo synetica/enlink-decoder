@@ -576,6 +576,19 @@ The following are used in devices with particulate sensors (SPS30 or IPS7100)
 | Set fan run period (Sample time) | 2 | `0x2B` | `3` to `180` Seconds
 | Set cleaning interval | 3 | `0x2C` | `6` to `1440` hours
 
+The following are used in devices with a Gas sensor (Option Code 'G')
+
+| Name | Msg Len | Command | Value |
+| ---- | ------- | ------- | ----- |
+| Set Idle State | 2 | `0x2D` | `0`/`1`/`2` Powered Off/Sleep/Powered On
+| Set Preamble Delay | 2 | `0x2E` | `2` to `240` seconds
+| Set Number of Reads per Sample | 2 | `0x2F` | `1` to `60`
+| Set Read Interval | 2 | `0x30` | `1` to `60` seconds
+| Set Aggregation Method | 2 | `0x31` | `0` to `3` None/Min/Avg/Max
+| Set the EMA (smoothing) Factor | 2 | `0x32` | `1` to `100`
+| Set trim value for ppb reading | 2 | `0x33` | `-100` to `100`
+| Set trim value for µg/m³ reading | 2 | `0x34` | `-100` to `100`
+
 
 ### Downlink Message Examples
 

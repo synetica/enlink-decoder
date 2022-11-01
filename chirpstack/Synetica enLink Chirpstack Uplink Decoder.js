@@ -1,5 +1,6 @@
 // Synetica Payload Decoder for Chirpstack
 // 08 Sep 2022 (FW Ver:5.03)
+// https://github.com/synetica/enlink-decoder
 
 var data = {};
 var warnings = [];
