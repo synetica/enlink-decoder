@@ -1,6 +1,6 @@
 // Used for decoding enLink Uplink LoRa Messages
 // --------------------------------------------------------------------------------------
-// 01 Nov 2022 (FW Ver:5.06)
+// 22 Nov 2022 (FW Ver:5.07)
 // --------------------------------------------------------------------------------------
 // https://github.com/synetica/enlink-decoder
 
@@ -17,9 +17,14 @@ if (msg.payload) {
     if (msg.payload.length === 0) {
         return null;
     }
+    // Ignore single byte Join-Check payloads (Nov 2022)
+    if (msg.payload.length === 1) {
+        return null;
+    }
 } else {
     return null;
 }
+
 // --------------------------------------------------------------------------------------
 // Telemetry data from all enLink Models
 const ENLINK_TEMP = 0x01;                                  // S16  -3276.8 C -> 3276.7 C (-10..80) [Divide word by 10]
@@ -150,6 +155,8 @@ const ENLINK_SET_DR_INDEX = 0x0B;   // Data Rate Index 0~6
 const ENLINK_SET_TX_INDEX = 0x0C;   // Data Rate Index 0~10
 const ENLINK_SET_POW_INDEX = 0x0D;   // Data Rate Index 0~6
 const ENLINK_SET_RX_PORT = 0x0E;
+const ENLINK_SET_JC_INTERVAL = 0x0F;    // Join Check Interval
+const ENLINK_SET_JC_PKT_TYPE = 0x10;    // Join Check Packet Type
 
 const ENLINK_SET_LUX_SCALE = 0x20;
 const ENLINK_SET_LUX_OFFSET = 0x21;
@@ -1028,6 +1035,11 @@ function decodeStdResponse(data) {
 				obj.command = "Set TX Power";
 			} else if (data[i + 2] == ENLINK_SET_RX_PORT) {
 				obj.command = "Set RX Port";
+			} else if (data[i + 2] == ENLINK_SET_JC_INTERVAL) {
+				obj.command = "Set Join Check Interval";
+			} else if (data[i + 2] == ENLINK_SET_JC_PKT_TYPE) {
+				obj.command = "Set Join Check Packet Type";
+
 			} else if (data[i + 2] == ENLINK_SET_LUX_SCALE) {
 				obj.command = "Set LUX Scale";
 			} else if (data[i + 2] == ENLINK_SET_LUX_OFFSET) {

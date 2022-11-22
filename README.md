@@ -28,6 +28,11 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
   - [Downlink Payload Structure](#downlink-payload-structure)
   - [Downlink Receive Port](#downlink-receive-port)
   - [Settings Data Details](#settings-data-details)
+    - [Light Sensor Parameters](#light-sensor-parameters)
+    - [AQM / Air Parameters](#aqm--air-parameters)
+    - [CO<sub>2</sub> Sensor Parameters](#carbon-dioxide-sensor-parameters)
+    - [Particulate Sensor Parameters](#particulate-sensor-parameters)
+    - [Gas Sensor Parameters](#gas-sensor-parameters)
   - [Downlink Message Examples](#downlink-message-examples)
   - [Downlink Message Index Tables](#downlink-message-index-tables)
   - [Settings for Lux Sensor](#settings-for-lux-sensor)
@@ -77,11 +82,11 @@ The firmware code is a concatenation of the base model plus the options.
 | FW-AQM  | (default) | `0x01`, `0x02` | Temperature, Humidity
 | | L | `0x03` | Light Level (Indoor only)
 | | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e
-| | C | `0x08` | CO<sub>2</sub> ppm
+| | C | `0x08` | NDIR CO<sub>2</sub> ppm
 | | X | `0x06` | Oxygen
 | | K | `0x07`, `0x09`, `0x0A`, `0x0D`,<br/>`0x53`, `0x54`, `0x55`, `0x56` | Optional Gas Socket Sensors
 | | S | `0x50`, `0x51`, `0x52` | Sound
-| | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`,<br/>`0x5F`, `0x60` | Particles
+| | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`,`0x5F`, `0x60` | Particles
 | | O | `0x61` | Ozone
 | | G | `0x61`, `0x66` | Single Gas Sensor
 | | G+ | `0x61`, `0x66` | Up to 4 x Gas Sensors
@@ -92,13 +97,13 @@ The firmware code is a concatenation of the base model plus the options.
 |:-----------|:--------|:-------------|:------------|
 | FW-AQ  | (default) | `0x01`, `0x02` | Temperature, Humidity
 | | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e
-| | C | `0x08` | CO<sub>2</sub> ppm
+| | C | `0x08` | NDIR CO<sub>2</sub> ppm
 | | D | `0x67`, `0x68` | Outdoor EPA Sensor
 | | O | `0x61` | Ozone
 | | G | `0x61`, `0x66` | Single Gas Sensor
 | | S | `0x50`, `0x51`, `0x52` | Sound
-| | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`,<br/>`0x5F`, `0x60` | Particles
-| | PP | `0x69`, `0x6A`, `0x6B`, `0x57`, `0x58`, `0x6C`, `0x5A`, <br/>`0x6D`, `0x6E`, `0x5B`, `0x5C`, `0x5D`, `0x6F`, `0x5F` | Particles
+| | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`, `0x5F`, `0x60` | Particles
+| | PP | `0x69`, `0x6A`, `0x6B`, `0x57`, `0x58`, `0x6C`, <br/>`0x5A`, `0x6D`, `0x6E`, `0x5B`, `0x5C`, `0x5D`, <br/>`0x6F`, `0x5F` | Particles
 
 <div style="page-break-after: always;"></div>
 
@@ -109,10 +114,10 @@ The firmware code is a concatenation of the base model plus the options.
 | FW-ZNP  | (default) | `0x01`, `0x02` | Temperature, Humidity
 | | L | `0x03` | Light Level
 | | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e
-| | C | `0x08` | CO<sub>2</sub> ppm
+| | C | `0x08` | NDIR CO<sub>2</sub> ppm
 | | M | `0x13`, `0x14` | Motion (PIR). Includes [ATI](#ati---adaptive-transmission-interval) feature
 | | S | `0x50`, `0x51`, `0x52` | Sound
-| | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`,<br/>`0x5F`, `0x60` | Particles
+| | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`, `0x5F`, `0x60` | Particles
 
 ### enLink Zone
 
@@ -121,7 +126,7 @@ The firmware code is a concatenation of the base model plus the options.
 | FW-ZNP  | (default) | `0x01`, `0x02` | Temperature, Humidity
 | | L | `0x03` | Light Level
 | | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e
-| | C | `0x08` | CO<sub>2</sub> ppm
+| | C | `0x08` | NDIR CO<sub>2</sub> ppm
 | | M | `0x13`, `0x14` | Motion (PIR). Includes [ATI](#ati---adaptive-transmission-interval) feature
 
 ### enLink Modbus
@@ -241,7 +246,7 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x02` 002 | Humidity | 0 to 100 | % | 1 | U8
 | `0x03` 003 | Ambient Light | 0.01 to 83k | lux | 2 | U16
 | `0x04` 004 | Pressure | 300 to 1100 | mbar | 2 | U16
-| `0x05` 005 | Volatile Organic Compounds (VOC)<br />See: [BOSCH Datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme680-ds001.pdf) | 0 to 500 | IAQ | 2 | U16
+| `0x05` 005 | Volatile Organic Compounds (VOC) See: [BOSCH Datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme680-ds001.pdf) | 0 to 500 | IAQ | 2 | U16
 | `0x06` 006 | Oxygen | 0 to 25 | % | 1 | U8 | / 10
 | `0x07` 007 | Carbon Monoxide | 0 to 100  | ppm | 2 | U16 | / 100
 | `0x08` 008 | Carbon Dioxide (2 sensor ranges) | 0 to 5000 or 0 to 50,000 | ppm | 2 | U16 | 
@@ -311,7 +316,7 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x65` 101 | Corrosion: percentage of thickness between original thickness (100%) and minimum (0%) |  | % | 1 + 4 | F32
 | `0x66` 102 | Gas ID + Gas Concentration |  | µg/m³ | 1 + 4 | F32
 | `0x67` 103 | Outdoor EPA Index Sensor Fast AQI (reading taken over 1 minute) | 0 to 500 | AQI | 2 | U16
-| `0x68` 104 | Outdoor EPA Index Sensor EPA AQI<br />See: [AirNow Technical Doc](https://www.airnow.gov/sites/default/files/2020-05/aqi-technical-assistance-document-sept2018.pdf) | 0 to 500 | AQI | 2 | U16
+| `0x68` 104 | Outdoor EPA Index Sensor EPA AQI See: [AirNow Technical Doc](https://www.airnow.gov/sites/default/files/2020-05/aqi-technical-assistance-document-sept2018.pdf) | 0 to 500 | AQI | 2 | U16
 | `0x69` 105 | Particulate matter mass concentration at PM0.1 |  | µg/m³ | 4 | F32
 | `0x6A` 106 | As above, PM0.3  |  | µg/m³ | 4 | F32
 | `0x6B` 107 | As above, PM0.5  |  | µg/m³ | 4 | F32
@@ -542,6 +547,10 @@ When the enLink device receives a downlink message, it first checks the port byt
 | Transmit Interval Index | 2  | `0x0C` | `1` to `10`
 | Transmit Power Index | 2  | `0x0D` | `1` to `6`
 | Receive Port | 2  | `0x0E` | `0` to `223` (`0` indicates **All** Ports. Default is **All**)
+| Set Join Check Interval | 2 | `0x0F` | `1` to `255` hours
+| Set Join Check Packet Type | 2 | `0x10` | `0` - Standard or `1` Single Byte of value 0x00
+
+#### Light Sensor Parameters
 
 The following are used in the AQM/Air, Zone and ZonePlus (with Light Sensor)
 
@@ -550,12 +559,16 @@ The following are used in the AQM/Air, Zone and ZonePlus (with Light Sensor)
 | Lux Scale Parameter | 3 | `0x20` | `0` to `65535` | /1000 (`0xFFFF` represents 65.535)
 | Lux Offset Parameter | 3 | `0x21` | `0` to `65535` | None (`0xFFFF` represents 65535)
 
+#### AQM / Air Parameters
+
 The following are used in the AQM/Air
 
 | Name | Msg Len | Command | Value |
 | ---- | ------- | ------- | ----- |
 | Case Fan Run Time| 3 | `0x22` | `10` to `600` Seconds
 | HPM Particulate Fan Run Time<br />(Discontinued)| 3 | `0x23` | `10` to `60` Seconds
+
+#### Carbon Dioxide Sensor Parameters
 
 The following are used in devices with CO<sub>2</sub> sensor
 
@@ -569,12 +582,16 @@ The following are used in devices with CO<sub>2</sub> sensor
 | Set the Out-of-Bounds limits<br />**Only GSS model** | 3 | `0x29` | `10` to `5000` ppm
 | Set initial auto-cal interval<br />**Only GSS model** | 3 | `0x2A` | `1` to `8760` hours
 
+#### Particulate Sensor Parameters
+
 The following are used in devices with particulate sensors (SPS30 or IPS7100)
 
 | Name | Msg Len | Command | Value |
 | ---- | ------- | ------- | ----- |
 | Set fan run period (Sample time) | 2 | `0x2B` | `3` to `180` Seconds
 | Set cleaning interval | 3 | `0x2C` | `6` to `1440` hours
+
+#### Gas Sensor Parameters
 
 The following are used in devices with a Gas sensor (Option Code 'G')
 
@@ -588,7 +605,6 @@ The following are used in devices with a Gas sensor (Option Code 'G')
 | Set the EMA (smoothing) Factor | 2 | `0x32` | `1` to `100`
 | Set trim value for ppb reading | 2 | `0x33` | `-100` to `100`
 | Set trim value for µg/m³ reading | 2 | `0x34` | `-100` to `100`
-
 
 ### Downlink Message Examples
 

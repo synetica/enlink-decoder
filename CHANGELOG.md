@@ -2,9 +2,10 @@
 
 ## 2022 November Updates
 
-- Updated firmware to 5.06
+- Updated firmware to 5.07
 - Added options for gas sensor (Option 'G') to improve noise reduction
-- Added OTA configuration for gas sensor options
+- Added OTA configuration for new gas sensor options
+- Added OTA configuration for Join Check interval and new 'type' options
 
 ## 2022 September Updates
 
