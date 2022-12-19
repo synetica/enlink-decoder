@@ -548,7 +548,7 @@ When the enLink device receives a downlink message, it first checks the port byt
 | Transmit Power Index | 2  | `0x0D` | `1` to `6`
 | Receive Port | 2  | `0x0E` | `0` to `223` (`0` indicates **All** Ports. Default is **All**)
 | Set Join Check Interval | 2 | `0x0F` | `1` to `255` hours
-| Set Join Check Packet Type | 2 | `0x10` | `0` - Standard or `1` Single Byte of value 0x00
+| Set Join Check Packet Type | 2 | `0x10` | `0` = 'Standard' or `1` = 'Single Byte' of value `0x00`
 
 #### Light Sensor Parameters
 
