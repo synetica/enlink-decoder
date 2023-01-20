@@ -1,5 +1,11 @@
 # Change Log
 
+## 2023 January Updates
+
+- Updated firmware to 5.08
+- Added OTA configuration for leak sensor
+- Added OTA configuration for ATI values
+
 ## 2022 November Updates
 
 - Updated firmware to 5.07

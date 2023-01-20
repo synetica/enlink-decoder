@@ -189,6 +189,14 @@ const ENLINK_SET_GAS_EMA_FACTOR = 0x32;
 const ENLINK_SET_GAS_TRIM_PPB = 0x33;
 const ENLINK_SET_GAS_TRIM_UGM3 = 0x34;
 
+// Leak Sensor options
+const ENLINK_LEAK_ALARM_MODE = 0x35;
+const ENLINK_LEAK_UPPER_ALARM = 0x36;
+const ENLINK_LEAK_UPPER_HYST = 0x37;
+const ENLINK_LEAK_LOWER_ALARM = 0x38;
+const ENLINK_LEAK_LOWER_HYST = 0x39;
+const ENLINK_LEAK_SAMPLE_TIME_S = 0x3A;
+
 const ENLINK_REBOOT = 0xFF;
 
 // --------------------------------------------------------------------------------------
@@ -1088,6 +1096,19 @@ function decodeStdResponse(data) {
                 obj.command = "Set Gas PPB trim value";
             } else if (data[i + 2] == ENLINK_SET_GAS_TRIM_UGM3) {
                 obj.command = "Set Gas UGM3 trim value";
+
+            } else if (data[i + 2] == ENLINK_LEAK_ALARM_MODE) {
+                obj.command = "Set Leak Sensor Alarm Mode";
+            } else if (data[i + 2] == ENLINK_LEAK_UPPER_ALARM) {
+                obj.command = "Set Leak Sensor High Alarm Level";
+            } else if (data[i + 2] == ENLINK_LEAK_UPPER_HYST) {
+                obj.command = "Set Leak Sensor High Hysteresis";
+            } else if (data[i + 2] == ENLINK_LEAK_LOWER_ALARM) {
+                obj.command = "Set Leak Sensor Low Alarm Level";
+            } else if (data[i + 2] == ENLINK_LEAK_LOWER_HYST) {
+                obj.command = "Set Leak Sensor Low Hysteresis";
+            } else if (data[i + 2] == ENLINK_LEAK_SAMPLE_TIME_S) {
+                obj.command = "Set Leak Sensor Sample Time";
 
 			} else if (data[i + 2] == ENLINK_REBOOT) {
 				obj.command = "Reboot";

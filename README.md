@@ -33,6 +33,7 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
     - [CO<sub>2</sub> Sensor Parameters](#carbon-dioxide-sensor-parameters)
     - [Particulate Sensor Parameters](#particulate-sensor-parameters)
     - [Gas Sensor Parameters](#gas-sensor-parameters)
+    - [Leak Sensor Parameters](#leak-sensor-parameters)
   - [Downlink Message Examples](#downlink-message-examples)
   - [Downlink Message Index Tables](#downlink-message-index-tables)
   - [Settings for Lux Sensor](#settings-for-lux-sensor)
@@ -179,7 +180,7 @@ The firmware code is a concatenation of the base model plus the options.
 
 ### ATI - Adaptive Transmission Interval
 
-This is included on enLink devices where an alarm or status feature requires immediate transfer of a radio message. The Adaptive feature means the unit will transmit a message at a long interval. This *heart-beat* is a normal radio message. If an alarm/status condition is detected, a message will be sent immediately. If the condition continues, the message will continue to send at a shorter interval, but not any more frequently.
+This is included on enLink devices where an alarm or status feature requires immediate transfer of a radio message. When a change of alarm state occurs a wireless message is sent immediately, however messages will not be sent more frequently than the **Adaptive Min interval**. The **Adaptive Max interval** acts like a heartbeat, so if no change of alarm state occurs then a message is sent at the Adaptive Max interval.
 
 <div style="page-break-after: always;"></div>
 
@@ -544,11 +545,13 @@ When the enLink device receives a downlink message, it first checks the port byt
 | Message Confirmation | 2  | `0x09` | `0`/`1` (Disable/Enable)
 | Transmit Port | 2  | `0x0A` | `1` to `223` (Default is 1)
 | Default Data Rate Index | 2  | `0x0B` | `1` to `6` (Requires ADR disabled)
-| Transmit Interval Index | 2  | `0x0C` | `1` to `10`
+| Transmit Interval Index | 2  | `0x0C` | `1` to `11` when [ATI](#ati---adaptive-transmission-interval) is available, use `255` (`0xFF`) to activate it
 | Transmit Power Index | 2  | `0x0D` | `1` to `6`
 | Receive Port | 2  | `0x0E` | `0` to `223` (`0` indicates **All** Ports. Default is **All**)
 | Set Join Check Interval | 2 | `0x0F` | `1` to `255` hours
 | Set Join Check Packet Type | 2 | `0x10` | `0` = 'Standard' or `1` = 'Single Byte' of value `0x00`
+| [ATI](#ati---adaptive-transmission-interval) Min TX Interval Index | 2  | `0x11` | `1` to `11`
+| [ATI](#ati---adaptive-transmission-interval) Max TX Interval Index | 2  | `0x12` | `1` to `11`
 
 #### Light Sensor Parameters
 
@@ -605,6 +608,22 @@ The following are used in devices with a Gas sensor (Option Code 'G')
 | Set the EMA (smoothing) Factor | 2 | `0x32` | `1` to `100`
 | Set trim value for ppb reading | 2 | `0x33` | `-100` to `100`
 | Set trim value for µg/m³ reading | 2 | `0x34` | `-100` to `100`
+
+#### Leak Sensor Parameters
+
+The following are used in the enLink Status Leak Sensor.
+
+Note: All options are shown. However, for the supplied leak cable, the Alarm Mode should be set to **Low Threshold** (2). Low alarm level to **1000kOhms** with a Low hysteresis of **100kOhms**.
+
+| Name | Msg Len | Command | Value |
+| ---- | ------- | ------- | ----- |
+| Alarm Mode | 2 | `0x35` | `0`/`1`/`2` Off/High Threshold/Low Threshold
+| High Alarm Level | 3 | `0x36` | `0` to `5000` kOhms
+| High Alarm Hysteresis | 3 | `0x37` | `1` to `300` kOhms
+| Low Alarm Level | 3 | `0x38` | `1` to `5000` kOhms
+| Low Alarm Hysteresis | 3 | `0x39` | `0` to `300` kOhms
+| Sample Interval | 3 | `0x3A` | `1` to `7200` seconds
+
 
 ### Downlink Message Examples
 
