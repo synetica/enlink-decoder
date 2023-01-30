@@ -5,7 +5,7 @@
 - Updated firmware to 5.08
 - Added OTA configuration for leak sensor
 - Added OTA configuration for ATI values
-- Added Particulate Detection Counters for Smoke/Vape. IAQ with PV option
+- Added particulate detection counters for Smoke/Vape. IAQ with PV option
 
 ## 2022 November Updates
 

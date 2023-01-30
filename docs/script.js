@@ -168,6 +168,9 @@ function js_decoder(msg) {
   const ENLINK_NC_PM0_3 = 0x6E;
   const ENLINK_NC_PM5_0 = 0x6F;
 
+	const ENLINK_DE_EVENT = 0x70;
+	const ENLINK_DE_SMOKE = 0x71;
+	const ENLINK_DE_VAPE = 0x72;
   // --------------------------------------------------------------------------------------
   // Optional KPI values that can be included in the message
   const ENLINK_CPU_TEMP_DEP = 0x40;
@@ -973,6 +976,21 @@ function js_decoder(msg) {
           i += 4;
           break;
 
+        case ENLINK_DE_EVENT:
+          obj.de_event = U16((data[i + 1] << 8) | data[i + 2]);
+          i += 2;
+          break;
+
+        case ENLINK_DE_SMOKE:
+          obj.de_smoke = U16((data[i + 1] << 8) | data[i + 2]);
+          i += 2;
+          break;
+
+        case ENLINK_DE_VAPE:
+          obj.de_vape = U16((data[i + 1] << 8) | data[i + 2]);
+          i += 2;
+          break;
+    
         case ENLINK_GAS_PPB:
           // Need to create array as might have multiple sensors
           var gas_ppb_val = fromF32(
