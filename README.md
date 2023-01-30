@@ -105,6 +105,7 @@ The firmware code is a concatenation of the base model plus the options.
 | | S | `0x50`, `0x51`, `0x52` | Sound
 | | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`, `0x5F`, `0x60` | Particles
 | | PP | `0x69`, `0x6A`, `0x6B`, `0x57`, `0x58`, `0x6C`, <br/>`0x5A`, `0x6D`, `0x6E`, `0x5B`, `0x5C`, `0x5D`, <br/>`0x6F`, `0x5F` | Particles
+| | PV | `0x69`, `0x6A`, `0x6B`, `0x57`, `0x58`, `0x6C`, <br/>`0x5A`, `0x6D`, `0x6E`, `0x5B`, `0x5C`, `0x5D`, <br/>`0x6F`, `0x5F`, `0x70`, `0x71`, `0x72` | Particles, Smoke/Vape</br>**Unit must be externally powered**
 
 <div style="page-break-after: always;"></div>
 
@@ -325,6 +326,10 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x6D` 109 | Particulate matter number concentration at PM0.1 |  | #/cm³ | 4 | F32
 | `0x6E` 110 | As above, PM0.3  |  | #/cm³ | 4 | F32
 | `0x6F` 111 | As above, PM5.0  |  | #/cm³ | 4 | F32
+| `0x70` 112 | Detection: Event Count  | 0 to 65535 | count | 2 | U16
+| `0x71` 113 | Detection: Smoke Count  | 0 to 65535 | count | 2 | U16
+| `0x72` 114 | Detection: Vape Count   | 0 to 65535 | count | 2 | U16
+
 
 
 <div style="page-break-after: always;"></div>
@@ -493,7 +498,7 @@ Each enLink end-node device can have optional Key Performance Indicators (KPI) a
 | Type Hex&nbsp;Dec | KPI             | Comments     | Units | Num Bytes | Format |
 |:---------:| --------------- | ------------ | ----- |:---------:| ------ |
 | `0x40` 064 | CPU&nbsp;Temperature | Packed Byte. See JS Code | °C | 2 | S16
-| `0x41` 065 | Battery Status | 0=Charging; 1 - 254 (1.8 - 3.3V); 255=Ext Power | status | 1 | U8
+| `0x41` 065 | Battery Status | 0=Ext Power; 1 - 254 (1.8 - 3.3V); 255=Error | status | 1 | U8
 | `0x42` 066 | Battery Voltage | 0 -> 3600 mV (3600=Ext Power) | mV | 2 | U16
 | `0x43` 067 | RX RSSI  | Received Signal Strength | dBm | 2 | S16
 | `0x44` 068 | RX SNR   | Received Signal-Noise Ratio | dB | 1 | S8

@@ -1,5 +1,5 @@
 // Synetica Payload Decoder for The Things Stack V3
-// 08 Sep 2022 (FW Ver:5.03)
+// 25 Jan 2023 (FW Ver:5.08)
 // https://github.com/synetica/enlink-decoder
 
 function decodeUplink(input) {
@@ -100,6 +100,11 @@ function decodeUplink(input) {
 	const ENLINK_NC_PM0_1 = 0x6D;
 	const ENLINK_NC_PM0_3 = 0x6E;
 	const ENLINK_NC_PM5_0 = 0x6F;
+
+	// IPS7100 Particulate Detection Events - type counts
+	const ENLINK_DE_EVENT = 0x70;
+	const ENLINK_DE_SMOKE = 0x71;
+	const ENLINK_DE_VAPE = 0x72;
 
 	// Optional KPI values that can be included in the message
     const ENLINK_CPU_TEMP_DEP = 0x40;
@@ -602,6 +607,25 @@ function decodeUplink(input) {
 					i += 4;
 					break;
 
+				case ENLINK_DE_EVENT:
+					/* Particle Detection Event */
+					/* Event raised, not yet identified */
+					obj.de_event = U16((data[i + 1] << 8) | (data[i + 2]));
+					i += 2;
+					break;
+		
+				case ENLINK_DE_SMOKE:
+					/* Smoke particles identified */
+					obj.de_smoke = U16((data[i + 1] << 8) | (data[i + 2]));
+					i += 2;
+					break;
+					
+				case ENLINK_DE_VAPE:
+					/* Vape particles identified */
+					obj.de_vape = U16((data[i + 1] << 8) | (data[i + 2]));
+					i += 2;
+					break;
+			
 				case ENLINK_GAS_PPB:
 					switch (data[i + 1]) {
 						case GAS_HCHO_CH2O:
@@ -830,8 +854,8 @@ function decodeUplink(input) {
 					i += 4;
 					break;
 				default: // something is wrong with data
-					i = data.length;
 					obj.error = "Error at " + i + " byte value " + data[i];
+					i = data.length;
 					break;
 			}
 		}

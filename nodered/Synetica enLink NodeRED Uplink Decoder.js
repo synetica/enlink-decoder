@@ -1,6 +1,6 @@
 // Used for decoding enLink Uplink LoRa Messages
 // --------------------------------------------------------------------------------------
-// 20 Jan 2023 (FW Ver:5.08)
+// 25 Jan 2023 (FW Ver:5.08)
 // --------------------------------------------------------------------------------------
 // https://github.com/synetica/enlink-decoder
 
@@ -119,6 +119,10 @@ const ENLINK_NC_PM0_1 = 0x6D;                              // F32  #/cm3 Number 
 const ENLINK_NC_PM0_3 = 0x6E;                              // F32  #/cm3
 const ENLINK_NC_PM5_0 = 0x6F;                              // F32  #/cm3
 
+// IPS7100 Particulate Detection Events - type counts
+const ENLINK_DE_EVENT = 0x70;                              // U16 count
+const ENLINK_DE_SMOKE = 0x71;                              // U16 count
+const ENLINK_DE_VAPE = 0x72;                               // U16 count
 
 // --------------------------------------------------------------------------------------
 // Optional KPI values that can be included in the message
@@ -797,6 +801,28 @@ function decodeTelemetry(data) {
             msg_ok = true;
             break;
 
+        case ENLINK_DE_EVENT:
+            /* Particle Detection Event */
+            /* Event raised, not yet identified */
+            obj.de_event = U16((data[i + 1] << 8) | (data[i + 2]));
+            i += 2;
+            msg_ok = true;
+            break;
+
+        case ENLINK_DE_SMOKE:
+            /* Smoke particles identified */
+            obj.de_smoke = U16((data[i + 1] << 8) | (data[i + 2]));
+            i += 2;
+            msg_ok = true;
+            break;
+
+        case ENLINK_DE_VAPE:
+            /* Vape particles identified */
+            obj.de_vape = U16((data[i + 1] << 8) | (data[i + 2]));
+            i += 2;
+            msg_ok = true;
+            break;
+                
         case ENLINK_GAS_PPB:
             // Need to create array as might have multiple sensors
             var gas_ppb_val = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]).toFixed(2);
