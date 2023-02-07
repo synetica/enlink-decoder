@@ -1,5 +1,10 @@
 # Change Log
 
+## 2023 February Updates
+
+- Updated firmware to 5.09
+- Scaled ADC Resistance reading for ADC and leak sensor models (from 0-65kΩ to 0-6553.5kΩ)
+
 ## 2023 January Updates
 
 - Updated firmware to 5.08

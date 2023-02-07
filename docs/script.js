@@ -63,7 +63,7 @@ function decode_hex_string(hex_string) {
 function js_decoder(msg) {
   // Used for decoding enLink Uplink LoRa Messages
   // --------------------------------------------------------------------------------------
-  // 08 Sep 2022 (FW Ver:5.03)
+  // 03 Feb 2023 (FW Ver:5.09)
   // --------------------------------------------------------------------------------------
   // https://github.com/synetica/enlink-decoder
   
@@ -754,8 +754,8 @@ function js_decoder(msg) {
           obj.adc_ma = U16((data[i + 1] << 8) | data[i + 2]) / 1000;
           i += 2;
           break;
-        case ENLINK_RESISTANCE: // 2 bytes U16, 0 to 10.000 kOhm
-          obj.adc_kohm = U16((data[i + 1] << 8) | data[i + 2]) / 1000;
+        case ENLINK_RESISTANCE: // 2 bytes U16, 0 to 6553.5 kOhm
+          obj.adc_kohm = U16((data[i + 1] << 8) | data[i + 2]) / 10;
           i += 2;
           break;
         case ENLINK_LEAK_DETECT_EVT: // 1 byte U8, Leak status changed

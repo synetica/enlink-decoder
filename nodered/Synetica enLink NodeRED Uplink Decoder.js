@@ -1,6 +1,6 @@
 // Used for decoding enLink Uplink LoRa Messages
 // --------------------------------------------------------------------------------------
-// 25 Jan 2023 (FW Ver:5.08)
+// 3 Feb 2023 (FW Ver:5.09)
 // --------------------------------------------------------------------------------------
 // https://github.com/synetica/enlink-decoder
 
@@ -74,7 +74,7 @@ const ENLINK_DIFF_PRESSURE = 0X2C;                         // F32  +- 5000 Pa
 const ENLINK_AIR_FLOW = 0x2D;                              // F32  0 -> 100 m/s
 const ENLINK_VOLTAGE = 0x2E;                               // U16  0 -> 65.535V [Divide by 1000]
 const ENLINK_CURRENT = 0x2F;                               // U16  0 -> 65.535mA [Divide by 1000]
-const ENLINK_RESISTANCE = 0x30;                            // U16  0 -> 65.535kOhm [Divide by 1000]
+const ENLINK_RESISTANCE = 0x30;                            // U16  0 -> 6553.5kOhm [Divide by 10]
 const ENLINK_LEAK_DETECT_EVT = 0x31;                       // U8   1 or 0, Leak status on resistance rope
 const ENLINK_CO2E = 0x3F;                                  // F32  ppm CO2e Estimate Equivalent
 
@@ -647,6 +647,7 @@ function decodeTelemetry(data) {
             i += 4;
             msg_ok = true;
             break;
+
         case ENLINK_VOLTAGE: // 2 bytes U16, 0 to 10.000 V
             obj.adc_v = U16((data[i + 1] << 8) | (data[i + 2])) / 1000;
             i += 2;
@@ -657,8 +658,8 @@ function decodeTelemetry(data) {
             i += 2;
             msg_ok = true;
             break;
-        case ENLINK_RESISTANCE: // 2 bytes U16, 0 to 10.000 kOhm
-            obj.adc_kohm = U16((data[i + 1] << 8) | (data[i + 2])) / 1000;
+        case ENLINK_RESISTANCE: // 2 bytes U16, 0 to 6553.5 kOhm (Jan 2023)
+            obj.adc_kohm = U16((data[i + 1] << 8) | (data[i + 2])) / 10;
             i += 2;
             msg_ok = true;
             break;

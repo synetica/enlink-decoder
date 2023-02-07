@@ -125,7 +125,7 @@ The firmware code is a concatenation of the base model plus the options.
 
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| FW-ZNP  | (default) | `0x01`, `0x02` | Temperature, Humidity
+| FW-ZN  | (default) | `0x01`, `0x02` | Temperature, Humidity
 | | L | `0x03` | Light Level
 | | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e
 | | C | `0x08` | NDIR CO<sub>2</sub> ppm
@@ -291,8 +291,8 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x2D` 045 | Airflow | 0 to 100 | m/s   | 4 | F32
 | `0x2E` 046 | Voltage | 0 to 10  | Volts | 2 | U16 | / 1000
 | `0x2F` 047 | Current | 0 to 20  | mA    | 2 | U16 | / 1000
-| `0x30` 048 | Resistance | 0 to 10 | kΩ | 2 | U16 | / 1000
-| `0x31` 049 | Leak Detection (resistance rope) | 0 = No Leak<br />1 = Detected | status | 1 | U8
+| `0x30` 048 | Resistance | 0 to 6553.5 kΩ (6.5MΩ) | kΩ | 2 | U16 | / 10
+| `0x31` 049 | Leak Detection (resistance rope) | 0 = No Leak<br />1 = Leak Detected | status | 1 | U8
 | `0x3F` 063 | CO<sub>2</sub>e estimate equivalent |  | ppm | 4 | F32
 | `0x50` 080 | Sound Level Minimum |  | dB(A) | 4 | F32
 | `0x51` 081 | Sound Level Average |  | dB(A) | 4 | F32
