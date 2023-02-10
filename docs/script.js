@@ -755,7 +755,8 @@ function js_decoder(msg) {
           i += 2;
           break;
         case ENLINK_RESISTANCE: // 2 bytes U16, 0 to 6553.5 kOhm
-          obj.adc_kohm = U16((data[i + 1] << 8) | data[i + 2]) / 10;
+          obj.pre_5_09_adc_kohm = U16((data[i + 1] << 8) | data[i + 2]) / 1000;
+          obj.post_5_09_adc_kohm = U16((data[i + 1] << 8) | data[i + 2]) / 10;
           i += 2;
           break;
         case ENLINK_LEAK_DETECT_EVT: // 1 byte U8, Leak status changed
