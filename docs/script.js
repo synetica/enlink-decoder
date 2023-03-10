@@ -43,7 +43,7 @@ function decode_bytes() {
 function decode_hex_string(hex_string) {
   function hexStringToByte(hexString) {
     var result = [];
-    for (var i = 0; i < hexString.length; i += 2) {
+    for (let i = 0; i < hexString.length; i += 2) {
       result.push(parseInt(hexString.substr(i, 2), 16));
     }
     return result;
@@ -171,6 +171,7 @@ function js_decoder(msg) {
 	const ENLINK_DE_EVENT = 0x70;
 	const ENLINK_DE_SMOKE = 0x71;
 	const ENLINK_DE_VAPE = 0x72;
+  
   // --------------------------------------------------------------------------------------
   // Optional KPI values that can be included in the message
   const ENLINK_CPU_TEMP_DEP = 0x40;
@@ -275,7 +276,7 @@ function js_decoder(msg) {
   // Utility function
   function bytesToHex(bytes) {
     var result = "";
-    for (var i = 0; i < bytes.length; i += 1) {
+    for (let i = 0; i < bytes.length; i += 1) {
       result += ("0" + bytes[i].toString(16).toUpperCase() + " ").slice(-3);
     }
     return result.trim();
@@ -345,7 +346,7 @@ function js_decoder(msg) {
     var metal;
     var obj = {};
 
-    for (var i = 0; i < data.length; i++) {
+    for (let i = 0; i < data.length; i++) {
       switch (data[i]) {
         // Parse enLink message for telemetry data
         case ENLINK_TEMP: // Temperature
@@ -1200,7 +1201,7 @@ function js_decoder(msg) {
   // Function to decode enLink response to downlink message
   function decodeStdResponse(data) {
     var obj = {};
-    for (i = 0; i < data.length; i++) {
+    for (let i = 0; i < data.length; i++) {
       switch (data[i]) {
         // Parse reply from device following a downlink command
         case ENLINK_HEADER:

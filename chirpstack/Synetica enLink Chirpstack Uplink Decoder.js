@@ -1,11 +1,6 @@
-// Synetica Payload Decoder for Chirpstack
+// Synetica Payload Decoder for Chirpstack v3 and v4
 // 03 Feb 2023 (FW Ver:5.09)
 // https://github.com/synetica/enlink-decoder
-
-var data = {};
-var warnings = [];
-var errors = [];
-var i;
 
 var ENLINK_TEMP = 0x01;
 var ENLINK_RH = 0x02;
@@ -120,6 +115,72 @@ var ENLINK_LOGIN_FAIL_COUNT = 0x4C;
 var ENLINK_FAN_RUN_TIME = 0x4D;
 var ENLINK_CPU_TEMP = 0x4E;
 
+// --------------------------------------------------------------------------------------
+// Downlink reply message Header and ACK/NAK
+var ENLINK_HEADER = 0xA5;
+var ENLINK_ACK = 0x06;
+var ENLINK_NACK = 0x15;
+// Downlink reply message values
+var ENLINK_SET_PUBLIC = 0x02;
+var ENLINK_SET_APPEUI = 0x05;   // 8 bytes
+var ENLINK_SET_APPKEY = 0x06;   // 16 bytes
+var ENLINK_SET_ADR = 0x07;
+var ENLINK_SET_DUTY_CYCLE = 0x08;
+var ENLINK_SET_MSG_ACK = 0x09;
+var ENLINK_SET_TX_PORT = 0x0A;
+var ENLINK_SET_DR_INDEX = 0x0B;   // Data Rate Index 0~6
+var ENLINK_SET_TX_INDEX = 0x0C;   // Data Rate Index 0~10
+var ENLINK_SET_POW_INDEX = 0x0D;   // Data Rate Index 0~6
+var ENLINK_SET_RX_PORT = 0x0E;
+var ENLINK_SET_JC_INTERVAL = 0x0F;    // Join Check Interval
+var ENLINK_SET_JC_PKT_TYPE = 0x10;    // Join Check Packet Type
+
+var ENLINK_SET_LUX_SCALE = 0x20;
+var ENLINK_SET_LUX_OFFSET = 0x21;
+
+var ENLINK_SET_CASE_FAN_RUN_TIME = 0x22;
+var ENLINK_SET_HPM_FAN_RUN_TIME = 0x23;
+
+// CO2 Sensors
+var ENLINK_SET_CO2_CALIB_ENABLE = 0x24;
+var ENLINK_SET_CO2_TARGET_PPM = 0x25;
+var ENLINK_SET_CO2_KNOWN_PPM = 0x26;
+// 0x27 Sunrise CO2 Only
+var ENLINK_SET_SR_CO2_FACTORY_CALIB = 0x27;
+var ENLINK_SET_CO2_REGULAR_INTERVAL = 0x28;
+// 0x29,0x30 GSS CO2 Only
+var ENLINK_SET_GSS_CO2_OOB_LIMITS = 0x29;
+var ENLINK_SET_GSS_CO2_INIT_INTERVAL = 0x2A;
+
+// Set PM options
+var ENLINK_SET_PM_RUN_PERIOD = 0x2B;
+var ENLINK_SET_PM_CLEANING_PERIOD = 0x2C;
+
+// Set Gas Sensor options
+var ENLINK_SET_GAS_IDLE_STATE = 0x2D;
+var ENLINK_SET_GAS_PRE_DELAY = 0x2E;
+var ENLINK_SET_GAS_NUM_READS = 0x2F;
+var ENLINK_SET_GAS_READ_INT = 0x30;
+var ENLINK_SET_GAS_AGG_METHOD = 0x31;
+var ENLINK_SET_GAS_EMA_FACTOR = 0x32;
+var ENLINK_SET_GAS_TRIM_PPB = 0x33;
+var ENLINK_SET_GAS_TRIM_UGM3 = 0x34;
+
+// Leak Sensor options
+var ENLINK_LEAK_ALARM_MODE = 0x35;
+var ENLINK_LEAK_UPPER_ALARM = 0x36;
+var ENLINK_LEAK_UPPER_HYST = 0x37;
+var ENLINK_LEAK_LOWER_ALARM = 0x38;
+var ENLINK_LEAK_LOWER_HYST = 0x39;
+var ENLINK_LEAK_SAMPLE_TIME_S = 0x3A;
+
+var ENLINK_REBOOT = 0xFF;
+
+// --------------------------------------------------------------------------------------
+// OTA Modbus configuration Only
+var ENLINK_MB_SYS = 0xFF;	// Config reply from a MB unit
+
+
 // Convert binary value bit to Signed 8 bit
 function S8(bin) {
 	var num = bin & 0xFF;
@@ -206,24 +267,12 @@ function GetCrnMetal(id_byte) {
 }
 // --------------------------------------------------------------------------------------
 // Function to decode enLink Messages
-function DecodePayload(data) {
+function decodeTelemetry(data) {
 	var cpn;
 	var metal;
 	var obj = new Object();
 
-	// Ignore empty payloads
-	if (data) {
-		if (data.length === 0) {
-			return null;
-		}
-		// Ignore single byte Join-Check payloads (Nov 2022)
-		if (data.length === 1) {
-			return null;
-		}
-	} else {
-		return null;
-	}
-	for (i = 0; i < data.length; i++) {
+	for (let i = 0; i < data.length; i++) {
 		switch (data[i]) {
 			// Parse Sensor Message Parts
 			case ENLINK_TEMP: // Temperature
@@ -862,6 +911,11 @@ function DecodePayload(data) {
 					U32((data[i + 1] << 24) | (data[i + 2] << 16) | (data[i + 3] << 8) | (data[i + 4]));
 				i += 4;
 				break;
+
+			case ENLINK_MB_SYS: // Ignore this message
+				i = data.length;
+				break;
+
 			default: // something is wrong with data
 				obj.error = "Error at index " + i + "  Byte value " + data[i];
 				i = data.length;
@@ -871,13 +925,178 @@ function DecodePayload(data) {
 	return obj;
 }
 
-function Decode(fPort, bytes) {
-		var fPort = fPort;
-		var bytes = bytes;
+// --------------------------------------------------------------------------------------
+// Function to decode enLink response to downlink message
+function decodeStdResponse(data) {
+    var obj = {};
+    for (let i = 0; i < data.length; i++) {
+        switch (data[i]) {
+		// Parse reply from device following a downlink command
+		case ENLINK_HEADER:
+			if (data[i + 1] == ENLINK_ACK) {
+				obj.reply = "ACK";
+			} else if (data[i + 1] == ENLINK_NACK) {
+				obj.reply = "NACK";
+			} else {
+				obj.reply = "Reply parse failure";
+			}
 
+			if (data[i + 2] == ENLINK_SET_PUBLIC) {
+				obj.command = "Set Public";
+			} else if (data[i + 2] == ENLINK_SET_APPEUI) {
+				obj.command = "Set AppEUI";
+			} else if (data[i + 2] == ENLINK_SET_APPKEY) {
+				obj.command = "Set AppKEY";
+			} else if (data[i + 2] == ENLINK_SET_ADR) {
+				obj.command = "Set ADR";
+			} else if (data[i + 2] == ENLINK_SET_DUTY_CYCLE) {
+				obj.command = "Set Duty Cycle";
+			} else if (data[i + 2] == ENLINK_SET_MSG_ACK) {
+				obj.command = "Set Message Confirmation";
+			} else if (data[i + 2] == ENLINK_SET_TX_PORT) {
+				obj.command = "Set TX Port";
+			} else if (data[i + 2] == ENLINK_SET_DR_INDEX) {
+				obj.command = "Set Data Rate";
+			} else if (data[i + 2] == ENLINK_SET_TX_INDEX) {
+				obj.command = "Set TX Interval";
+			} else if (data[i + 2] == ENLINK_SET_POW_INDEX) {
+				obj.command = "Set TX Power";
+			} else if (data[i + 2] == ENLINK_SET_RX_PORT) {
+				obj.command = "Set RX Port";
+			} else if (data[i + 2] == ENLINK_SET_JC_INTERVAL) {
+				obj.command = "Set Join Check Interval";
+			} else if (data[i + 2] == ENLINK_SET_JC_PKT_TYPE) {
+				obj.command = "Set Join Check Packet Type";
+
+			} else if (data[i + 2] == ENLINK_SET_LUX_SCALE) {
+				obj.command = "Set LUX Scale";
+			} else if (data[i + 2] == ENLINK_SET_LUX_OFFSET) {
+				obj.command = "Set LUX Offset";
+
+			} else if (data[i + 2] == ENLINK_SET_CASE_FAN_RUN_TIME) {
+				obj.command = "Set Case Fan Run Time";
+			} else if (data[i + 2] == ENLINK_SET_HPM_FAN_RUN_TIME) {
+				obj.command = "Set Particle Sensor Fan Run Time";
+
+			} else if (data[i + 2] == ENLINK_SET_CO2_CALIB_ENABLE) {
+				obj.command = "Set CO2 Sensor Auto-Calib Enable/Disable Flag";
+			} else if (data[i + 2] == ENLINK_SET_CO2_TARGET_PPM) {
+				obj.command = "Set CO2 Sensor Auto-Calib Target";
+			} else if (data[i + 2] == ENLINK_SET_CO2_KNOWN_PPM) {
+				obj.command = "Set CO2 Sensor to Known ppm";
+			// Sunrise Sensor Only
+			} else if (data[i + 2] == ENLINK_SET_SR_CO2_FACTORY_CALIB) {
+				obj.command = "Set SR CO2 Sensor to Factory Calib";
+			} else if (data[i + 2] == ENLINK_SET_CO2_REGULAR_INTERVAL) {
+				obj.command = "Set CO2 Sensor Regular Auto-Calib Interval";
+			// GSS CO2 Only
+			} else if (data[i + 2] == ENLINK_SET_GSS_CO2_OOB_LIMITS) {
+				obj.command = "Set GSS CO2 Sensor OOB Limits";
+			} else if (data[i + 2] == ENLINK_SET_GSS_CO2_INIT_INTERVAL) {
+				obj.command = "Set GSS CO2 Sensor Initial Auto-Calib Interval";
+            // PM Sensors
+            } else if (data[i + 2] == ENLINK_SET_PM_RUN_PERIOD) {
+				obj.command = "Set PM Sensor Run Period";
+			} else if (data[i + 2] == ENLINK_SET_PM_CLEANING_PERIOD) {
+				obj.command = "Set PM Sensor Cleaning Interval";
+            // Gas Sensors
+            } else if (data[i + 2] == ENLINK_SET_GAS_IDLE_STATE) {
+                obj.command = "Set Gas Idle State";
+            } else if (data[i + 2] == ENLINK_SET_GAS_PRE_DELAY) {
+                obj.command = "Set Gas Preamble Delay";
+            } else if (data[i + 2] == ENLINK_SET_GAS_NUM_READS) {
+                obj.command = "Set Gas Number of Reads";
+            } else if (data[i + 2] == ENLINK_SET_GAS_READ_INT) {
+                obj.command = "Set Gas Read Interval";
+            } else if (data[i + 2] == ENLINK_SET_GAS_AGG_METHOD) {
+                obj.command = "Set Gas Aggregation Method";
+            } else if (data[i + 2] == ENLINK_SET_GAS_EMA_FACTOR) {
+                obj.command = "Set Gas EMA Factor";
+            } else if (data[i + 2] == ENLINK_SET_GAS_TRIM_PPB) {
+                obj.command = "Set Gas PPB trim value";
+            } else if (data[i + 2] == ENLINK_SET_GAS_TRIM_UGM3) {
+                obj.command = "Set Gas UGM3 trim value";
+
+            } else if (data[i + 2] == ENLINK_LEAK_ALARM_MODE) {
+                obj.command = "Set Leak Sensor Alarm Mode";
+            } else if (data[i + 2] == ENLINK_LEAK_UPPER_ALARM) {
+                obj.command = "Set Leak Sensor High Alarm Level";
+            } else if (data[i + 2] == ENLINK_LEAK_UPPER_HYST) {
+                obj.command = "Set Leak Sensor High Hysteresis";
+            } else if (data[i + 2] == ENLINK_LEAK_LOWER_ALARM) {
+                obj.command = "Set Leak Sensor Low Alarm Level";
+            } else if (data[i + 2] == ENLINK_LEAK_LOWER_HYST) {
+                obj.command = "Set Leak Sensor Low Hysteresis";
+            } else if (data[i + 2] == ENLINK_LEAK_SAMPLE_TIME_S) {
+                obj.command = "Set Leak Sensor Sample Time";
+
+			} else if (data[i + 2] == ENLINK_REBOOT) {
+				obj.command = "Reboot";
+			} else {
+				obj.command = "Command parse failure: " + data[i + 2];
+			}
+
+			i = data.length;
+			break;
+
+		default: // Ignore this message
+			i = data.length;
+			break;
+        }
+	}
+    return obj;
+}
+
+// --------------------------------------------------------------------------------------
+// Function to switch between Telemetry or downlink reply
+function enlinkDecode(bytes) {
+	// Ignore empty payloads
+	if (bytes) {
+		if (bytes.length === 0) {
+			return null;
+		}
+		// Ignore single byte Join-Check payloads (Nov 2022)
+		if (bytes.length === 1) {
+			return null;
+		}
+	} else {
+		return null;
+	}
+
+	if (bytes[0] == ENLINK_HEADER) {
+		// This is a reply to a downlink command
+		return decodeStdResponse(bytes);
+	}
+	return decodeTelemetry(bytes);
+}
+
+// --------------------------------------------------------------------------------------
+// Chirpstack Version 3
+// Decode decodes an array of bytes into an object.
+//  - fPort contains the LoRaWAN fPort number
+//  - bytes is an array of bytes, e.g. [225, 230, 255, 0]
+//  - variables contains the device variables e.g. {"calibration": "3.5"} (both the key / value are of type string)
+// The function must return an object, e.g. {"temperature": 22.5}
+function Decode(fPort, bytes, variables) {
 	return {
-		data: DecodePayload(bytes),
-		warnings: warnings,
-		errors: errors
+		data: enlinkDecode(bytes)
 	};
 }
+
+// --------------------------------------------------------------------------------------
+// Chirpstack Version 4
+// Decode uplink function.
+//
+// Input is an object with the following fields:
+// - bytes = Byte array containing the uplink payload, e.g. [255, 230, 255, 0]
+// - fPort = Uplink fPort.
+// - variables = Object containing the configured device variables.
+//
+// Output must be an object with the following fields:
+// - data = Object representing the decoded payload.
+function decodeUplink(input) {
+	return {
+		data: enlinkDecode(input.bytes)
+	};
+}
+

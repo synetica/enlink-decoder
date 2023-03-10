@@ -1,7 +1,5 @@
 // Used for decoding enLink Uplink LoRa Messages
-// --------------------------------------------------------------------------------------
 // 3 Feb 2023 (FW Ver:5.09)
-// --------------------------------------------------------------------------------------
 // https://github.com/synetica/enlink-decoder
 
 if (!msg.eui)
@@ -143,7 +141,7 @@ const ENLINK_FAN_RUN_TIME = 0x4D;                          // U32  0 -> 2^32 sec
 const ENLINK_CPU_TEMP = 0x4E;                              // S16  -3276.8 C -> 3276.7 C (-10..80) [Divide by 10]
 
 // --------------------------------------------------------------------------------------
-// V1 - Downlink reply message Header and ACK/NAK
+// Downlink reply message Header and ACK/NAK
 const ENLINK_HEADER = 0xA5;
 const ENLINK_ACK = 0x06;
 const ENLINK_NACK = 0x15;
@@ -325,7 +323,7 @@ function decodeTelemetry(data) {
     var obj = {};
     obj.short_eui = msg.eui.slice(-11);
     var msg_ok = false;
-    for (i = 0; i < data.length; i++) {
+    for (var i = 0; i < data.length; i++) {
         switch (data[i]) {
             
         // Parse enLink message for telemetry data
@@ -1034,7 +1032,7 @@ function decodeStdResponse(data) {
     var obj = {};
     obj.short_eui = msg.eui.slice(-11);
     var msg_ok = false;
-    for (i = 0; i < data.length; i++) {
+    for (var i = 0; i < data.length; i++) {
         switch (data[i]) {
 		// Parse reply from device following a downlink command
 		case ENLINK_HEADER:

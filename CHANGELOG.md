@@ -1,5 +1,10 @@
 # Change Log
 
+## 2023 March Updates
+
+- Updated uplink decoder to handle both v3 and v4 of Chirpstack
+- Added downlink reply decoder (i.e. an uplink) to Chirpstack decoder
+
 ## 2023 February Updates
 
 - Updated firmware to 5.09
