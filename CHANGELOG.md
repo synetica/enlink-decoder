@@ -1,5 +1,10 @@
 # Change Log
 
+## 2023 April Updates
+
+- Updated firmware to 5.12
+- Added downlink to adjust antenna gain (normally 2.0). A higher value uses less power. Setting a lower value (to the minimum of zero) will cause more power output on amplifier, stronger radio transmissions, and more battery consumption. A reboot is required after changing the value.
+
 ## 2023 March Updates
 
 - Updated uplink decoder to handle both v3 and v4 of Chirpstack
