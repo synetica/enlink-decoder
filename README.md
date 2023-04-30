@@ -775,7 +775,7 @@ Set the bit value to `1` to include the data value; `0` to exclude it.
 - Bit 6 - Not used
 - Bit 7 - Not used
 
-> Example Payload Data: $\texttt{ \color{green}{A5} \color{mediumturquoise}{02} \color{firebrick}{3C} \color{chocolate}{06}}$
+> Example Payload Data: $\texttt{ \color{green}{A5} \color{mediumturquoise}{02} \color{firebrick}{3C} \color{chocolate}{0C}}$
 
 This will include the `bVOC` and `IAQ` data values.
 
