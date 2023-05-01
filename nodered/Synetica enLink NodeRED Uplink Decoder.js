@@ -198,6 +198,11 @@ const ENLINK_LEAK_UPPER_HYST = 0x37;
 const ENLINK_LEAK_LOWER_ALARM = 0x38;
 const ENLINK_LEAK_LOWER_HYST = 0x39;
 const ENLINK_LEAK_SAMPLE_TIME_S = 0x3A;
+const ENLINK_LEAK_TEST_DURATION = 0x3B;
+
+const ENLINK_BME680_PKT_INC = 0x3C;
+const ENLINK_SPS30_PKT_INC = 0x3D;
+const ENLINK_PIERA_PKT_INC = 0x3E;
 
 const ENLINK_REBOOT = 0xFF;
 
@@ -1134,6 +1139,15 @@ function decodeStdResponse(data) {
                 obj.command = "Set Leak Sensor Low Hysteresis";
             } else if (data[i + 2] == ENLINK_LEAK_SAMPLE_TIME_S) {
                 obj.command = "Set Leak Sensor Sample Time";
+            } else if (data[i + 2] == ENLINK_LEAK_TEST_DURATION) {
+                obj.command = "Set Leak Sensor Test Time";
+
+            } else if (data[i + 2] == ENLINK_BME680_PKT_INC) {
+                obj.command = "Set VOC Sensor packet includes";
+            } else if (data[i + 2] == ENLINK_SPS30_PKT_INC) {
+                obj.command = "Set SPS30 packet includes";
+            } else if (data[i + 2] == ENLINK_PIERA_PKT_INC) {
+                obj.command = "Set PIERA/IPS7100 packet includes";
 
 			} else if (data[i + 2] == ENLINK_REBOOT) {
 				obj.command = "Reboot";
