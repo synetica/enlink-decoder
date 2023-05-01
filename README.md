@@ -670,47 +670,47 @@ Set the bit value to `1` to include the data value; `0` to exclude it.
 
 ### SPS30
 
- MC = Mass Concentration  
- NC = Number Concentration
+ PM = Particle Mass  
+ PC = Particle Count
 
 | Byte 1 | | Byte 2 |
 | ---- | -- | ------- |
-| Bit 0 - `MC PM 1.0` | | Bit 0 - `NC for PM 10.0`
-| Bit 1 - `MC PM 2.5` | | Bit 1 - `Typical Particle Size`
-| Bit 2 - `MC PM 4.0` | | Bit 2 - Not used
-| Bit 3 - `MC PM 10.0` | | Bit 3 - Not used
-| Bit 4 - `NC for PM 0.5` | | Bit 4 - Not used
-| Bit 5 - `NC for PM 1.0` | | Bit 5 - Not used
-| Bit 6 - `NC for PM 2.5` | | Bit 6 - Not used
-| Bit 7 - `NC for PM 4.0` | | Bit 7 - Not used
+| Bit 0 - `PM 1.0` | | Bit 0 - `PC 10.0`
+| Bit 1 - `PM 2.5` | | Bit 1 - `Typical Particle Size`
+| Bit 2 - `PM 4.0` | | Bit 2 - Not used
+| Bit 3 - `PM 10.0` | | Bit 3 - Not used
+| Bit 4 - `PC 0.5` | | Bit 4 - Not used
+| Bit 5 - `PC 1.0` | | Bit 5 - Not used
+| Bit 6 - `PC 2.5` | | Bit 6 - Not used
+| Bit 7 - `PC 4.0` | | Bit 7 - Not used
 
 
 > Example Payload Data: $\texttt{ \color{green}{A5} \color{mediumturquoise}{03} \color{firebrick}{3D} \color{chocolate}{0A 02}}$
 
-This will include `MC PM 10.0`, `MC PM 2.5` and `Typical Particle Size` data values.
+This will include `PM 10.0`, `PM 2.5` and `Typical Particle Size` data values.
 
 </br>
 
 ### IPS7100
 
- MC = Mass Concentration  
- NC = Number Concentration
+ PM = Particle Mass  
+ PC = Particle Count
 
 | Byte 1 | | Byte 2 |
 | ---- | -- | ------- |
-| Bit 0 - `MC PM 0.1` | | Bit 0 - `NC for PM 0.1`
-| Bit 1 - `MC PM 0.3` | | Bit 1 - `NC for PM 0.3`
-| Bit 2 - `MC PM 0.5` | | Bit 2 - `NC for PM 0.5`
-| Bit 3 - `MC PM 1.0` | | Bit 3 - `NC for PM 1.0`
-| Bit 4 - `MC PM 2.5` | | Bit 4 - `NC for PM 2.5`
-| Bit 5 - `MC PM 5.0` | | Bit 5 - `NC for PM 5.0`
-| Bit 6 - `MC PM 10.0` | | Bit 6 - `NC for PM 10.0`
+| Bit 0 - `PM 0.1`  | | Bit 0 - `PC 0.1`
+| Bit 1 - `PM 0.3`  | | Bit 1 - `PC 0.3`
+| Bit 2 - `PM 0.5`  | | Bit 2 - `PC 0.5`
+| Bit 3 - `PM 1.0`  | | Bit 3 - `PC 1.0`
+| Bit 4 - `PM 2.5`  | | Bit 4 - `PC 2.5`
+| Bit 5 - `PM 5.0`  | | Bit 5 - `PC 5.0`
+| Bit 6 - `PM 10.0` | | Bit 6 - `PC 10.0`
 | Bit 7 - Not used | | Bit 7 - Not used
 
 
 > Example Payload Data: $\texttt{ \color{green}{A5} \color{mediumturquoise}{03} \color{firebrick}{3E} \color{chocolate}{59 08}}$
 
-This will include `MC PM 10.0`, `MC PM 2.5`, `MC PM 1.0`, `MC PM 0.5` and `NC for PM 1.0` data values.
+This will include `PM 10.0`, `PM 2.5`, `PM 1.0`, `PM 0.5` and `PC 1.0` data values.
 
 </br>
 
