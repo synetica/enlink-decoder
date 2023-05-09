@@ -1,9 +1,11 @@
 # Change Log
 
-## 2023 April Updates
+## 2023 May Updates
 
 - Updated firmware to 5.12
+- Formatted README with colours for clearer identification of byte meanings
 - Added downlink to adjust antenna gain (normally 2.0). A higher value uses less power. Setting a lower value (to the minimum of zero) will cause more power output on amplifier, stronger radio transmissions, and more battery consumption. A reboot is required after changing the value.
+- Added downlinks other low power options; Full Packet Multiplier, set to WELL defaults, plus selecting what data values are sent in the radio packets for VOC and particulates
 
 ## 2023 March Updates
 

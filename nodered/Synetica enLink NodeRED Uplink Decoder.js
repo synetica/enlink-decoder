@@ -146,6 +146,7 @@ const ENLINK_HEADER = 0xA5;
 const ENLINK_ACK = 0x06;
 const ENLINK_NACK = 0x15;
 // Downlink reply message values
+const ENLINK_SET_ANTENNA_GAIN = 0x01;
 const ENLINK_SET_PUBLIC = 0x02;
 const ENLINK_SET_APPEUI = 0x05;   // 8 bytes
 const ENLINK_SET_APPKEY = 0x06;   // 16 bytes
@@ -159,6 +160,10 @@ const ENLINK_SET_POW_INDEX = 0x0D;   // Data Rate Index 0~6
 const ENLINK_SET_RX_PORT = 0x0E;
 const ENLINK_SET_JC_INTERVAL = 0x0F;    // Join Check Interval
 const ENLINK_SET_JC_PKT_TYPE = 0x10;    // Join Check Packet Type
+const ENLINK_SET_ATI_MIN = 0x11;
+const ENLINK_SET_ATI_MAX = 0x12;
+const ENLINK_SET_FULL_PKT_MUL = 0x13;
+const ENLINK_SET_WELL_DEFAULT = 0x14;
 
 const ENLINK_SET_LUX_SCALE = 0x20;
 const ENLINK_SET_LUX_OFFSET = 0x21;
@@ -1050,8 +1055,10 @@ function decodeStdResponse(data) {
 			} else {
 				obj.reply = "Reply parse failure";
 			}
-
-			if (data[i + 2] == ENLINK_SET_PUBLIC) {
+            
+			if (data[i + 2] == ENLINK_SET_ANTENNA_GAIN) {
+				obj.command = "Set Antenna Gain";
+            } else if (data[i + 2] == ENLINK_SET_PUBLIC) {
 				obj.command = "Set Public";
 			} else if (data[i + 2] == ENLINK_SET_APPEUI) {
 				obj.command = "Set AppEUI";
@@ -1077,8 +1084,16 @@ function decodeStdResponse(data) {
 				obj.command = "Set Join Check Interval";
 			} else if (data[i + 2] == ENLINK_SET_JC_PKT_TYPE) {
 				obj.command = "Set Join Check Packet Type";
+			} else if (data[i + 2] == ENLINK_SET_ATI_MIN) {
+				obj.command = "Set ATI Min";
+			} else if (data[i + 2] == ENLINK_SET_ATI_MAX) {
+				obj.command = "Set ATI Max";
+			} else if (data[i + 2] == ENLINK_SET_FULL_PKT_MUL) {
+				obj.command = "Set Full Packet Multiplier";
+			} else if (data[i + 2] == ENLINK_SET_WELL_DEFAULT) {
+				obj.command = "Set WELL defaults";
 
-			} else if (data[i + 2] == ENLINK_SET_LUX_SCALE) {
+            } else if (data[i + 2] == ENLINK_SET_LUX_SCALE) {
 				obj.command = "Set LUX Scale";
 			} else if (data[i + 2] == ENLINK_SET_LUX_OFFSET) {
 				obj.command = "Set LUX Offset";

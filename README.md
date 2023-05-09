@@ -509,6 +509,21 @@ When the enLink device receives a downlink message, it first checks the port byt
 | Set Join Check Packet Type | 2 | `0x10` | `0` = 'Standard' or `1` = 'Single Byte' of value `0x00`
 | [ATI](#ati---adaptive-transmission-interval) Min TX Interval Index | 2  | `0x11` | `1` to `11`
 | [ATI](#ati---adaptive-transmission-interval) Max TX Interval Index | 2  | `0x12` | `1` to `11`
+| * Set Full Packet Multiplier | 2 | `0x13` | `1` to `200`
+| ** Set WELL defaults | 2 | `0x14` | `1`
+
+ > \* *Set Full Packet Multiplier* is a feature that enables only the CO<sub>2</sub> value to be sent every TX interval. Then, every (*n* x TX Interval), send all the data.  
+ As an example; If the transmit interval is set to 10 minutes, a multiplier value of 6 will transmit a full packet every hour, and only the CO<sub>2</sub> value the other 10 minute intervals.  
+ This feature is enabled in firmware for `ENL-IAQ-C` for WELL standard, on request.
+
+> \** This will change the options to:  
+>> Transmit Interval: 10 mins  
+Full Packet Multiplier: 6  
+Join Check Packet: Single Zero Byte  
+VOC included data packets: bVOC and IAQ only  
+Particulates included data packets: PM 2.5 and PM 10.0 only
+>>  
+> This feature is enabled in firmware for `ENL-IAQ-C` for WELL standard, on request.
 
 </br>
 
