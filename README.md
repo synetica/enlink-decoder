@@ -407,7 +407,7 @@ The Gas types are listed here:
 
 |  |  |  |
 |--|--|--|
-| `0x17` - Formaldehyde - HCHO / CH<sub>2</sub>O</li> | |`0x1E` - Hydrogen Cyanide - HCN
+| `0x17` - Formaldehyde - HCHO / CH<sub>2</sub>O</li> | | `0x1E` - Hydrogen Cyanide - HCN
 | `0x18` - Volatile Organic Compounds</li>            | | `0x1F` - Hydrogen Fluoride - HF
 | `0x19` - Carbon Monoxide - CO</li>                  | | `0x20` - Ammonia - NH<sub>3</sub>
 | `0x1A` - Chlorine - Cl<sub>2</sub></li>             | | `0x21` - Nitrogen Dioxide - NO<sub>2</sub>

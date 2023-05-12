@@ -272,7 +272,7 @@ function decodeTelemetry(data) {
 	var metal;
 	var obj = new Object();
 
-	for (let i = 0; i < data.length; i++) {
+	for (var i = 0; i < data.length; i++) {
 		switch (data[i]) {
 			// Parse Sensor Message Parts
 			case ENLINK_TEMP: // Temperature
@@ -929,7 +929,7 @@ function decodeTelemetry(data) {
 // Function to decode enLink response to downlink message
 function decodeStdResponse(data) {
     var obj = {};
-    for (let i = 0; i < data.length; i++) {
+    for (var i = 0; i < data.length; i++) {
         switch (data[i]) {
 		// Parse reply from device following a downlink command
 		case ENLINK_HEADER:
