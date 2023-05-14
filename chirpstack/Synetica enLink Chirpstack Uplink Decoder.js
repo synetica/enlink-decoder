@@ -1,5 +1,5 @@
 // Synetica Payload Decoder for Chirpstack v3 and v4
-// 03 Feb 2023 (FW Ver:5.09)
+// 13 May 2023 (FW Ver:5.12)
 // https://github.com/synetica/enlink-decoder
 
 var ENLINK_TEMP = 0x01;
@@ -1053,14 +1053,14 @@ function enlinkDecode(bytes) {
 	// Ignore empty payloads
 	if (bytes) {
 		if (bytes.length === 0) {
-			return null;
+			return { message: "Is zero length" };
 		}
 		// Ignore single byte Join-Check payloads (Nov 2022)
 		if (bytes.length === 1) {
-			return null;
+			return { message: "Is single byte (Join Check possibly)" };
 		}
 	} else {
-		return null;
+		return { message: "Is Empty" };
 	}
 
 	if (bytes[0] == ENLINK_HEADER) {
@@ -1099,4 +1099,3 @@ function decodeUplink(input) {
 		data: enlinkDecode(input.bytes)
 	};
 }
-
