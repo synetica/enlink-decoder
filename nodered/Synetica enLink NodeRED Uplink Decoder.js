@@ -1,5 +1,5 @@
 // Used for decoding enLink Uplink LoRa Messages
-// 3 Feb 2023 (FW Ver:5.09)
+// 15 August 2023 (FW Ver:5.14)
 // https://github.com/synetica/enlink-decoder
 
 if (!msg.eui)
@@ -208,6 +208,10 @@ const ENLINK_LEAK_TEST_DURATION = 0x3B;
 const ENLINK_BME680_PKT_INC = 0x3C;
 const ENLINK_SPS30_PKT_INC = 0x3D;
 const ENLINK_PIERA_PKT_INC = 0x3E;
+
+const ENLINK_DP_PKT_INC = 0x3F;
+const ENLINK_DP_AUTO_ZERO = 0x40;
+const ENLINK_DP_SET_DELTA = 0x41;
 
 const ENLINK_REBOOT = 0xFF;
 
@@ -1163,6 +1167,13 @@ function decodeStdResponse(data) {
                 obj.command = "Set SPS30 packet includes";
             } else if (data[i + 2] == ENLINK_PIERA_PKT_INC) {
                 obj.command = "Set PIERA/IPS7100 packet includes";
+
+            } else if (data[i + 2] == ENLINK_DP_PKT_INC) {
+                obj.command = "Set DP/AF packet includes";
+			} else if (data[i + 2] == ENLINK_DP_AUTO_ZERO) {
+                obj.command = "DP/AF trigger Auto-Zero process";
+			} else if (data[i + 2] == ENLINK_DP_SET_DELTA) {
+                obj.command = "Set DP/AF delta offset";
 
 			} else if (data[i + 2] == ENLINK_REBOOT) {
 				obj.command = "Reboot";

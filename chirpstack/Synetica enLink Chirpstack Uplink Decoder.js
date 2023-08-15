@@ -1,5 +1,5 @@
 // Synetica Payload Decoder for Chirpstack v3 and v4
-// 13 May 2023 (FW Ver:5.12)
+// 15 August 2023 (FW Ver:5.14)
 // https://github.com/synetica/enlink-decoder
 
 var ENLINK_TEMP = 0x01;
@@ -173,6 +173,15 @@ var ENLINK_LEAK_UPPER_HYST = 0x37;
 var ENLINK_LEAK_LOWER_ALARM = 0x38;
 var ENLINK_LEAK_LOWER_HYST = 0x39;
 var ENLINK_LEAK_SAMPLE_TIME_S = 0x3A;
+var ENLINK_LEAK_TEST_DURATION = 0x3B;
+
+var ENLINK_BME680_PKT_INC = 0x3C;
+var ENLINK_SPS30_PKT_INC = 0x3D;
+var ENLINK_PIERA_PKT_INC = 0x3E;
+
+var ENLINK_DP_PKT_INC = 0x3F;
+var ENLINK_DP_AUTO_ZERO = 0x40;
+var ENLINK_DP_SET_DELTA = 0x41;
 
 var ENLINK_REBOOT = 0xFF;
 
@@ -1029,6 +1038,22 @@ function decodeStdResponse(data) {
                 obj.command = "Set Leak Sensor Low Hysteresis";
             } else if (data[i + 2] == ENLINK_LEAK_SAMPLE_TIME_S) {
                 obj.command = "Set Leak Sensor Sample Time";
+			} else if (data[i + 2] == ENLINK_LEAK_TEST_DURATION) {
+                obj.command = "Set Leak Sensor Test Time";
+
+			} else if (data[i + 2] == ENLINK_BME680_PKT_INC) {
+                obj.command = "Set VOC Sensor packet includes";
+            } else if (data[i + 2] == ENLINK_SPS30_PKT_INC) {
+                obj.command = "Set SPS30 packet includes";
+            } else if (data[i + 2] == ENLINK_PIERA_PKT_INC) {
+                obj.command = "Set PIERA/IPS7100 packet includes";
+
+			} else if (data[i + 2] == ENLINK_DP_PKT_INC) {
+                obj.command = "Set DP/AF packet includes";
+			} else if (data[i + 2] == ENLINK_DP_AUTO_ZERO) {
+                obj.command = "DP/AF trigger Auto-Zero process";
+			} else if (data[i + 2] == ENLINK_DP_SET_DELTA) {
+                obj.command = "Set DP/AF delta offset";
 
 			} else if (data[i + 2] == ENLINK_REBOOT) {
 				obj.command = "Reboot";

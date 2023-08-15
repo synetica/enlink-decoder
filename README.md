@@ -27,9 +27,10 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
 - [Downlink Payload](#downlink-payload)
   - [Downlink Payload Structure](#downlink-payload-structure)
   - [Downlink Receive Port](#downlink-receive-port)
-  - [Settings Data Details](#settings-data-details)
-  - [Downlink Message Index Tables](#downlink-message-index-tables)
+  - [General Settings Details](#general-settings-details)
   - [Downlink Message Examples](#downlink-message-examples)
+  - [Example Uplink Replies to Downlink Messages](#example-uplink-replies-to-downlink-messages)
+  - [Downlink Message Index Tables](#downlink-message-index-tables)
   - [Light Sensor Parameters](#light-sensor-parameters)
   - [AQM / Air Parameters](#aqm--air-parameters)
   - [CO<sub>2</sub> Sensor Parameters](#carbon-dioxide-sensor-parameters)
@@ -37,7 +38,6 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
   - [Gas Sensor Parameters](#gas-sensor-parameters)
   - [Leak Sensor Parameters](#leak-sensor-parameters)
   - [VOC Sensor Parameters](#voc-sensor-parameters)
-  - [Example Uplink Replies to Downlink Messages](#example-uplink-replies-to-downlink-messages)
   - [Sample Code](#sample-code)
 
 </br>
@@ -102,7 +102,7 @@ The firmware code is a concatenation of the base model plus the options.
 | | G | `0x61`, `0x66` | Single Gas Sensor
 | | S | `0x50`, `0x51`, `0x52` | Sound
 | | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`, `0x5F`, `0x60` | Particles
-| | PP | `0x69`, `0x6A`, `0x6B`, `0x57`, `0x58`, `0x6C`, <br/>`0x5A`, `0x6D`, `0x6E`, `0x5B`, `0x5C`, `0x5D`, <br/>`0x6F`, `0x5F` | Particles
+| | PP | `0x69`, `0x6A`, `0x6B`, `0x57`, `0x58`, `0x6C`, <br/>`0x5A`, `0x6D`, `0x6E`, `0x5B`, `0x5C`, `0x5D`, <br/>`0x6F`, `0x5F` | Particles (Piera Sensor)</br>**Unit must be externally powered**
 | | PV | `0x69`, `0x6A`, `0x6B`, `0x57`, `0x58`, `0x6C`, <br/>`0x5A`, `0x6D`, `0x6E`, `0x5B`, `0x5C`, `0x5D`, <br/>`0x6F`, `0x5F`, `0x70`, `0x71`, `0x72` | Particles, Smoke/Vape</br>**Unit must be externally powered**
 
 ## enLink ZonePlus
@@ -155,7 +155,7 @@ The firmware code is a concatenation of the base model plus the options.
 | FW-STS-DP/AF | (None)  | `0x2C`, `0x2D` | Pressure, Air flow. Either one or both can be selected
 
 
-### enLink Status - Temperature Probes
+## enLink Status - Temperature Probes
 
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
@@ -194,27 +194,27 @@ The enLink device design uses a single port byte value to transmit uplink messag
 
 ## Uplink Payload Structure
 
-The payload is an array of $\textsf{{{\color{slateblue}{Sensor Data}}}}$ messages, each on is 2 or more bytes in length.
+The payload is an array of `Sensor Data` messages, each on is 2 or more bytes in length.
 
-> $\texttt{\color{slateblue}{[Sensor-1 Data]  [Sensor-2 Data] ... [Sensor-n Data]}}$
+> `[Sensor-1 Data]  [Sensor-2 Data] ... [Sensor-n Data]`
 
 </br>
 
-Sensor data consists of a $\textsf{\color{green}{Data Type Identifier}}$ byte followed by the $\textsf{\color{firebrick}{Data Value}}$ as one or more bytes. The number of bytes in the data value is determined by the Data Type Identifier and is fixed. Details are here: [Sensor Details](#sensor-details).
+Sensor data consists of a `Data Type Identifier` byte followed by the `Data Value` as one or more bytes. The number of bytes in the data value is determined by the Data Type Identifier and is fixed. Details are here: [Sensor Details](#sensor-details).
 
-> Example Payload (hexadecimal): $\texttt{\color{slateblue} {01 01 23 02 56 03 01 A4}}$
+> Example Payload (hexadecimal): `01 01 23 02 56 03 01 A4`
 
 These bytes can be split up as follows:
 
-> Example Payload: $\texttt{ \color{green}{[01} \color{firebrick}{01 23]} \color{green}{[02} \color{firebrick}{56]} \color{green}{[03} \color{firebrick}{01 A4]} }$
+> Example Payload: `[01 01 23] [02 56] [03 01 A4]`
 
 Finally, decoding the data:
 
 | Data Type Identifier | Data Value Calculation | Result |
 |:---------------------|:-----------------------|:------ |
-| $\texttt{\color{green}{01}}$ - Temperature   | (($\texttt{\color{firebrick}{0x01}}$ * 256) + $\texttt{\color{firebrick}{0x23}}$) / 10 = (256 + 35) / 10 | 29.1 °C |
-| $\texttt{\color{green}{02}}$ - Humidity      | $\texttt{\color{firebrick}{0x56}}$ | 86 %rH |
-| $\texttt{\color{green}{03}}$ - Ambient Light | ($\texttt{\color{firebrick}{0x01}}$ * 256) + $\texttt{\color{firebrick}{0xA4}}$ = 256 + 164 | 420 Lux |
+| `01` - Temperature   | ((`0x01` * 256) + `0x23`) / 10 = (256 + 35) / 10 | 29.1 °C |
+| `02` - Humidity      | `0x56` | 86 %rH |
+| `03` - Ambient Light | (`0x01` * 256) + `0xA4` = 256 + 164 | 420 Lux |
 
 Each **Data Type** can use 1 or more bytes to send the value according to the following table:
 
@@ -321,17 +321,15 @@ Most sensor data values are self-explanatory, additional information for decodin
 
 Types: `0x0F`, `0x10`, `0x11`
 
-The enLink Modbus data types for Interval and Cumulative values use 5 bytes to encode the $\textsf{\color{mediumturquoise}{item index}}$ and $\textsf{\color{firebrick}{value}}$.
+The enLink Modbus data types for Interval and Cumulative values use 5 bytes to encode the `item index` and `value`.
 
-- Modbus Exception – standard Modbus exception codes, e.g. Code 2 – Illegal Data Address.
+- Modbus Exception – standard Modbus exception codes, e.g. Code `02` – Illegal Data Address.
 - Modbus Interval Value – for Modbus data types which do not accumulate, e.g. Voltage, Current, Temperature etc.
 - Modbus Cumulative Value – for Modbus data types which are linked to a value which accumulates, e.g. kWh, Volume etc.
 
 The first byte indicates which of the 32 available Modbus items is being accessed (0 to 31), followed by the Modbus Value represented as a 32 bit floating point value (IEEE754 format). Interval Value types are used for instantaneous values, such as Voltage, Current, Temperature, Pressure etc. Cumulative Values are used for items such as energy consumption and total volume.
 
-> Example Payload Data: $\texttt{ \color{green}{10} \color{mediumturquoise}{04} \color{firebrick}{41 BC 7A E1}}$
-
-</br>
+> Example Payload Data: `10 04 41 BC 7A E1`
 
 This is an interval data value, from configured item number 5. The value is 23.56.
 
@@ -377,7 +375,7 @@ You may receive a *trigger status* byte value where multiple bits are set. This 
 - Bit 6 - Not used
 - Bit 7 - Not used
 
-> Example Payload Data: $\texttt{ \color{green}{15} \color{firebrick}{01 05}}$
+> Example Payload Data: `15 01 05`
 
 </br>
 
@@ -397,11 +395,11 @@ Types: `0x61`, `0x66`
 
 The full message is sent as 6 bytes. For example:
 
-> Example Payload Data: $\texttt{ \color{green}{61} \color{mediumturquoise}{19} \color{firebrick}{41 BC 7A E1}}$
+> Example Payload Data: `61 19 41 BC 7A E1`
 
 </br>
 
-Ths translates to Gas Type `0x19` or 25 which is **Carbon Monoxide**. The value is 23.56ppb.
+Ths translates to Gas Type `0x19` or 25 which is **Carbon Monoxide**. The value is 23.56 ppb.
 
 The Gas types are listed here:
 
@@ -423,7 +421,7 @@ Types: `0x62`, `0x63`, `0x64`, `0x65`
 
 The full message is sent as 6 bytes. The second byte indicates the coupon and sacrificial metal of the sensor.
 
-> Example Payload Data: $\texttt{ \color{green}{62} \color{mediumturquoise}{01} \color{firebrick}{44 58 D0 27}}$
+> Example Payload Data: `62 01 44 58 D0 27`
 
 The example shows Coupon #1 is Copper and the thickness is 867.252 nanometres (equivalent to 8672.52 Ångströms).
 
@@ -476,11 +474,11 @@ Downlink payloads are sent to re-configure the device. When the device processes
 ## Downlink Payload Structure
 | Header | Msg Len | Command | Value      |
 | ------ | ------- | ------- | ---------- |
-| $\textsf{\color{green}{1 byte}}$ | $\textsf{\color{mediumturquoise}{1 byte}}$ | $\textsf{\color{firebrick}{1 byte}}$ | $\textit{\color{chocolate}{n bytes}}$  |
+| 1 byte | 1 byte  | 1 byte  | *n bytes*  |
 
-The header byte is is always $\texttt{\color{green}{0xA5}}$.
+The header byte is is always `0xA5`.
 
-**Msg Len** is the number of bytes in the settings data. The settings data starts with a **Command** byte and then the command **Value**. The Value can be blank.
+**Msg Len** is the number of bytes in the settings data. The settings data starts with a **Command** byte and then the command **Value**. The Value can be empty.
 
 ## Downlink Receive Port
 
@@ -488,12 +486,12 @@ When the enLink device receives a downlink message, it first checks the port byt
 
 </br>
 
-## Settings Data Details
+## General Settings Details
 
 | Name | Msg Len | Command | Value | Reboot Required? |
 | -----| ------- | ------- | ------| ---------------- |
 | Reboot | 1  | `0xFF`
-| Antenna Gain | 2  | `0x01` | `0` to `25.5` dBi (single byte `0` to `255`) Default is 2.0 dBi | Yes
+| Antenna Gain (v5.12) | 2  | `0x01` | `0` to `25.5` dBi (single byte `0` to `255`) Default is 2.0 dBi | Yes
 | Public Network | 2  | `0x02` | `0`/`1` (Disable/Enable) | Yes
 | AppEUI | 9  | `0x05` | 8 Bytes for the **EUI**  | Yes
 | AppKey | 17 | `0x06` | 16 bytes for the **Key** | Yes
@@ -505,12 +503,12 @@ When the enLink device receives a downlink message, it first checks the port byt
 | Transmit Interval Index | 2  | `0x0C` | `1` to `11` when [ATI](#ati---adaptive-transmission-interval) is available, use `255` (`0xFF`) to activate it
 | Transmit Power Index | 2  | `0x0D` | `1` to `6`
 | Receive Port | 2  | `0x0E` | `0` to `223` (`0` indicates **All** Ports. Default is **All**)
-| Set Join Check Interval | 2 | `0x0F` | `1` to `255` hours
-| Set Join Check Packet Type | 2 | `0x10` | `0` = 'Standard' or `1` = 'Single Byte' of value `0x00`
-| [ATI](#ati---adaptive-transmission-interval) Min TX Interval Index | 2  | `0x11` | `1` to `11`
-| [ATI](#ati---adaptive-transmission-interval) Max TX Interval Index | 2  | `0x12` | `1` to `11`
-| * Set Full Packet Multiplier | 2 | `0x13` | `1` to `200`
-| ** Set WELL defaults | 2 | `0x14` | `1`
+| Set Join Check Interval (v5.07) | 2 | `0x0F` | `1` to `255` hours
+| Set Join Check Packet Type (v5.07) | 2 | `0x10` | `0` = 'Standard' or `1` = 'Single Byte' of value `0x00`
+| [ATI](#ati---adaptive-transmission-interval) Min TX Interval Index (v5.08) | 2  | `0x11` | `1` to `11`
+| [ATI](#ati---adaptive-transmission-interval) Max TX Interval Index (v5.08) | 2  | `0x12` | `1` to `11`
+| * Set Full Packet Multiplier (v5.12) | 2 | `0x13` | `1` to `200`
+| ** Set WELL defaults (v5.12) | 2 | `0x14` | `1`
 
  > \* *Set Full Packet Multiplier* is a feature that enables only the CO<sub>2</sub> value to be sent every TX interval. Then, every (*n* x TX Interval), send all the data.  
  As an example; If the transmit interval is set to 10 minutes, a multiplier value of 6 will transmit a full packet every hour, and only the CO<sub>2</sub> value the other 10 minute intervals.  
@@ -524,6 +522,34 @@ VOC included data packets: bVOC and IAQ only
 Particulates included data packets: PM 2.5 and PM 10.0 only
 >>  
 > This feature is enabled in firmware for `ENL-IAQ-C` for WELL standard, on request.
+
+</br>
+
+## Downlink Message Examples
+
+### Reboot
+
+> Payload Data:  `A5 01 FF`
+
+### Set Antenna Gain to default (2.0 dBi)
+
+> Payload Data: `A5 02 01 14`
+
+### Enable Message Confirmation
+
+> Payload Data: `A5 02 09 01`
+
+</br>
+
+## Example Uplink Replies to Downlink Messages
+
+**ACK** (`0x06`) - Successfully changed the Message Confirmation Option (`0x09`)
+
+> Return Data: `A5 06 09`
+
+**NACK** (`0x15`) - failed to change the Transmit Port (`0x0A`)
+
+> Return Data: `A5 15 0A`
 
 </br>
 
@@ -546,17 +572,17 @@ The Indexes for some settings depend on the region the unit is programmed for.
 
 | Index | Transmit Interval | Message |
 | -- | -- | -- |
-| 1 | 30 s | $\texttt{\color{green}{A5} \color{mediumturquoise}{02} \color{firebrick}{0C} \color{chocolate}{01}}$
-| 2 | 1 min | $\texttt{\color{green}{A5} \color{mediumturquoise}{02} \color{firebrick}{0C} \color{chocolate}{02}}$
-| 3 | 2 min | $\texttt{\color{green}{A5} \color{mediumturquoise}{02} \color{firebrick}{0C} \color{chocolate}{03}}$
-| 4 | 5 min | $\texttt{\color{green}{A5} \color{mediumturquoise}{02} \color{firebrick}{0C} \color{chocolate}{04}}$
-| 5 | 10 min | $\texttt{\color{green}{A5} \color{mediumturquoise}{02} \color{firebrick}{0C} \color{chocolate}{05}}$
-| 6 | 15 min | $\texttt{\color{green}{A5} \color{mediumturquoise}{02} \color{firebrick}{0C} \color{chocolate}{06}}$
-| 7 | 20 min | $\texttt{\color{green}{A5} \color{mediumturquoise}{02} \color{firebrick}{0C} \color{chocolate}{07}}$
-| 8 | 30 min | $\texttt{\color{green}{A5} \color{mediumturquoise}{02} \color{firebrick}{0C} \color{chocolate}{08}}$
-| 9 | 1 hour | $\texttt{\color{green}{A5} \color{mediumturquoise}{02} \color{firebrick}{0C} \color{chocolate}{09}}$
-| 10 | 2 hours | $\texttt{\color{green}{A5} \color{mediumturquoise}{02} \color{firebrick}{0C} \color{chocolate}{0A}}$
-| 11 | 3 hours | $\texttt{\color{green}{A5} \color{mediumturquoise}{02} \color{firebrick}{0C} \color{chocolate}{0B}}$
+| 1 | 30 s | `A5 02 0C 01`
+| 2 | 1 min | `A5 02 0C 02`
+| 3 | 2 min | `A5 02 0C 03`
+| 4 | 5 min | `A5 02 0C 04`
+| 5 | 10 min | `A5 02 0C 05`
+| 6 | 15 min | `A5 02 0C 06`
+| 7 | 20 min | `A5 02 0C 07`
+| 8 | 30 min | `A5 02 0C 08`
+| 9 | 1 hour | `A5 02 0C 09`
+| 10 | 2 hours | `A5 02 0C 0A`
+| 11 | 3 hours | `A5 02 0C 0B`
 
 `0x0D` - Transmit Power Index
 
@@ -571,21 +597,6 @@ The Indexes for some settings depend on the region the unit is programmed for.
 | 7 | 4 dBm
 | 8 | 2 dBm 
 
-## Downlink Message Examples
-
-### Reboot
-
-> Payload Data: $\texttt{ \color{green}{A5} \color{mediumturquoise}{01} \color{firebrick}{FF}}$
-
-### Set Antenna Gain to default (2.0 dBi)
-
-> Payload Data: $\texttt{ \color{green}{A5} \color{mediumturquoise}{02} \color{firebrick}{01} \color{chocolate}{14}}$
-
-### Enable Message Confirmation
-
-> Payload Data: $\texttt{ \color{green}{A5} \color{mediumturquoise}{02} \color{firebrick}{09} \color{chocolate}{01}}$
-
-</br>
 
 ## Light Sensor Parameters
 
@@ -606,7 +617,7 @@ Defaults are:
 
 For example, set Scale to **12.345** (12345 in hexadecimal is `0x3039`)
 
-> Payload Data: $\texttt{ \color{green}{A5} \color{mediumturquoise}{03} \color{firebrick}{20} \color{chocolate}{30 39}}$
+> Payload Data: `A5 03 20 30 39`
 
 </br>
 
@@ -637,29 +648,31 @@ The following are used in devices with CO<sub>2</sub> sensor
 
 To Enable Auto-Calibration:
 
-> Payload Data: $\texttt{ \color{green}{A5} \color{mediumturquoise}{02} \color{firebrick}{24} \color{chocolate}{01}}$
+> Payload Data: `A5 02 24 01`
 
 To set the auto-calibration target to 450ppm
 
-> Payload Data: $\texttt{ \color{green}{A5} \color{mediumturquoise}{03} \color{firebrick}{25} \color{chocolate}{01 C2}}$
+> Payload Data: `A5 03 25 01 C2`
 
 To set the sensor to known CO<sub>2</sub> concentration of 780ppm (`0x030C`)
 
-> Payload Data: $\texttt{ \color{green}{A5} \color{mediumturquoise}{03} \color{firebrick}{26} \color{chocolate}{03 0C}}$
+> Payload Data: `A5 03 26 03 0C`
 
 To reset the sensor back to factory calibration (Sunrise Only)
 
-> Payload Data: $\texttt{ \color{green}{A5} \color{mediumturquoise}{01} \color{firebrick}{27}}$
+> Payload Data: `A5 01 27`
 
 To set the auto-calibration interval to 10 days (240 hours, `0x00F0`)
 
-> Payload Data: $\texttt{ \color{green}{A5} \color{mediumturquoise}{03} \color{firebrick}{28} \color{chocolate}{00 F0}}$
+> Payload Data: `A5 03 28 00 F0`
 
 </br>
 
 ## Particulate Sensor Parameters
 
-The following are used in devices with particulate sensors (SPS30 or IPS7100)
+Available from v5.03 onwards.
+
+The following are used in devices with particulate sensors
 
 | Name | Msg Len | Command | Value |
 | ---- | ------- | ------- | ----- |
@@ -668,13 +681,16 @@ The following are used in devices with particulate sensors (SPS30 or IPS7100)
 
 To set the fan run period to 35 seconds:
 
-> Payload Data: $\texttt{ \color{green}{A5} \color{mediumturquoise}{02} \color{firebrick}{2B} \color{chocolate}{23}}$
+> Payload Data: `A5 02 2B 23`
 
 To set the cleaning interval to 8 days (192 hours, `0x00C0`)
 
-> Payload Data: $\texttt{ \color{green}{A5} \color{mediumturquoise}{03} \color{firebrick}{2C} \color{chocolate}{00 C0}}$
+> Payload Data: `A5 03 2C 00 C0`
 
-These next options are for setting which data values are included in the transmitted radio packets. Sending smaller radio packets size will reduce battery consumption.
+These next settings are available from v5.12 onwards:
+
+Setting which data values are included in the transmitted radio packets. Sending smaller radio packets size will reduce battery consumption.
+
 
 | Name | Msg Len | Command | Value |
 | ---- | ------- | ------- | ----- |
@@ -700,7 +716,7 @@ Set the bit value to `1` to include the data value; `0` to exclude it.
 | Bit 7 - `PC 4.0` | | Bit 7 - Not used
 
 
-> Example Payload Data: $\texttt{ \color{green}{A5} \color{mediumturquoise}{03} \color{firebrick}{3D} \color{chocolate}{0A 02}}$
+> Example Payload Data: `A5 03 3D 0A 02`
 
 This will include `PM 10.0`, `PM 2.5` and `Typical Particle Size` data values.
 
@@ -723,13 +739,15 @@ This will include `PM 10.0`, `PM 2.5` and `Typical Particle Size` data values.
 | Bit 7 - Not used | | Bit 7 - Not used
 
 
-> Example Payload Data: $\texttt{ \color{green}{A5} \color{mediumturquoise}{03} \color{firebrick}{3E} \color{chocolate}{59 08}}$
+> Example Payload Data:  `A5 03 3E 59 08`
 
 This will include `PM 10.0`, `PM 2.5`, `PM 1.0`, `PM 0.5` and `PC 1.0` data values.
 
 </br>
 
 ## Gas Sensor Parameters
+
+Available from v5.07 onwards.
 
 The following are used in devices with a Gas sensor (Option Code 'G')
 
@@ -748,6 +766,8 @@ The following are used in devices with a Gas sensor (Option Code 'G')
 
 ## Leak Sensor Parameters
 
+Available from v5.08 onwards.
+
 The following are used in the enLink Status Leak Sensor.
 
 | Name | Msg Len | Command | Value |
@@ -758,20 +778,22 @@ The following are used in the enLink Status Leak Sensor.
 | Low Alarm Level | 3 | `0x38` | `0` to `5000` kOhms (`0x0000` to `0x1388`)
 | Low Alarm Hysteresis | 3 | `0x39` | `0` to `300` kOhms (`0x0000` to `0x012C`)
 | Sample Interval | 3 | `0x3A` | `10` to `7200` seconds (`0x000A` to `0x1C20`)
-| Test Duration | 2 | `0x3B` | `1` to `20` minutes (`0x01` to `0x14`)
+| Test Duration (v5.12) | 2 | `0x3B` | `1` to `20` minutes (`0x01` to `0x14`)
 
 Note: All options are shown. However, for the supplied leak cable, the Alarm Mode should be set to **Low Threshold** (2). Low alarm level to **1000 kOhms** with a Low hysteresis of **100 kOhms**.
 
-| Setting | Message |
+| Example Setting | Message |
 | ---- | ------- |
-| Mode = Low Threshold: | $\texttt{\color{green}{A5} \color{mediumturquoise}{02} \color{firebrick}{35} \color{chocolate}{02}}$
-| Low Alarm Level = 1000 kOhm: | $\texttt{\color{green}{A5} \color{mediumturquoise}{03} \color{firebrick}{38} \color{chocolate}{03 E8}}$
-| Low Hysteresis = 100 kOhm: | $\texttt{\color{green}{A5} \color{mediumturquoise}{03} \color{firebrick}{39} \color{chocolate}{01 2C}}$
-| Sample Interval = 3 minutes: | $\texttt{\color{green}{A5} \color{mediumturquoise}{03} \color{firebrick}{3A} \color{chocolate}{00 B4}}$
+| Mode = Low Threshold | `A5 02 35 02`
+| Low Alarm Level = 1000 kOhm | `A5 03 38 03 E8`
+| Low Hysteresis = 100 kOhm | `A5 03 39 01 2C`
+| Sample Interval = 3 minutes | `A5 03 3A 00 B4`
 
 </br>
 
 ## VOC Sensor Parameters
+
+Available from v5.12 onwards.
 
 The following are used in devices with the BME680 VOC sensor (Firmware option code `V`). These options are for setting which data values are included in the transmitted radio packets. Sending smaller radio packets size will reduce battery consumption.
 
@@ -790,21 +812,33 @@ Set the bit value to `1` to include the data value; `0` to exclude it.
 - Bit 6 - Not used
 - Bit 7 - Not used
 
-> Example Payload Data: $\texttt{ \color{green}{A5} \color{mediumturquoise}{02} \color{firebrick}{3C} \color{chocolate}{0C}}$
+> Example Payload Data: `A5 02 3C 0C`
 
 This will include the `bVOC` and `IAQ` data values.
 
 </br>
 
-## Example Uplink Replies to Downlink Messages
+## Differential Pressure / Airflow Parameters
 
-**ACK** (`0x06`) - Successfully changed the Message Confirmation Option (`0x09`)
+Available from v5.14 onwards.
 
-> Return Data: $\texttt{ \color{green}{A5} \color{mediumturquoise}{06} \color{firebrick}{09}}$
+The following over-the-air settings are used for the enLink Status Differential Pressure / Airflow device.
 
-**NACK** (`0x15`) - failed to change the Transmit Port (`0x0A`)
+| Name | Msg Len | Command | Value |
+| ---- | ------- | ------- | ----- |
+| Values to include in Radio Packets | 2 | `0x3F` | `0`/`1`/`2` Pressure Only/Air flow Only/Both
+| Zero reading (auto delta) | 1 | `0x40`
+| Set Delta Offset | 5 | `0x41` | Floating point value
 
-> Return Data: $\texttt{ \color{green}{A5} \color{mediumturquoise}{15} \color{firebrick}{0A}}$
+> Note: When the device receives a `Zero reading` downlink message it performs a measurement and uses the result as a delta offset value, effectively causing the reading to be zero.
+
+| Example Setting | Message |
+| ---- | ------- |
+| Only transmit pressure value | `A5 02 3F 00`
+| Zero the reading | `A5 01 40`
+| Set delta offset to `-1.234` | `A5 05 41 BF 9D F3 B6`
+
+For an online value converter, see [Hex to Float Converter](https://gregstoll.com/~gregstoll/floattohex/)
 
 </br>
 

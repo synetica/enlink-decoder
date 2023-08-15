@@ -1,5 +1,12 @@
 # Change Log
 
+## 2023 August Updates
+
+- Updated firmware to 5.14
+- Added some more models.
+- Removed colour formatting in README to allow copy-paste for downlink sample messages
+- Added OTA settings for Status DP/AF device
+
 ## 2023 May Updates
 
 - Updated firmware to 5.12
@@ -36,7 +43,7 @@
 - Updated firmware to 5.03
 - Removed TVOC uplink decoders from examples as it's not implemented
 - Added extra particulate uplink decoders for new PM sensor
-- Added downlink messages for particulate sensors to set runtime and cleaning values
+- Added OTA downlink messages for particulate sensors to set runtime and cleaning values
 
 ## 2022 August Updates
 
