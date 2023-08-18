@@ -6,6 +6,7 @@
 - Added some more models.
 - Removed colour formatting in README to allow copy-paste for downlink sample messages
 - Added OTA settings for Status DP/AF device
+- Added individual codecs for Chirpstack
 
 ## 2023 May Updates
 

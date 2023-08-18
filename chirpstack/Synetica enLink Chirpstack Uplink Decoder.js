@@ -2,28 +2,41 @@
 // 15 August 2023 (FW Ver:5.14)
 // https://github.com/synetica/enlink-decoder
 
+// Uplink Data
 var ENLINK_TEMP = 0x01;
 var ENLINK_RH = 0x02;
 var ENLINK_LUX = 0x03;
 var ENLINK_PRESSURE = 0x04;
 var ENLINK_VOC_IAQ = 0x05;
+
 var ENLINK_O2PERC = 0x06;
 var ENLINK_CO = 0x07;
+
 var ENLINK_CO2 = 0x08;
+
 var ENLINK_OZONE = 0x09;
 var ENLINK_POLLUTANTS = 0x0A;
-var ENLINK_PM25 = 0x0B;
-var ENLINK_PM10 = 0x0C;
+
+//var ENLINK_PM25 = 0x0B;		// Depreciated pre v5.x
+//var ENLINK_PM10 = 0x0C;		// Depreciated pre v5.x
+
 var ENLINK_H2S = 0x0D;
+
 var ENLINK_COUNTER = 0x0E;
+
 var ENLINK_MB_EXCEPTION = 0x0F;
 var ENLINK_MB_INTERVAL = 0x10;
 var ENLINK_MB_CUMULATIVE = 0x11;
+
 var ENLINK_BVOC = 0x12;
+
 var ENLINK_DETECTION_COUNT = 0x13;
 var ENLINK_OCC_TIME = 0x14;
+
 var ENLINK_COS_STATUS = 0x15;
+
 var ENLINK_LIQUID_LEVEL_STATUS = 0x16;
+
 var ENLINK_TEMP_PROBE1 = 0x17;
 var ENLINK_TEMP_PROBE2 = 0x18;
 var ENLINK_TEMP_PROBE3 = 0x19;
@@ -57,6 +70,7 @@ var ENLINK_CO2E = 0x3F;
 var ENLINK_SOUND_MIN = 0x50;
 var ENLINK_SOUND_AVG = 0x51;
 var ENLINK_SOUND_MAX = 0x52;
+
 var ENLINK_NO = 0x53;
 var ENLINK_NO2 = 0x54;
 var ENLINK_NO2_20 = 0x55;
@@ -76,10 +90,27 @@ var ENLINK_PM_TPS = 0x60;
 var ENLINK_GAS_PPB = 0x61;
 var ENLINK_GAS_UGM3 = 0x66;
 
+// Gas Type Byte
+var GAS_HCHO_CH2O = 0x17;   // Formaldehyde 
+var GAS_VOCs = 0x18;        // VOCs 
+var GAS_CO = 0x19;          // Carbon Monoxide 
+var GAS_CL2 = 0x1A;         // Chlorine 
+var GAS_H2 = 0x1B;          // Hydrogen 
+var GAS_H2S = 0x1C;         // Hydrogen Sulphide
+var GAS_HCl = 0x1D;         // Hydrogen Chloride
+var GAS_HCN = 0x1E;         // Hydrogen Cyanide
+var GAS_HF = 0x1F;          // Hydrogen Fluoride
+var GAS_NH3 = 0x20;         // Ammonia
+var GAS_NO2 = 0x21;         // Nitrogen Dioxide
+var GAS_O2 = 0x22;          // Oxygen
+var GAS_O3 = 0x23;          // Ozone
+var GAS_SO2 = 0x24;         // Sulfur/Sulphur Dioxide (IUPAC) SO2
+
 var ENLINK_CRN_THK = 0x62;
 var ENLINK_CRN_MIN_THK = 0x63;
 var ENLINK_CRN_MAX_THK = 0x64;
 var ENLINK_CRN_PERC = 0x65;
+
 var ENLINK_FAST_AQI = 0x67;
 var ENLINK_EPA_AQI = 0x68;
 
@@ -139,7 +170,7 @@ var ENLINK_SET_LUX_SCALE = 0x20;
 var ENLINK_SET_LUX_OFFSET = 0x21;
 
 var ENLINK_SET_CASE_FAN_RUN_TIME = 0x22;
-var ENLINK_SET_HPM_FAN_RUN_TIME = 0x23;
+// var ENLINK_SET_HPM_FAN_RUN_TIME = 0x23; // Depreciated pre v5.x
 
 // CO2 Sensors
 var ENLINK_SET_CO2_CALIB_ENABLE = 0x24;
@@ -242,23 +273,6 @@ function fromF32(byte0, byte1, byte2, byte3) {
 	var f = sign * m * Math.pow(2, e - 150);
 	return parseFloat(f.toFixed(3));
 }
-
-// Return gas name from gas type byte
-var GAS_HCHO_CH2O = 0x17;   // Formaldehyde 
-var GAS_VOCs = 0x18;        // VOCs 
-var GAS_CO = 0x19;          // Carbon Monoxide 
-var GAS_CL2 = 0x1A;         // Chlorine 
-var GAS_H2 = 0x1B;          // Hydrogen 
-var GAS_H2S = 0x1C;         // Hydrogen Sulphide
-var GAS_HCl = 0x1D;         // Hydrogen Chloride
-var GAS_HCN = 0x1E;         // Hydrogen Cyanide
-var GAS_HF = 0x1F;          // Hydrogen Fluoride
-var GAS_NH3 = 0x20;         // Ammonia
-var GAS_NO2 = 0x21;         // Nitrogen Dioxide
-var GAS_O2 = 0x22;          // Oxygen
-var GAS_O3 = 0x23;          // Ozone
-var GAS_SO2 = 0x24;         // Sulfur Dioxide (IUPAC) SO2
-
 // Corrosion: Return metal name from id byte
 function GetCrnMetal(id_byte) {
 	var id = (id_byte & 0x7F);
@@ -326,51 +340,167 @@ function decodeTelemetry(data) {
 				obj.pollutants_kohm = U16((data[i + 1] << 8) | (data[i + 2])) / 10;
 				i += 2;
 				break;
-			case ENLINK_PM25: // Particulates @2.5
-				obj.pm25 = U16((data[i + 1] << 8) | (data[i + 2]));
-				i += 2;
-				break;
-			case ENLINK_PM10: // Particulates @10
-				obj.pm10 = U16((data[i + 1] << 8) | (data[i + 2]));
-				i += 2;
-				break;
 			case ENLINK_H2S: // Hydrogen Sulphide
 				obj.h2s_ppm = U16((data[i + 1] << 8) | (data[i + 2])) / 100;
 				i += 2;
 				break;
 
 			case ENLINK_COUNTER:
-				var inputN = data[i + 1];
+				var input_no = data[i + 1];
 				var pulseCount = (data[i + 2] << 24) | (data[i + 3] << 16) | (data[i + 4] << 8) | (data[i + 5]);
-				if (inputN === 0x00) { obj.pulse_ip1 = pulseCount; }
-				if (inputN === 0x01) { obj.pulse_ip2 = pulseCount; }
-				if (inputN === 0x02) { obj.pulse_ip3 = pulseCount; }
+				if (input_no === 0x00) { obj.pulse_ip1 = pulseCount; }
+				if (input_no === 0x01) { obj.pulse_ip2 = pulseCount; }
+				if (input_no === 0x02) { obj.pulse_ip3 = pulseCount; }
 				i += 5;
 				break;
+			
 			case ENLINK_MB_EXCEPTION: // Modbus Error Code
+				// Show data as individual items for CS
+				var ex_item_no = data[i + 1];
+				var ex_value = data[i + 2];
+				if (ex_item_no === 0) { obj.mb_01_ex = ex_value; }
+				if (ex_item_no === 1) { obj.mb_02_ex = ex_value; }
+				if (ex_item_no === 2) { obj.mb_03_ex = ex_value; }
+				if (ex_item_no === 3) { obj.mb_04_ex = ex_value; }
+				if (ex_item_no === 4) { obj.mb_05_ex = ex_value; }
+				if (ex_item_no === 5) { obj.mb_06_ex = ex_value; }
+				if (ex_item_no === 6) { obj.mb_07_ex = ex_value; }
+				if (ex_item_no === 7) { obj.mb_08_ex = ex_value; }
+
+				if (ex_item_no === 8) { obj.mb_09_ex = ex_value; }
+				if (ex_item_no === 9) { obj.mb_10_ex = ex_value; }
+				if (ex_item_no === 10) { obj.mb_11_ex = ex_value; }
+				if (ex_item_no === 11) { obj.mb_12_ex = ex_value; }
+				if (ex_item_no === 12) { obj.mb_13_ex = ex_value; }
+				if (ex_item_no === 13) { obj.mb_14_ex = ex_value; }
+				if (ex_item_no === 14) { obj.mb_15_ex = ex_value; }
+				if (ex_item_no === 15) { obj.mb_16_ex = ex_value; }
+
+				if (ex_item_no === 16) { obj.mb_17_ex = ex_value; }
+				if (ex_item_no === 17) { obj.mb_18_ex = ex_value; }
+				if (ex_item_no === 18) { obj.mb_19_ex = ex_value; }
+				if (ex_item_no === 19) { obj.mb_20_ex = ex_value; }
+				if (ex_item_no === 20) { obj.mb_21_ex = ex_value; }
+				if (ex_item_no === 21) { obj.mb_22_ex = ex_value; }
+				if (ex_item_no === 22) { obj.mb_23_ex = ex_value; }
+				if (ex_item_no === 23) { obj.mb_24_ex = ex_value; }
+
+				if (ex_item_no === 24) { obj.mb_25_ex = ex_value; }
+				if (ex_item_no === 25) { obj.mb_26_ex = ex_value; }
+				if (ex_item_no === 26) { obj.mb_27_ex = ex_value; }
+				if (ex_item_no === 27) { obj.mb_28_ex = ex_value; }
+				if (ex_item_no === 28) { obj.mb_29_ex = ex_value; }
+				if (ex_item_no === 29) { obj.mb_30_ex = ex_value; }
+				if (ex_item_no === 30) { obj.mb_31_ex = ex_value; }
+				if (ex_item_no === 31) { obj.mb_32_ex = ex_value; }
+
+				/* Show data as array
 				if (obj.mb_ex) {
 					obj.mb_ex.push([data[i + 1], data[i + 2]]);
 				} else {
 					obj.mb_ex = [[data[i + 1], data[i + 2]]];
 				}
+				*/
 				i += 2;
 				break;
 			case ENLINK_MB_INTERVAL: // Modbus Interval Read
+				// Show data as individual items for CS
+				var int_item_no = data[i + 1];
+				var int_value = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+				if (int_item_no === 0) { obj.mb_01_int = int_value; }
+				if (int_item_no === 1) { obj.mb_02_int = int_value; }
+				if (int_item_no === 2) { obj.mb_03_int = int_value; }
+				if (int_item_no === 3) { obj.mb_04_int = int_value; }
+				if (int_item_no === 4) { obj.mb_05_int = int_value; }
+				if (int_item_no === 5) { obj.mb_06_int = int_value; }
+				if (int_item_no === 6) { obj.mb_07_int = int_value; }
+				if (int_item_no === 7) { obj.mb_08_int = int_value; }
+
+				if (int_item_no === 8) { obj.mb_09_int = int_value; }
+				if (int_item_no === 9) { obj.mb_10_int = int_value; }
+				if (int_item_no === 10) { obj.mb_11_int = int_value; }
+				if (int_item_no === 11) { obj.mb_12_int = int_value; }
+				if (int_item_no === 12) { obj.mb_13_int = int_value; }
+				if (int_item_no === 13) { obj.mb_14_int = int_value; }
+				if (int_item_no === 14) { obj.mb_15_int = int_value; }
+				if (int_item_no === 15) { obj.mb_16_int = int_value; }
+
+				if (int_item_no === 16) { obj.mb_17_int = int_value; }
+				if (int_item_no === 17) { obj.mb_18_int = int_value; }
+				if (int_item_no === 18) { obj.mb_19_int = int_value; }
+				if (int_item_no === 19) { obj.mb_20_int = int_value; }
+				if (int_item_no === 20) { obj.mb_21_int = int_value; }
+				if (int_item_no === 21) { obj.mb_22_int = int_value; }
+				if (int_item_no === 22) { obj.mb_23_int = int_value; }
+				if (int_item_no === 23) { obj.mb_24_int = int_value; }
+
+				if (int_item_no === 24) { obj.mb_25_int = int_value; }
+				if (int_item_no === 25) { obj.mb_26_int = int_value; }
+				if (int_item_no === 26) { obj.mb_27_int = int_value; }
+				if (int_item_no === 27) { obj.mb_28_int = int_value; }
+				if (int_item_no === 28) { obj.mb_29_int = int_value; }
+				if (int_item_no === 29) { obj.mb_30_int = int_value; }
+				if (int_item_no === 30) { obj.mb_31_int = int_value; }
+				if (int_item_no === 31) { obj.mb_32_int = int_value; }
+
+				/* Show data as array
 				if (obj.mb_int_val) {
 					obj.mb_int_val.push([data[i + 1], fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5])]);
 				} else {
 					obj.mb_int_val = [[data[i + 1], fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5])]];
 				}
+				*/
 				i += 5;
 				break;
 			case ENLINK_MB_CUMULATIVE: // Modbus Cumulative Read
+				// Show data as individual items for CS
+				var cum_item_no = data[i + 1];
+				var cum_value = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+				if (cum_item_no === 0) { obj.mb_01_cum = cum_value; }
+				if (cum_item_no === 1) { obj.mb_02_cum = cum_value; }
+				if (cum_item_no === 2) { obj.mb_03_cum = cum_value; }
+				if (cum_item_no === 3) { obj.mb_04_cum = cum_value; }
+				if (cum_item_no === 4) { obj.mb_05_cum = cum_value; }
+				if (cum_item_no === 5) { obj.mb_06_cum = cum_value; }
+				if (cum_item_no === 6) { obj.mb_07_cum = cum_value; }
+				if (cum_item_no === 7) { obj.mb_08_cum = cum_value; }
+
+				if (cum_item_no === 8) { obj.mb_09_cum = cum_value; }
+				if (cum_item_no === 9) { obj.mb_10_cum = cum_value; }
+				if (cum_item_no === 10) { obj.mb_11_cum = cum_value; }
+				if (cum_item_no === 11) { obj.mb_12_cum = cum_value; }
+				if (cum_item_no === 12) { obj.mb_13_cum = cum_value; }
+				if (cum_item_no === 13) { obj.mb_14_cum = cum_value; }
+				if (cum_item_no === 14) { obj.mb_15_cum = cum_value; }
+				if (cum_item_no === 15) { obj.mb_16_cum = cum_value; }
+
+				if (cum_item_no === 16) { obj.mb_17_cum = cum_value; }
+				if (cum_item_no === 17) { obj.mb_18_cum = cum_value; }
+				if (cum_item_no === 18) { obj.mb_19_cum = cum_value; }
+				if (cum_item_no === 19) { obj.mb_20_cum = cum_value; }
+				if (cum_item_no === 20) { obj.mb_21_cum = cum_value; }
+				if (cum_item_no === 21) { obj.mb_22_cum = cum_value; }
+				if (cum_item_no === 22) { obj.mb_23_cum = cum_value; }
+				if (cum_item_no === 23) { obj.mb_24_cum = cum_value; }
+
+				if (cum_item_no === 24) { obj.mb_25_cum = cum_value; }
+				if (cum_item_no === 25) { obj.mb_26_cum = cum_value; }
+				if (cum_item_no === 26) { obj.mb_27_cum = cum_value; }
+				if (cum_item_no === 27) { obj.mb_28_cum = cum_value; }
+				if (cum_item_no === 28) { obj.mb_29_cum = cum_value; }
+				if (cum_item_no === 29) { obj.mb_30_cum = cum_value; }
+				if (cum_item_no === 30) { obj.mb_31_cum = cum_value; }
+				if (cum_item_no === 31) { obj.mb_32_cum = cum_value; }
+
+				/* Show data as array
 				if (obj.mb_cum_val) {
 					obj.mb_cum_val.push([data[i + 1], fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5])]);
 				} else {
 					obj.mb_cum_val = [[data[i + 1], fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5])]];
 				}
+				*/
 				i += 5;
-				break;
+				break;				
 
 			case ENLINK_BVOC:     // Breath VOC Estimate equivalent
 				obj.bvoc = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
@@ -385,17 +515,20 @@ function decodeTelemetry(data) {
 				obj.occ_time_s = U32((data[i + 1] << 24) | (data[i + 2] << 16) | (data[i + 3] << 8) | (data[i + 4]));
 				i += 4;
 				break;
+
 			case ENLINK_COS_STATUS: // Change-of-State U16
 				// Byte 1 = Triggered, Byte 2 = Input state
-				/*
 				obj.cos_trig_byte = '0x' + ('0' + (data[i + 1]).toString(16).toUpperCase()).slice(-2);
 				if (data[i + 1] === 0) {
 					// Transmission was triggered with button press or ATI timeout
 					// So it's a 'heartbeat'
-					//obj.cos_hb = 1;
+					obj.cos_hb = 1;
 				} else {
-				*/
-				// If (data[i + 1] > 0) transmission was triggered with a Change of State
+					// If (data[i + 1] > 0) transmission was triggered with a Change of State
+					// It's a change of state
+					obj.cos_hb = 0;
+				}
+				
 				// Transition detected for Closed to Open
 				var b = false;
 				b = (data[i + 1] & 0x01) > 0;
@@ -950,7 +1083,9 @@ function decodeStdResponse(data) {
 				obj.reply = "Reply parse failure";
 			}
 
-			if (data[i + 2] == ENLINK_SET_PUBLIC) {
+			if (data[i + 2] == ENLINK_SET_ANT_GAIN) {
+				obj.command = "Set Antenna Gain";
+			} else if (data[i + 2] == ENLINK_SET_PUBLIC) {
 				obj.command = "Set Public";
 			} else if (data[i + 2] == ENLINK_SET_APPEUI) {
 				obj.command = "Set AppEUI";

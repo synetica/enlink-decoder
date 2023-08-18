@@ -205,10 +205,12 @@ const ENLINK_LEAK_LOWER_HYST = 0x39;
 const ENLINK_LEAK_SAMPLE_TIME_S = 0x3A;
 const ENLINK_LEAK_TEST_DURATION = 0x3B;
 
+// Radio packet includes for VOC and Particulate sensors
 const ENLINK_BME680_PKT_INC = 0x3C;
 const ENLINK_SPS30_PKT_INC = 0x3D;
 const ENLINK_PIERA_PKT_INC = 0x3E;
 
+// Diff Press/ Air Flow Settings
 const ENLINK_DP_PKT_INC = 0x3F;
 const ENLINK_DP_AUTO_ZERO = 0x40;
 const ENLINK_DP_SET_DELTA = 0x41;
