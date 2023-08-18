@@ -1,5 +1,5 @@
 // Synetica enLink Modbus Codec for Chirpstack v3 and v4
-// 18 August 2023 (FW Ver:5.14)
+// 18 August 2023 (FW Ver:3.6)
 // https://github.com/synetica/enlink-decoder
 
 // Uplink Data
@@ -47,8 +47,22 @@ var ENLINK_SET_JC_PKT_TYPE = 0x10;    // Join Check Packet Type
 
 var ENLINK_REBOOT = 0xFF;
 
+// --------------------------------------------------------------------------------------
 // OTA Modbus configuration Only
-var ENLINK_MB_SYS = 0xFF;	// Config reply from a MB unit
+// V2 Configuration data messages
+var ENLINK_SYS_V2 = 0xFF;		// System Commands/Messages. e.g. Reboot
+var ENLINK_QRY_V2 = 0xFE;		// Query Configuration
+var ENLINK_SET_V2 = 0xFD;	    // Set Configuration
+var ENLINK_CMD_V2 = 0xFC;		// Commands
+
+var ENLINK_ACK_V2 = 0xAA;
+var ENLINK_NACK_V2 = 0xFF;
+
+//var ENLINK_MB_DP_COMMS = 0x40;
+var ENLINK_MB_DP_CONFIG = 0x41;
+var ENLINK_MB_DP_VALUE = 0x42;
+// Commands
+var ENLINK_MB_SC_DELETE = 0x7F;
 
 // --------------------------------------------------------------------------------------
 // Convert binary value bit to Signed 8 bit
@@ -319,10 +333,6 @@ function decodeTelemetry(data) {
 				i += 2;
 				break;
 
-			case ENLINK_MB_SYS: // Ignore this message
-				i = data.length;
-				break;
-
 			default: // something is wrong with data
 				obj.error = "Error at index " + i + "  Byte value " + data[i];
 				i = data.length;
@@ -393,7 +403,137 @@ function decodeStdResponse(data) {
 	}
     return obj;
 }
+// --------------------------------------------------------------------------------------
+function getRegType (byteval) {
+    if (byteval == 3) return "Hold";
+    if (byteval == 4) return "Inpt";
+    return "Err";
+}
+// --------------------------------------------------------------------------------------
+function getDataType (byteval) {
+    if (byteval === 0) return "U";
+    if (byteval == 1) return "S";
+    if (byteval == 2) return "F";
+    return "Err";
+}
+// --------------------------------------------------------------------------------------
+function getWordOrder(byteval) {
+    if (byteval === 0) return "HH";
+    if (byteval == 1) return "HL";
+    if (byteval == 2) return "LH";
+    if (byteval == 3) return "LL";
+    return "Err";
+}
+// --------------------------------------------------------------------------------------
+function getReadType(byteval) {
+    if (byteval === 0) return "Int";
+    if (byteval == 1) return "Cum";
+    return "Err";
+}
+// --------------------------------------------------------------------------------------
+// Display MB Config info Append string to obj
+function DecodeMBConfig(data) {
+    var ret = "";
+    if (data[5] === 0) {
+        ret = "Item:" + data[4] + " Slot is Free";
+    } else {
+        ret = "Item:" + data[4] +
+		    " Slave:" + data[5] + 
+		    " Reg:" + getRegType(data[6]) +
+		    " Addr:" + ((data[7] << 8) | data[8]) +
+		    " Data:" + getDataType(data[9]) + (16 * data[10]) +
+		    " Order:" + getWordOrder(data[11]) +
+		    " Mult:" + fromF32(data[12], data[13], data[14], data[15]) +
+		    " Read:" + getReadType(data[16]);
+    }
+    return ret;
+}
+// --------------------------------------------------------------------------------------
+// Display MB Value info Append string to obj
+function DecodeMBValue(data) {
+    var ret = "";
+    if (data[5] == 0xFF) {
+        ret = "Item:" + data[4] + " Slot is Free";
+    } else if (data[5] === 0) {
+        ret = "Item:" + data[4] +
+		    " Value:" + fromF32(data[6], data[7], data[8], data[9]);
+    } else {
+        ret = "Item:" + data[4] + "Exception:" + data[5];
+        // Ignore last four chars, all zeros
+    }
+    return ret;
+}
+// --------------------------------------------------------------------------------------
+// Function to decode enLink Messages
+function decodeV2Response(data) {   
+    var msg_ok = false;
+    var msg_ack = false;
+    var obj = {};
+    
+	if (data[1] == ENLINK_ACK_V2) {
+		obj.reply = "ACK";
+		msg_ok = true;
+		msg_ack = true;
+	} else if (data[1] == ENLINK_NACK_V2) {
+		obj.reply = "NACK";
+		msg_ok = true;
+	} else {
+		obj.reply = "Reply parse failure";
+	}
+	if (msg_ok === true) {
+		switch (data[2]) {
+			case ENLINK_QRY_V2:
+				if (data[3] == ENLINK_MB_DP_CONFIG) {
+				    // QRY doesn't have sub command
+				    if (msg_ack) {
+						obj.query = "MB QRY Config Reply: " + DecodeMBConfig(data);
+				    } else {
+						obj.query = "MB QRY Config Error for Item:" + data[4];    							        
+				    }
+				} else if(data[3] == ENLINK_MB_DP_VALUE) {
+				    if (msg_ack) {
+						obj.query = "MB QRY Value Reply: " + DecodeMBValue(data);
+				    } else {
+						obj.query = "MB QRY Value Error for Item:" + data[4];    							        
+				    }
+				}
+				break;
+			case ENLINK_SET_V2:
+			    if (data[3] == ENLINK_MB_DP_CONFIG) {
+				    // SET doesn't have sub command
+				    if (msg_ack) {
+						obj.set = "MB SET Config Reply: " + DecodeMBConfig(data);
+				    } else {
+						obj.set = "MB SET Config Error for Item:" + data[4];    							        
+				    }
+				}
+				break;
+			case ENLINK_CMD_V2:
+				if (data[3] == ENLINK_MB_DP_CONFIG) {
+				    // CMD does have Sub command
+				    // Sub Command is Delete?
+					if (data[4] == ENLINK_MB_SC_DELETE) {
+					    if (msg_ack) {
+					        // R: = Return Val. 0=Already free else previous slave id
+						    obj.command = "MB SubCmd Delete Item: " + data[5] + " R: " + data[6];
+					    } else {
+						    obj.command = "MB SubCmd Delete Error for Item:" + data[4];    							        
+				        }
+					}
+				}
+				break;
+			
+			default:
+				break;
+		}
+	}
 
+    if (msg_ok) {
+        return obj;
+    } else {
+        return null;
+    }
+}
 // --------------------------------------------------------------------------------------
 // Function to switch between Telemetry or downlink reply
 function enlinkDecode(bytes) {
@@ -413,6 +553,10 @@ function enlinkDecode(bytes) {
 	if (bytes[0] == ENLINK_HEADER) {
 		// This is a reply to a downlink command
 		return decodeStdResponse(bytes);
+	}
+	if (bytes[0] == ENLINK_SYS_V2) {
+		// This is a Modbus Setting response
+		return decodeV2Response(bytes);
 	}
 	return decodeTelemetry(bytes);
 }
