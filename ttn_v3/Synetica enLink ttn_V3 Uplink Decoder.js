@@ -523,11 +523,11 @@ function decodeUplink(input) {
 					obj.no_ppm = U16((data[i + 1] << 8) | (data[i + 2])) / 100;
 					i += 2;
 					break;
-				case ENLINK_NO2: // Nitrogen Dioxide scaled at 0-5ppm
+				case ENLINK_NO2: // Nitrogen Dioxide range at 0-5ppm
 					obj.no2_ppm = U16((data[i + 1] << 8) | (data[i + 2])) / 10000;
 					i += 2;
 					break;
-				case ENLINK_NO2_20: // Nitrogen Dioxide scaled at 0-20ppm
+				case ENLINK_NO2_20: // Nitrogen Dioxide range at 0-20ppm
 					obj.no2_20_ppm = U16((data[i + 1] << 8) | (data[i + 2])) / 1000;
 					i += 2;
 					break;
