@@ -125,6 +125,9 @@ function js_decoder(msg) {
   const ENLINK_CURRENT = 0x2f;
   const ENLINK_RESISTANCE = 0x30;
   const ENLINK_LEAK_DETECT_EVT = 0x31;
+  const ENLINK_AP_PRESSURE_PA = 0x32;
+  const ENLINK_AP_TEMPERATURE = 0x33;
+
   const ENLINK_CO2E = 0x3f;
 
   const ENLINK_SOUND_MIN = 0x50;
@@ -764,7 +767,14 @@ function js_decoder(msg) {
           obj.leak_detect_event = data[i + 1] ? true : false;
           i += 1;
           break;
-
+        case ENLINK_AP_PRESSURE_PA: // 4 bytes F32, in Pascals. Typically up to 1MPa (10,000 mbar)
+          obj.ap_pa = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
+          i += 4;
+          break;
+        case ENLINK_AP_TEMPERATURE:
+          obj.ap_t_c = (S16((data[i + 1] << 8) | (data[i + 2]))) / 100;
+          i += 2;
+          break;
         case ENLINK_CO2E: // CO2e Estimate Equivalent
           obj.co2e_ppm = fromF32(
             data[i + 1],

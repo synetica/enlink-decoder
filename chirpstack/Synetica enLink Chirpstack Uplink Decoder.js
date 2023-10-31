@@ -65,6 +65,9 @@ var ENLINK_VOLTAGE = 0x2E;
 var ENLINK_CURRENT = 0x2F;
 var ENLINK_RESISTANCE = 0x30;
 var ENLINK_LEAK_DETECT_EVT = 0x31;
+var ENLINK_AP_PRESSURE_PA = 0x32;
+var ENLINK_AP_TEMPERATURE = 0x33;
+
 var ENLINK_CO2E = 0x3F;
 
 var ENLINK_SOUND_MIN = 0x50;
@@ -698,6 +701,14 @@ function decodeTelemetry(data) {
 			case ENLINK_LEAK_DETECT_EVT: // 1 byte U8, Leak status changed
 				obj.leak_detect_event = (data[i + 1]) ? true : false;
 				i += 1;
+				break;
+			case ENLINK_AP_PRESSURE_PA: // 4 bytes F32, in Pascals. Typically up to 1MPa (10,000 mbar)
+				obj.ap_pa = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+				i += 4;
+				break;
+			case ENLINK_AP_TEMPERATURE:
+				obj.ap_t_c = (S16((data[i + 1] << 8) | (data[i + 2]))) / 100;
+				i += 2;
 				break;
 			case ENLINK_CO2E: // CO2e Estimate Equivalent
 				obj.co2e_ppm = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);

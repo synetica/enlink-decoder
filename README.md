@@ -15,6 +15,7 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
   - [Status Pulse Counter](#enlink-status---pulse-counter)
   - [Status Leak Sensor](#enlink-status---leak-sensor)
   - [Status Differential Pressure](#enlink-status---differential-pressure--air-flow-velocity)
+  - [Status Absolute Pressure](#enlink-status---absolute-pressure)
   - [Status Temperature Probes](#enlink-status---temperature-probes)
   - [Status Voltage/Current Sensor](#enlink-status---voltagecurrent-sensor)
   - [Status Pura Sanitiser Liquid Level](#enlink-status---pura-sanitiser-liquid-level)
@@ -133,13 +134,11 @@ The firmware code is a concatenation of the base model plus the options.
 |:-----------|:--------|:-------------|:------------|
 | FW-MB-32  | (None)  | `0x0F`, `0x10`, `0x11` | Exception, Interval, Cumulative readings
 
-
 ## enLink Status - Pulse Counter
 
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
 | FW-STS-P/PX | (None) | `0x0E`, `0x15` | Count (0 to 2^32), [Change of State](#pulse-counters---change-of-state) - Includes [ATI](#ati---adaptive-transmission-interval) feature
-
 
 ## enLink Status - Leak Sensor
 
@@ -147,13 +146,17 @@ The firmware code is a concatenation of the base model plus the options.
 |:-----------|:--------|:-------------|:------------|
 | FW-STS-L  | (None)  | `0x30`, `0x31` | Resistance, Leak Event. Includes [ATI](#ati---adaptive-transmission-interval) feature on the leak event
 
-
 ## enLink Status - Differential Pressure / Air Flow (Velocity)
 
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
 | FW-STS-DP/AF | (None)  | `0x2C`, `0x2D` | Pressure, Air flow. Either one or both can be selected
 
+## enLink Status - Absolute Pressure
+
+| Firmware Code | Options | Data Type(s) | Description |
+|:-----------|:--------|:-------------|:------------|
+| FW-STS-AP  | (None)  | `0x32`, `0x33` | Pressure, Temperature (of the sensor)
 
 ## enLink Status - Temperature Probes
 
@@ -170,7 +173,6 @@ The firmware code is a concatenation of the base model plus the options.
 | FW-STS-VC | (None)  | `0x2E` | Mode: Voltage
 |            |         | `0x2F` | Mode: Current
 |            |         | `0x30` | Mode: Resistance
-
 
 ## enLink Status - Pura Sanitiser Liquid Level
 
@@ -273,6 +275,8 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x2F` 047 | Current | 0 to 20  | mA    | 2 | U16 | / 1000
 | `0x30` 048 | Resistance | 0 to 6553.5 kΩ (6.5MΩ) | kΩ | 2 | U16 | / 10
 | `0x31` 049 | Leak Detection (resistance rope) | 0 = No Leak<br />1 = Leak Detected | status | 1 | U8
+| `0x32` 050 | Absolute Pressure | 0 to 1 MPa typ. | Pa | 4 | F32
+| `0x33` 051 | Sensor Temperature | -40 to 85 | °C | 2 | S16 | /100
 | `0x3F` 063 | CO<sub>2</sub>e estimate equivalent |  | ppm | 4 | F32
 | `0x50` 080 | Sound Level Minimum |  | dB(A) | 4 | F32
 | `0x51` 081 | Sound Level Average |  | dB(A) | 4 | F32
