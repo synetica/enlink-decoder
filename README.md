@@ -275,7 +275,7 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x2F` 047 | Current | 0 to 20  | mA    | 2 | U16 | / 1000
 | `0x30` 048 | Resistance | 0 to 6553.5 kΩ (6.5MΩ) | kΩ | 2 | U16 | / 10
 | `0x31` 049 | Leak Detection (resistance rope) | 0 = No Leak<br />1 = Leak Detected | status | 1 | U8
-| `0x32` 050 | Absolute Pressure | 0 to 1 MPa typ. | Pa | 4 | F32
+| `0x32` 050 | Absolute Pressure | 0 to 1000 kPa typ. | Pa | 4 | F32
 | `0x33` 051 | Sensor Temperature | -40 to 85 | °C | 2 | S16 | /100
 | `0x3F` 063 | CO<sub>2</sub>e estimate equivalent |  | ppm | 4 | F32
 | `0x50` 080 | Sound Level Minimum |  | dB(A) | 4 | F32
