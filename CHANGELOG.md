@@ -3,8 +3,7 @@
 ## 2023 November Updates
 
 - Updated firmware to 5.16
-- Added some more models
-- Added new product - `STS-AP`. An Absolute Pressure sensor. Rated at 0 to 1MPa. Added decoder for new data values.
+- Added new product - `STS-AP`. An Absolute Pressure sensor. Rated at 0 to 1000 kPa. Added decoder sections for new data values.
 
 ## 2023 October Updates
 

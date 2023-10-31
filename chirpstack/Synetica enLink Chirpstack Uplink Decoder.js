@@ -1,5 +1,5 @@
 // Synetica Payload Decoder for Chirpstack v3 and v4
-// 15 August 2023 (FW Ver:5.14)
+// 31 Oct 2023 (FW Ver:5.16)
 // https://github.com/synetica/enlink-decoder
 
 // Uplink Data

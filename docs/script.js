@@ -63,7 +63,7 @@ function decode_hex_string(hex_string) {
 function js_decoder(msg) {
   // Used for decoding enLink Uplink LoRa Messages
   // --------------------------------------------------------------------------------------
-  // 03 Feb 2023 (FW Ver:5.09)
+  // 31 Oct 2023 (FW Ver:5.16)
   // --------------------------------------------------------------------------------------
   // https://github.com/synetica/enlink-decoder
   
