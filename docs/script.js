@@ -127,7 +127,9 @@ function js_decoder(msg) {
   const ENLINK_LEAK_DETECT_EVT = 0x31;
   const ENLINK_AP_PRESSURE_PA = 0x32;
   const ENLINK_AP_TEMPERATURE = 0x33;
-
+  const ENLINK_LL_DEPTH_MM = 0x34;
+  const ENLINK_LL_TEMPERATURE = 0x35;
+  
   const ENLINK_CO2E = 0x3f;
 
   const ENLINK_SOUND_MIN = 0x50;
@@ -775,6 +777,16 @@ function js_decoder(msg) {
           obj.ap_t_c = (S16((data[i + 1] << 8) | (data[i + 2]))) / 100;
           i += 2;
           break;
+
+        case ENLINK_LL_DEPTH_MM: // 4 bytes F32, in mm
+          obj.ll_depth_mm = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+          i += 4;
+          break;
+        case ENLINK_LL_TEMPERATURE: // Sensor temperature
+          obj.ll_t_c = (S16((data[i + 1] << 8) | (data[i + 2]))) / 100;
+          i += 2;
+          break;
+  
         case ENLINK_CO2E: // CO2e Estimate Equivalent
           obj.co2e_ppm = fromF32(
             data[i + 1],

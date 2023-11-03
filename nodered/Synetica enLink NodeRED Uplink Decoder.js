@@ -76,6 +76,8 @@ const ENLINK_RESISTANCE = 0x30;                            // U16  0 -> 6553.5kO
 const ENLINK_LEAK_DETECT_EVT = 0x31;                       // U8   1 or 0, Leak status on resistance rope
 const ENLINK_AP_PRESSURE_PA = 0x32;
 const ENLINK_AP_TEMPERATURE = 0x33;
+const ENLINK_LL_DEPTH_MM = 0x34;
+const ENLINK_LL_TEMPERATURE = 0x35;
 
 const ENLINK_CO2E = 0x3F;                                  // F32  ppm CO2e Estimate Equivalent
 
@@ -692,6 +694,16 @@ function decodeTelemetry(data) {
             break;
         case ENLINK_AP_TEMPERATURE:
             obj.ap_t_c = (S16((data[i + 1] << 8) | (data[i + 2]))) / 100;
+            i += 2;
+            msg_ok = true;
+            break;
+        case ENLINK_LL_DEPTH_MM: // 4 bytes F32, in mm
+            obj.ll_depth_mm = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+            i += 4;
+            msg_ok = true;
+            break;
+        case ENLINK_LL_TEMPERATURE: // Sensor temperature
+            obj.ll_t_c = (S16((data[i + 1] << 8) | (data[i + 2]))) / 100;
             i += 2;
             msg_ok = true;
             break;

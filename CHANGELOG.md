@@ -2,8 +2,9 @@
 
 ## 2023 November Updates
 
-- Updated firmware to 5.16
+- Updated firmware to 5.16 then 5.17
 - Added new product - `STS-AP`. An Absolute Pressure sensor. Rated at 0 to 1000 kPa. Added decoder sections for new data values.
+- Added new product - `STS-LL`. Liquid Level sensor. Rated at 0 to 5 metres. Added decoder sections for new data values.
 
 ## 2023 October Updates
 

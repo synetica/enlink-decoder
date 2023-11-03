@@ -16,6 +16,7 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
   - [Status Leak Sensor](#enlink-status---leak-sensor)
   - [Status Differential Pressure](#enlink-status---differential-pressure--air-flow-velocity)
   - [Status Absolute Pressure](#enlink-status---absolute-pressure)
+  - [Status Liquid Level](#enlink-status---liquid-level)
   - [Status Temperature Probes](#enlink-status---temperature-probes)
   - [Status Voltage/Current Sensor](#enlink-status---voltagecurrent-sensor)
   - [Status Pura Sanitiser Liquid Level](#enlink-status---pura-sanitiser-liquid-level)
@@ -156,7 +157,13 @@ The firmware code is a concatenation of the base model plus the options.
 
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| FW-STS-AP  | (None)  | `0x32`, `0x33` | Pressure, Temperature (of the sensor)
+| FW-STS-AP  | (None)  | `0x32`, `0x33` | Pressure Pa, Temperature (of the sensor)
+
+## enLink Status - Liquid Level
+
+| Firmware Code | Options | Data Type(s) | Description |
+|:-----------|:--------|:-------------|:------------|
+| FW-STS-LL  | (None)  | `0x34`, `0x33` | Depth mm, Temperature (of the sensor)
 
 ## enLink Status - Temperature Probes
 
@@ -196,7 +203,7 @@ The enLink device design uses a single port byte value to transmit uplink messag
 
 ## Uplink Payload Structure
 
-The payload is an array of `Sensor Data` messages, each on is 2 or more bytes in length.
+The payload is an array of `Sensor Data` messages, each one is 2 or more bytes in length.
 
 > `[Sensor-1 Data]  [Sensor-2 Data] ... [Sensor-n Data]`
 
@@ -277,6 +284,7 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x31` 049 | Leak Detection (resistance rope) | 0 = No Leak<br />1 = Leak Detected | status | 1 | U8
 | `0x32` 050 | Absolute Pressure | 0 to 1000 kPa typ. | Pa | 4 | F32
 | `0x33` 051 | Sensor Temperature | -40 to 85 | °C | 2 | S16 | /100
+| `0x34` 052 | Liquid Level (Depth) | 0 to 5000 mm typ. | mm | 4 | F32
 | `0x3F` 063 | CO<sub>2</sub>e estimate equivalent |  | ppm | 4 | F32
 | `0x50` 080 | Sound Level Minimum |  | dB(A) | 4 | F32
 | `0x51` 081 | Sound Level Average |  | dB(A) | 4 | F32
