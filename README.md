@@ -293,7 +293,7 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x36` 054 | TVOC Minimum |  | mg/m³ | 2 | F32
 | `0x37` 055 | TVOC Average |  | mg/m³ | 2 | F32
 | `0x38` 056 | TVOC Maximum |  | mg/m³ | 2 | F32
-| `0x39` 057 | EtOH (Ethanol estimate) |  | ppm | 4 | F32
+| `0x39` 057 | EtOH (Ethanol equivalent) |  | ppm | 4 | F32
 | `0x3A` 058 | IAQ (1.0 to 5.0) Not the `PBAQ` version|  | IAQ | 4 | F32
 | `0x3F` 063 | CO<sub>2</sub>e estimate equivalent (BME680) |  | ppm | 4 | F32
 | `0x50` 080 | Sound Level Minimum |  | dB(A) | 4 | F32
@@ -879,7 +879,7 @@ Set the bit value to `1` to include the data value; `0` to exclude it.
 - Bit 0 - `Minimum TVOC`
 - Bit 1 - `Average TVOC`
 - Bit 2 - `Maximum TVOC`
-- Bit 3 - `Latest EtOH reading` (Ethanol estimate)
+- Bit 3 - `Latest EtOH reading` (Ethanol equivalent)
 - Bit 4 - `Latest IAQ reading` (Not the PBAQ version)
 - Bit 5 - Not used
 - Bit 6 - Not used
