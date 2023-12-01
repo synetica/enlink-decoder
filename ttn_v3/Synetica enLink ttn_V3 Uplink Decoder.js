@@ -1,5 +1,5 @@
 // Synetica Payload Decoder for The Things Stack V3
-// 31 Oct 2023 (FW Ver:5.16)
+// 29 Nov 2023 (FW Ver:6.02)
 // https://github.com/synetica/enlink-decoder
 
 function decodeUplink(input) {
@@ -64,6 +64,12 @@ function decodeUplink(input) {
 	const ENLINK_AP_TEMPERATURE = 0x33;
 	const ENLINK_LL_DEPTH_MM = 0x34;
 	const ENLINK_LL_TEMPERATURE = 0x35;
+
+	const ENLINK_MIN_TVOC = 0x36;
+	const ENLINK_AVG_TVOC = 0x37;
+	const ENLINK_MAX_TVOC = 0x38;
+	const ENLINK_ETOH = 0x39;
+	const ENLINK_TVOC_IAQ = 0x3A;
 
     const ENLINK_CO2E = 0x3F;
 
@@ -520,6 +526,27 @@ function decodeUplink(input) {
 					i += 2;
 					break;
 
+				case ENLINK_MIN_TVOC:
+					obj.tvoc_min_mg_m3 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+					i += 4;
+					break;
+				case ENLINK_AVG_TVOC:
+					obj.tvoc_avg_mg_m3 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+					i += 4;
+					break;
+				case ENLINK_MAX_TVOC:
+					obj.tvoc_max_mg_m3 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+					i += 4;
+					break;
+				case ENLINK_ETOH: // Ethanol estimate
+					obj.etoh_ppm = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+					i += 4;
+					break;
+				case ENLINK_TVOC_IAQ:
+					obj.tvoc_iaq = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+					i += 4;
+					break;
+			
 				case ENLINK_CO2E: // CO2e Estimate Equivalent
 					obj.co2e_ppm = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
 					i += 4;

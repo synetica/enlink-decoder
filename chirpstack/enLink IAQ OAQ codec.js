@@ -1,5 +1,5 @@
 // Synetica Indoor and Outdoor Air Quality (IAQ/OAQ) Codec for Chirpstack v3 and v4
-// 18 August 2023 (FW Ver:5.14)
+// 29 Nov 2023 (FW Ver:6.02)
 // https://github.com/synetica/enlink-decoder
 
 // Uplink Data
@@ -18,6 +18,13 @@ var ENLINK_CO2E = 0x3F;
 
 // C
 var ENLINK_CO2 = 0x08;
+
+// I (PBAQ)
+var ENLINK_MIN_TVOC = 0x36;
+var ENLINK_AVG_TVOC = 0x37;
+var ENLINK_MAX_TVOC = 0x38;
+var ENLINK_ETOH = 0x39;
+var ENLINK_TVOC_IAQ = 0x3A;
 
 // D (OAQ Only)
 var ENLINK_FAST_AQI = 0x67;
@@ -248,6 +255,28 @@ function decodeTelemetry(data) {
             case ENLINK_CO2: // Carbon Dioxide
 				obj.co2_ppm = U16((data[i + 1] << 8) | (data[i + 2]));
 				i += 2;
+				break;
+
+			// I
+			case ENLINK_MIN_TVOC:
+				obj.tvoc_min_mg_m3 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+				i += 4;
+				break;
+			case ENLINK_AVG_TVOC:
+				obj.tvoc_avg_mg_m3 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+				i += 4;
+				break;
+			case ENLINK_MAX_TVOC:
+				obj.tvoc_max_mg_m3 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+				i += 4;
+				break;
+			case ENLINK_ETOH: // Ethanol estimate
+				obj.etoh_ppm = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+				i += 4;
+				break;
+			case ENLINK_TVOC_IAQ:
+				obj.tvoc_iaq = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+				i += 4;
 				break;
 
             // D

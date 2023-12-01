@@ -4,6 +4,8 @@
 
 Online decoder can be found here: [Live Decoder](https://synetica.github.io/enlink-decoder/)
 
+> Latest firmware release is v6.02.
+
 ## Table of Contents
 - [Preamble](#preamble)
 - [Payload Contents of each enLink Model](#payload-contents-of-each-enlink-model)
@@ -40,6 +42,7 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
   - [Gas Sensor Parameters](#gas-sensor-parameters)
   - [Leak Sensor Parameters](#leak-sensor-parameters)
   - [VOC Sensor Parameters](#voc-sensor-parameters)
+  - [TVOC Sensor Parameters](#tvoc-sensor-parameters)
   - [Sample Code](#sample-code)
 
 </br>
@@ -99,7 +102,8 @@ The firmware code is a concatenation of the base model plus the options.
 | FW-AQ  | (default) | `0x01`, `0x02` | Temperature, Humidity
 | | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e
 | | C | `0x08` | NDIR CO<sub>2</sub> ppm
-| | D | `0x67`, `0x68` | Outdoor EPA Sensor
+| | I | `0x36`, `0x37`, `0x38`, `0x39`, `0x3A` | Indoor TVOC Sensor (enLink IAQ)
+| | D | `0x67`, `0x68` | Outdoor EPA Sensor (enLink OAQ)
 | | O | `0x61` | Ozone
 | | G | `0x61`, `0x66` | Single Gas Sensor
 | | S | `0x50`, `0x51`, `0x52` | Sound
@@ -163,7 +167,7 @@ The firmware code is a concatenation of the base model plus the options.
 
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| FW-STS-LL  | (None)  | `0x34`, `0x33` | Depth mm, Temperature (of the sensor)
+| FW-STS-LL  | (None)  | `0x34`, `0x35` | Depth mm, Temperature (of the sensor)
 
 ## enLink Status - Temperature Probes
 
@@ -283,9 +287,15 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x30` 048 | Resistance | 0 to 6553.5 kΩ (6.5MΩ) | kΩ | 2 | U16 | / 10
 | `0x31` 049 | Leak Detection (resistance rope) | 0 = No Leak<br />1 = Leak Detected | status | 1 | U8
 | `0x32` 050 | Absolute Pressure | 0 to 1000 kPa typ. | Pa | 4 | F32
-| `0x33` 051 | Sensor Temperature | -40 to 85 | °C | 2 | S16 | /100
+| `0x33` 051 | AP Sensor Temperature | -40 to 85 | °C | 2 | S16 | /100
 | `0x34` 052 | Liquid Level (Depth) | 0 to 5000 mm typ. | mm | 4 | F32
-| `0x3F` 063 | CO<sub>2</sub>e estimate equivalent |  | ppm | 4 | F32
+| `0x35` 053 | LL Sensor Temperature | -40 to 85 | °C | 2 | S16 | /100
+| `0x36` 054 | TVOC Minimum |  | mg/m³ | 2 | F32
+| `0x37` 055 | TVOC Average |  | mg/m³ | 2 | F32
+| `0x38` 056 | TVOC Maximum |  | mg/m³ | 2 | F32
+| `0x39` 057 | EtOH (Ethanol estimate) |  | ppm | 4 | F32
+| `0x3A` 058 | IAQ (1.0 to 5.0) Not the `PBAQ` version|  | IAQ | 4 | F32
+| `0x3F` 063 | CO<sub>2</sub>e estimate equivalent (BME680) |  | ppm | 4 | F32
 | `0x50` 080 | Sound Level Minimum |  | dB(A) | 4 | F32
 | `0x51` 081 | Sound Level Average |  | dB(A) | 4 | F32
 | `0x52` 082| Sound Level Maximum |  | dB(A) | 4 | F32
@@ -851,6 +861,35 @@ The following over-the-air settings are used for the enLink Status Differential 
 | Set delta offset to `-1.234` | `A5 05 41 BF 9D F3 B6`
 
 For an online value converter, see [Hex to Float Converter](https://gregstoll.com/~gregstoll/floattohex/)
+
+</br>
+
+## TVOC Sensor Parameters
+
+Available from v6.02 onwards.
+
+The following are used in devices with the ZMOD4410 indoor TVOC sensor (Firmware option code `I`). These options are for setting which data values are included in the transmitted radio packets. Sending smaller radio packets size will reduce battery consumption. There is a standard and a PBAQ option with this sensor.
+
+| Name | Msg Len | Command | Value |
+| ---- | ------- | ------- | ----- |
+| Include Parameter | 2 | `0x42` | `0x00` to `0x1F` as a bit pattern (see below)
+
+Set the bit value to `1` to include the data value; `0` to exclude it.
+
+- Bit 0 - `Minimum TVOC`
+- Bit 1 - `Average TVOC`
+- Bit 2 - `Maximum TVOC`
+- Bit 3 - `Latest EtOH reading` (Ethanol estimate)
+- Bit 4 - `Latest IAQ reading` (Not the PBAQ version)
+- Bit 5 - Not used
+- Bit 6 - Not used
+- Bit 7 - Not used
+
+> Note: The Minimum, Average and Maximum are calculated between radio transmissions. The `PBAQ` version samples every 5 seconds.
+
+> Example Payload Data: `A5 02 42 0C`
+
+This will include the `Maximum TVOC` and the `Latest EtOH reading` data values.
 
 </br>
 

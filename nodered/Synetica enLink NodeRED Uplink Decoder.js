@@ -1,5 +1,5 @@
 // Used for decoding enLink Uplink LoRa Messages
-// 31 Oct 2023 (FW Ver:5.16)
+// 29 Nov 2023 (FW Ver:6.02)
 // https://github.com/synetica/enlink-decoder
 
 if (!msg.eui)
@@ -78,6 +78,12 @@ const ENLINK_AP_PRESSURE_PA = 0x32;
 const ENLINK_AP_TEMPERATURE = 0x33;
 const ENLINK_LL_DEPTH_MM = 0x34;
 const ENLINK_LL_TEMPERATURE = 0x35;
+
+const ENLINK_MIN_TVOC = 0x36;
+const ENLINK_AVG_TVOC = 0x37;
+const ENLINK_MAX_TVOC = 0x38;
+const ENLINK_ETOH = 0x39;
+const ENLINK_TVOC_IAQ = 0x3A;
 
 const ENLINK_CO2E = 0x3F;                                  // F32  ppm CO2e Estimate Equivalent
 
@@ -219,6 +225,9 @@ const ENLINK_PIERA_PKT_INC = 0x3E;
 const ENLINK_DP_PKT_INC = 0x3F;
 const ENLINK_DP_AUTO_ZERO = 0x40;
 const ENLINK_DP_SET_DELTA = 0x41;
+
+// Radio packet includes for TVOC sensor
+const ENLINK_ZMOD4410_PKT_INC = 0x42;
 
 const ENLINK_REBOOT = 0xFF;
 
@@ -688,7 +697,10 @@ function decodeTelemetry(data) {
             msg_ok = true;
             break;
         case ENLINK_AP_PRESSURE_PA: // 4 bytes F32, in Pascals. Typically up to 1MPa (10,000 mbar)
-            obj.ap_pa = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
+            obj.ap_pa = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(3);
+            obj.ap_kpa = (fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]) / 1000).toFixed(3);
+            obj.ap_mbar = (fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]) / 100).toFixed(3);
+            obj.ap_psi = (fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]) * 0.000145038).toFixed(3);
             i += 4;
             msg_ok = true;
             break;
@@ -708,6 +720,32 @@ function decodeTelemetry(data) {
             msg_ok = true;
             break;
 
+        case ENLINK_MIN_TVOC:
+            obj.tvoc_min_mg_m3 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
+            i += 4;
+            msg_ok = true;
+            break;
+        case ENLINK_AVG_TVOC:
+            obj.tvoc_avg_mg_m3 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
+            i += 4;
+            msg_ok = true;
+            break;
+        case ENLINK_MAX_TVOC:
+            obj.tvoc_max_mg_m3 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
+            i += 4;
+            msg_ok = true;
+            break;
+        case ENLINK_ETOH: // Ethanol estimate
+            obj.etoh_ppm = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
+            i += 4;
+            msg_ok = true;
+            break;
+        case ENLINK_TVOC_IAQ:
+            obj.tvoc_iaq = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
+            i += 4;
+            msg_ok = true;
+            break;
+        
         case ENLINK_CO2E: // CO2e Estimate Equivalent
             obj.co2e_ppm = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
             i += 4;
@@ -1201,6 +1239,9 @@ function decodeStdResponse(data) {
                 obj.command = "DP/AF trigger Auto-Zero process";
 			} else if (data[i + 2] == ENLINK_DP_SET_DELTA) {
                 obj.command = "Set DP/AF delta offset";
+
+            } else if (data[i + 2] == ENLINK_ZMOD4410_PKT_INC) {
+                obj.command = "Set TVOC Sensor packet includes";
 
 			} else if (data[i + 2] == ENLINK_REBOOT) {
 				obj.command = "Reboot";
