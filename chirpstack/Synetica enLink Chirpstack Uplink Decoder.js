@@ -740,7 +740,7 @@ function decodeTelemetry(data) {
 				obj.tvoc_max_mg_m3 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
 				i += 4;
 				break;
-			case ENLINK_ETOH: // Ethanol estimate
+			case ENLINK_ETOH: // Ethanol equivalent
 				obj.etoh_ppm = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
 				i += 4;
 				break;

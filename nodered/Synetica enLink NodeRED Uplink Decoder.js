@@ -735,7 +735,7 @@ function decodeTelemetry(data) {
             i += 4;
             msg_ok = true;
             break;
-        case ENLINK_ETOH: // Ethanol estimate
+        case ENLINK_ETOH: // Ethanol equivalent
             obj.etoh_ppm = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
             i += 4;
             msg_ok = true;
