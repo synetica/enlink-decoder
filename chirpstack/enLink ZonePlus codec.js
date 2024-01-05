@@ -106,242 +106,242 @@ var ENLINK_REBOOT = 0xFF;
 // --------------------------------------------------------------------------------------
 // Convert binary value bit to Signed 8 bit
 function S8(bin) {
-	var num = bin & 0xFF;
-	if (0x80 & num)
-		num = -(0x0100 - num);
-	return num;
+    var num = bin & 0xFF;
+    if (0x80 & num)
+        num = -(0x0100 - num);
+    return num;
 }
 
 // Convert binary value bit to Signed 16 bit
 function S16(bin) {
-	var num = bin & 0xFFFF;
-	if (0x8000 & num)
-		num = -(0x010000 - num);
-	return num;
+    var num = bin & 0xFFFF;
+    if (0x8000 & num)
+        num = -(0x010000 - num);
+    return num;
 }
 // Useful conversion functions
 // S16 -> U16
 function U16(ival) {
-	if (isNaN(ival) === false) {
-		if (ival < 0) {
-			ival = ival + 65536;
-		}
-	}
-	return ival;
+    if (isNaN(ival) === false) {
+        if (ival < 0) {
+            ival = ival + 65536;
+        }
+    }
+    return ival;
 }
 // S32 -> U32 convertIntToDWord
 function U32(ival) {
-	if (isNaN(ival) === false) {
-		if (ival < 0) {
-			ival = ival + 4294967296;
-		}
-	}
-	return ival;
+    if (isNaN(ival) === false) {
+        if (ival < 0) {
+            ival = ival + 4294967296;
+        }
+    }
+    return ival;
 }
 // U32 -> S32 convertDWordToInt
 function S32(ival) {
-	if (isNaN(ival) === false) {
-		if (ival > 2147483647) {
-			ival = ival - 4294967296;
-		}
-	}
-	return ival;
+    if (isNaN(ival) === false) {
+        if (ival > 2147483647) {
+            ival = ival - 4294967296;
+        }
+    }
+    return ival;
 }
 // Convert 4 IEEE754 bytes
 function fromF32(byte0, byte1, byte2, byte3) {
-	var bits = (byte0 << 24) | (byte1 << 16) | (byte2 << 8) | (byte3);
-	var sign = ((bits >>> 31) === 0) ? 1.0 : -1.0;
-	var e = ((bits >>> 23) & 0xff);
-	var m = (e === 0) ? (bits & 0x7fffff) << 1 : (bits & 0x7fffff) | 0x800000;
-	var f = sign * m * Math.pow(2, e - 150);
-	return parseFloat(f.toFixed(3));
+    var bits = (byte0 << 24) | (byte1 << 16) | (byte2 << 8) | (byte3);
+    var sign = ((bits >>> 31) === 0) ? 1.0 : -1.0;
+    var e = ((bits >>> 23) & 0xff);
+    var m = (e === 0) ? (bits & 0x7fffff) << 1 : (bits & 0x7fffff) | 0x800000;
+    var f = sign * m * Math.pow(2, e - 150);
+    return parseFloat(f.toFixed(3));
 }
 // --------------------------------------------------------------------------------------
 // Function to decode enLink Messages
 function decodeTelemetry(data) {
-	var obj = new Object();
+    var obj = new Object();
 
-	for (var i = 0; i < data.length; i++) {
-		switch (data[i]) {
-			// Parse Sensor Message Parts
-			case ENLINK_TEMP: // Temperature
-				obj.temp_c = (S16((data[i + 1] << 8) | (data[i + 2]))) / 10;
-				//obj.temp_f = ((obj.temp_c * 9 / 5) + 32);
-				i += 2;
-				break;
-			case ENLINK_RH: // Humidity %rH
-				obj.humidity = (data[i + 1]);
-				i += 1;
-				break;
+    for (var i = 0; i < data.length; i++) {
+        switch (data[i]) {
+            // Parse Sensor Message Parts
+            case ENLINK_TEMP: // Temperature
+                obj.temp_c = (S16((data[i + 1] << 8) | (data[i + 2]))) / 10;
+                //obj.temp_f = ((obj.temp_c * 9 / 5) + 32);
+                i += 2;
+                break;
+            case ENLINK_RH: // Humidity %rH
+                obj.humidity = (data[i + 1]);
+                i += 1;
+                break;
 
             // L
             case ENLINK_LUX: // Light Level lux
-				obj.lux = U16((data[i + 1] << 8) | (data[i + 2]));
-				i += 2;
-				break;
+                obj.lux = U16((data[i + 1] << 8) | (data[i + 2]));
+                i += 2;
+                break;
 
             // V
-			case ENLINK_PRESSURE: // Barometric Pressure
-				obj.pressure = U16((data[i + 1] << 8) | (data[i + 2]));
-				i += 2;
-				break;
-			case ENLINK_VOC_IAQ: // Indoor Air Quality (0-500)
-				obj.iaq = U16((data[i + 1] << 8) | (data[i + 2]));
-				i += 2;
-				break;
+            case ENLINK_PRESSURE: // Barometric Pressure
+                obj.pressure = U16((data[i + 1] << 8) | (data[i + 2]));
+                i += 2;
+                break;
+            case ENLINK_VOC_IAQ: // Indoor Air Quality (0-500)
+                obj.iaq = U16((data[i + 1] << 8) | (data[i + 2]));
+                i += 2;
+                break;
             case ENLINK_BVOC:     // Breath VOC Estimate equivalent
-				obj.bvoc = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
-				i += 4;
-				break;
+                obj.bvoc = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+                i += 4;
+                break;
             case ENLINK_CO2E: // CO2e Estimate Equivalent
-				obj.co2e_ppm = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
-				i += 4;
-				break;
+                obj.co2e_ppm = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+                i += 4;
+                break;
 
 
             // C
             case ENLINK_CO2: // Carbon Dioxide
-				obj.co2_ppm = U16((data[i + 1] << 8) | (data[i + 2]));
-				i += 2;
-				break;
+                obj.co2_ppm = U16((data[i + 1] << 8) | (data[i + 2]));
+                i += 2;
+                break;
 
             // M
-			case ENLINK_DETECTION_COUNT:
-				obj.det_count = U32((data[i + 1] << 24) | (data[i + 2] << 16) | (data[i + 3] << 8) | (data[i + 4]));
-				i += 4;
-				break;
-			case ENLINK_OCC_TIME: // Occupied time in seconds
-				obj.occ_time_s = U32((data[i + 1] << 24) | (data[i + 2] << 16) | (data[i + 3] << 8) | (data[i + 4]));
-				i += 4;
-				break;
+            case ENLINK_DETECTION_COUNT:
+                obj.det_count = U32((data[i + 1] << 24) | (data[i + 2] << 16) | (data[i + 3] << 8) | (data[i + 4]));
+                i += 4;
+                break;
+            case ENLINK_OCC_TIME: // Occupied time in seconds
+                obj.occ_time_s = U32((data[i + 1] << 24) | (data[i + 2] << 16) | (data[i + 3] << 8) | (data[i + 4]));
+                i += 4;
+                break;
 
             // S
-			case ENLINK_SOUND_MIN:
-				obj.sound_min_dba = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
-				i += 4;
-				break;
+            case ENLINK_SOUND_MIN:
+                obj.sound_min_dba = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+                i += 4;
+                break;
 
-			case ENLINK_SOUND_AVG:
-				obj.sound_avg_dba = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
-				i += 4;
-				break;
+            case ENLINK_SOUND_AVG:
+                obj.sound_avg_dba = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+                i += 4;
+                break;
 
-			case ENLINK_SOUND_MAX:
-				obj.sound_max_dba = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
-				i += 4;
-				break;
+            case ENLINK_SOUND_MAX:
+                obj.sound_max_dba = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+                i += 4;
+                break;
 
             // P+ Mass Concentration
-			case ENLINK_MC_PM1_0:
-				obj.mc_pm1_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
-				i += 4;
-				break;
-			case ENLINK_MC_PM2_5:
-				obj.mc_pm2_5 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
-				i += 4;
-				break;
-			case ENLINK_MC_PM4_0:
-				obj.mc_pm4_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
-				i += 4;
-				break;
-			case ENLINK_MC_PM10_0:
-				obj.mc_pm10_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
-				i += 4;
-				break;
+            case ENLINK_MC_PM1_0:
+                obj.mc_pm1_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+                i += 4;
+                break;
+            case ENLINK_MC_PM2_5:
+                obj.mc_pm2_5 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+                i += 4;
+                break;
+            case ENLINK_MC_PM4_0:
+                obj.mc_pm4_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+                i += 4;
+                break;
+            case ENLINK_MC_PM10_0:
+                obj.mc_pm10_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+                i += 4;
+                break;
             // P+ Number Concentration (Count)
             case ENLINK_NC_PM0_5:
-				obj.nc_pm0_5 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
-				i += 4;
-				break;
-			case ENLINK_NC_PM1_0:
-				obj.nc_pm1_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
-				i += 4;
-				break;
-			case ENLINK_NC_PM2_5:
-				obj.nc_pm2_5 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
-				i += 4;
-				break;
-			case ENLINK_NC_PM4_0:
-				obj.nc_pm4_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
-				i += 4;
-				break;
-			case ENLINK_NC_PM10_0:
-				obj.nc_pm10_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
-				i += 4;
-				break;
+                obj.nc_pm0_5 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+                i += 4;
+                break;
+            case ENLINK_NC_PM1_0:
+                obj.nc_pm1_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+                i += 4;
+                break;
+            case ENLINK_NC_PM2_5:
+                obj.nc_pm2_5 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+                i += 4;
+                break;
+            case ENLINK_NC_PM4_0:
+                obj.nc_pm4_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+                i += 4;
+                break;
+            case ENLINK_NC_PM10_0:
+                obj.nc_pm10_0 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+                i += 4;
+                break;
             // P+ Typical Particle Size
-			case ENLINK_PM_TPS:
-				obj.pm_tps = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
-				i += 4;
-				break;
-			
-			// < -------------------------------------------------------------------------------->
-			// Optional KPIs
-			case ENLINK_CPU_TEMP_DEP:    // Optional from April 2020
-				obj.cpu_temp_dep = data[i + 1] + (Math.round(data[i + 2] * 100 / 256) / 100);
-				i += 2;
-				break;
-			case ENLINK_CPU_TEMP:    // New for April 2020 Ver: 4.9
-				obj.cpu_temp = (S16((data[i + 1] << 8) | (data[i + 2]))) / 10;
-				i += 2;
-				break;
-			case ENLINK_BATT_STATUS:
-				obj.batt_status = data[i + 1];
-				i += 1;
-				break;
-			case ENLINK_BATT_VOLT:
-				//obj.batt_v = U16((data[i + 1] << 8) | (data[i + 2])) / 1000;
-				obj.batt_mv = U16((data[i + 1] << 8) | (data[i + 2]));
-				i += 2;
-				break;
-			case ENLINK_RX_RSSI:
-				obj.rx_rssi = S16((data[i + 1] << 8) | (data[i + 2]));
-				i += 2;
-				break;
-			case ENLINK_RX_SNR:
-				obj.rx_snr = S8(data[i + 1]);
-				i += 1;
-				break;
-			case ENLINK_RX_COUNT:
-				obj.rx_count = U16((data[i + 1] << 8) | (data[i + 2]));
-				i += 2;
-				break;
-			case ENLINK_TX_TIME:
-				obj.tx_time_ms = U16((data[i + 1] << 8) | (data[i + 2]));
-				i += 2;
-				break;
-			case ENLINK_TX_POWER:
-				obj.tx_power_dbm = S8(data[i + 1]);
-				i += 1;
-				break;
-			case ENLINK_TX_COUNT:
-				obj.tx_count = U16((data[i + 1] << 8) | (data[i + 2]));
-				i += 2;
-				break;
-			case ENLINK_POWER_UP_COUNT:
-				obj.power_up_count = U16((data[i + 1] << 8) | (data[i + 2]));
-				i += 2;
-				break;
-			case ENLINK_USB_IN_COUNT:
-				obj.usb_in_count = U16((data[i + 1] << 8) | (data[i + 2]));
-				i += 2;
-				break;
-			case ENLINK_LOGIN_OK_COUNT:
-				obj.login_ok_count = U16((data[i + 1] << 8) | (data[i + 2]));
-				i += 2;
-				break;
-			case ENLINK_LOGIN_FAIL_COUNT:
-				obj.login_fail_count = U16((data[i + 1] << 8) | (data[i + 2]));
-				i += 2;
-				break;
+            case ENLINK_PM_TPS:
+                obj.pm_tps = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+                i += 4;
+                break;
 
-			default: // something is wrong with data
-				obj.error = "Error at index " + i + "  Byte value " + data[i];
-				i = data.length;
-				break;
-		}
-	}
-	return obj;
+            // < -------------------------------------------------------------------------------->
+            // Optional KPIs
+            case ENLINK_CPU_TEMP_DEP:    // Optional from April 2020
+                obj.cpu_temp_dep = data[i + 1] + (Math.round(data[i + 2] * 100 / 256) / 100);
+                i += 2;
+                break;
+            case ENLINK_CPU_TEMP:    // New for April 2020 Ver: 4.9
+                obj.cpu_temp = (S16((data[i + 1] << 8) | (data[i + 2]))) / 10;
+                i += 2;
+                break;
+            case ENLINK_BATT_STATUS:
+                obj.batt_status = data[i + 1];
+                i += 1;
+                break;
+            case ENLINK_BATT_VOLT:
+                //obj.batt_v = U16((data[i + 1] << 8) | (data[i + 2])) / 1000;
+                obj.batt_mv = U16((data[i + 1] << 8) | (data[i + 2]));
+                i += 2;
+                break;
+            case ENLINK_RX_RSSI:
+                obj.rx_rssi = S16((data[i + 1] << 8) | (data[i + 2]));
+                i += 2;
+                break;
+            case ENLINK_RX_SNR:
+                obj.rx_snr = S8(data[i + 1]);
+                i += 1;
+                break;
+            case ENLINK_RX_COUNT:
+                obj.rx_count = U16((data[i + 1] << 8) | (data[i + 2]));
+                i += 2;
+                break;
+            case ENLINK_TX_TIME:
+                obj.tx_time_ms = U16((data[i + 1] << 8) | (data[i + 2]));
+                i += 2;
+                break;
+            case ENLINK_TX_POWER:
+                obj.tx_power_dbm = S8(data[i + 1]);
+                i += 1;
+                break;
+            case ENLINK_TX_COUNT:
+                obj.tx_count = U16((data[i + 1] << 8) | (data[i + 2]));
+                i += 2;
+                break;
+            case ENLINK_POWER_UP_COUNT:
+                obj.power_up_count = U16((data[i + 1] << 8) | (data[i + 2]));
+                i += 2;
+                break;
+            case ENLINK_USB_IN_COUNT:
+                obj.usb_in_count = U16((data[i + 1] << 8) | (data[i + 2]));
+                i += 2;
+                break;
+            case ENLINK_LOGIN_OK_COUNT:
+                obj.login_ok_count = U16((data[i + 1] << 8) | (data[i + 2]));
+                i += 2;
+                break;
+            case ENLINK_LOGIN_FAIL_COUNT:
+                obj.login_fail_count = U16((data[i + 1] << 8) | (data[i + 2]));
+                i += 2;
+                break;
+
+            default: // something is wrong with data
+                obj.error = "Error at index " + i + "  Byte value " + data[i];
+                i = data.length;
+                break;
+        }
+    }
+    return obj;
 }
 
 // --------------------------------------------------------------------------------------
@@ -350,115 +350,115 @@ function decodeStdResponse(data) {
     var obj = {};
     for (var i = 0; i < data.length; i++) {
         switch (data[i]) {
-		// Parse reply from device following a downlink command
-		case ENLINK_HEADER:
-			if (data[i + 1] == ENLINK_ACK) {
-				obj.reply = "ACK";
-			} else if (data[i + 1] == ENLINK_NACK) {
-				obj.reply = "NACK";
-			} else {
-				obj.reply = "Reply parse failure";
-			}
+            // Parse reply from device following a downlink command
+            case ENLINK_HEADER:
+                if (data[i + 1] == ENLINK_ACK) {
+                    obj.reply = "ACK";
+                } else if (data[i + 1] == ENLINK_NACK) {
+                    obj.reply = "NACK";
+                } else {
+                    obj.reply = "Reply parse failure";
+                }
 
-			if (data[i + 2] == ENLINK_SET_ANT_GAIN) {
-				obj.command = "Set Antenna Gain";
-			} else if (data[i + 2] == ENLINK_SET_PUBLIC) {
-				obj.command = "Set Public";
-			} else if (data[i + 2] == ENLINK_SET_APPEUI) {
-				obj.command = "Set AppEUI";
-			} else if (data[i + 2] == ENLINK_SET_APPKEY) {
-				obj.command = "Set AppKEY";
-			} else if (data[i + 2] == ENLINK_SET_ADR) {
-				obj.command = "Set ADR";
-			} else if (data[i + 2] == ENLINK_SET_DUTY_CYCLE) {
-				obj.command = "Set Duty Cycle";
-			} else if (data[i + 2] == ENLINK_SET_MSG_ACK) {
-				obj.command = "Set Message Confirmation";
-			} else if (data[i + 2] == ENLINK_SET_TX_PORT) {
-				obj.command = "Set TX Port";
-			} else if (data[i + 2] == ENLINK_SET_DR_INDEX) {
-				obj.command = "Set Data Rate";
-			} else if (data[i + 2] == ENLINK_SET_TX_INDEX) {
-				obj.command = "Set TX Interval";
-			} else if (data[i + 2] == ENLINK_SET_POW_INDEX) {
-				obj.command = "Set TX Power";
-			} else if (data[i + 2] == ENLINK_SET_RX_PORT) {
-				obj.command = "Set RX Port";
-			} else if (data[i + 2] == ENLINK_SET_JC_INTERVAL) {
-				obj.command = "Set Join Check Interval";
-			} else if (data[i + 2] == ENLINK_SET_JC_PKT_TYPE) {
-				obj.command = "Set Join Check Packet Type";
+                if (data[i + 2] == ENLINK_SET_ANT_GAIN) {
+                    obj.command = "Set Antenna Gain";
+                } else if (data[i + 2] == ENLINK_SET_PUBLIC) {
+                    obj.command = "Set Public";
+                } else if (data[i + 2] == ENLINK_SET_APPEUI) {
+                    obj.command = "Set AppEUI";
+                } else if (data[i + 2] == ENLINK_SET_APPKEY) {
+                    obj.command = "Set AppKEY";
+                } else if (data[i + 2] == ENLINK_SET_ADR) {
+                    obj.command = "Set ADR";
+                } else if (data[i + 2] == ENLINK_SET_DUTY_CYCLE) {
+                    obj.command = "Set Duty Cycle";
+                } else if (data[i + 2] == ENLINK_SET_MSG_ACK) {
+                    obj.command = "Set Message Confirmation";
+                } else if (data[i + 2] == ENLINK_SET_TX_PORT) {
+                    obj.command = "Set TX Port";
+                } else if (data[i + 2] == ENLINK_SET_DR_INDEX) {
+                    obj.command = "Set Data Rate";
+                } else if (data[i + 2] == ENLINK_SET_TX_INDEX) {
+                    obj.command = "Set TX Interval";
+                } else if (data[i + 2] == ENLINK_SET_POW_INDEX) {
+                    obj.command = "Set TX Power";
+                } else if (data[i + 2] == ENLINK_SET_RX_PORT) {
+                    obj.command = "Set RX Port";
+                } else if (data[i + 2] == ENLINK_SET_JC_INTERVAL) {
+                    obj.command = "Set Join Check Interval";
+                } else if (data[i + 2] == ENLINK_SET_JC_PKT_TYPE) {
+                    obj.command = "Set Join Check Packet Type";
 
-			} else if (data[i + 2] == ENLINK_SET_LUX_SCALE) {
-				obj.command = "Set LUX Scale";
-			} else if (data[i + 2] == ENLINK_SET_LUX_OFFSET) {
-				obj.command = "Set LUX Offset";
+                } else if (data[i + 2] == ENLINK_SET_LUX_SCALE) {
+                    obj.command = "Set LUX Scale";
+                } else if (data[i + 2] == ENLINK_SET_LUX_OFFSET) {
+                    obj.command = "Set LUX Offset";
 
-			} else if (data[i + 2] == ENLINK_SET_CO2_CALIB_ENABLE) {
-				obj.command = "Set CO2 Sensor Auto-Calib Enable/Disable Flag";
-			} else if (data[i + 2] == ENLINK_SET_CO2_TARGET_PPM) {
-				obj.command = "Set CO2 Sensor Auto-Calib Target";
-			} else if (data[i + 2] == ENLINK_SET_CO2_KNOWN_PPM) {
-				obj.command = "Set CO2 Sensor to Known ppm";
-			// Sunrise Sensor Only
-			} else if (data[i + 2] == ENLINK_SET_SR_CO2_FACTORY_CALIB) {
-				obj.command = "Set SR CO2 Sensor to Factory Calib";
-			} else if (data[i + 2] == ENLINK_SET_CO2_REGULAR_INTERVAL) {
-				obj.command = "Set CO2 Sensor Regular Auto-Calib Interval";
-			// GSS CO2 Only
-			} else if (data[i + 2] == ENLINK_SET_GSS_CO2_OOB_LIMITS) {
-				obj.command = "Set GSS CO2 Sensor OOB Limits";
-			} else if (data[i + 2] == ENLINK_SET_GSS_CO2_INIT_INTERVAL) {
-				obj.command = "Set GSS CO2 Sensor Initial Auto-Calib Interval";
-            // PM Sensors
-            } else if (data[i + 2] == ENLINK_SET_PM_RUN_PERIOD) {
-				obj.command = "Set PM Sensor Run Period";
-			} else if (data[i + 2] == ENLINK_SET_PM_CLEANING_PERIOD) {
-				obj.command = "Set PM Sensor Cleaning Interval";
+                } else if (data[i + 2] == ENLINK_SET_CO2_CALIB_ENABLE) {
+                    obj.command = "Set CO2 Sensor Auto-Calib Enable/Disable Flag";
+                } else if (data[i + 2] == ENLINK_SET_CO2_TARGET_PPM) {
+                    obj.command = "Set CO2 Sensor Auto-Calib Target";
+                } else if (data[i + 2] == ENLINK_SET_CO2_KNOWN_PPM) {
+                    obj.command = "Set CO2 Sensor to Known ppm";
+                    // Sunrise Sensor Only
+                } else if (data[i + 2] == ENLINK_SET_SR_CO2_FACTORY_CALIB) {
+                    obj.command = "Set SR CO2 Sensor to Factory Calib";
+                } else if (data[i + 2] == ENLINK_SET_CO2_REGULAR_INTERVAL) {
+                    obj.command = "Set CO2 Sensor Regular Auto-Calib Interval";
+                    // GSS CO2 Only
+                } else if (data[i + 2] == ENLINK_SET_GSS_CO2_OOB_LIMITS) {
+                    obj.command = "Set GSS CO2 Sensor OOB Limits";
+                } else if (data[i + 2] == ENLINK_SET_GSS_CO2_INIT_INTERVAL) {
+                    obj.command = "Set GSS CO2 Sensor Initial Auto-Calib Interval";
+                    // PM Sensors
+                } else if (data[i + 2] == ENLINK_SET_PM_RUN_PERIOD) {
+                    obj.command = "Set PM Sensor Run Period";
+                } else if (data[i + 2] == ENLINK_SET_PM_CLEANING_PERIOD) {
+                    obj.command = "Set PM Sensor Cleaning Interval";
 
-			} else if (data[i + 2] == ENLINK_BME680_PKT_INC) {
-                obj.command = "Set VOC Sensor packet includes";
-            } else if (data[i + 2] == ENLINK_SPS30_PKT_INC) {
-                obj.command = "Set SPS30 packet includes";
+                } else if (data[i + 2] == ENLINK_BME680_PKT_INC) {
+                    obj.command = "Set VOC Sensor packet includes";
+                } else if (data[i + 2] == ENLINK_SPS30_PKT_INC) {
+                    obj.command = "Set SPS30 packet includes";
 
-            } else if (data[i + 2] == ENLINK_REBOOT) {
-				obj.command = "Reboot";
-			} else {
-				obj.command = "Command parse failure: " + data[i + 2];
-			}
+                } else if (data[i + 2] == ENLINK_REBOOT) {
+                    obj.command = "Reboot";
+                } else {
+                    obj.command = "Command parse failure: " + data[i + 2];
+                }
 
-			i = data.length;
-			break;
+                i = data.length;
+                break;
 
-		default: // Ignore this message
-			i = data.length;
-			break;
+            default: // Ignore this message
+                i = data.length;
+                break;
         }
-	}
+    }
     return obj;
 }
 
 // --------------------------------------------------------------------------------------
 // Function to switch between Telemetry or downlink reply
 function enlinkDecode(bytes) {
-	// Ignore empty payloads
-	if (bytes) {
-		if (bytes.length === 0) {
-			return { message: "Is zero length" };
-		}
-		// Ignore single byte Join-Check payloads (Nov 2022)
-		if (bytes.length === 1) {
-			return { message: "Is single byte (Join Check possibly)" };
-		}
-	} else {
-		return { message: "Is Empty" };
-	}
+    // Ignore empty payloads
+    if (bytes) {
+        if (bytes.length === 0) {
+            return { message: "Is zero length" };
+        }
+        // Ignore single byte Join-Check payloads (Nov 2022)
+        if (bytes.length === 1) {
+            return { message: "Is single byte (Join Check possibly)" };
+        }
+    } else {
+        return { message: "Is Empty" };
+    }
 
-	if (bytes[0] == ENLINK_HEADER) {
-		// This is a reply to a downlink command
-		return decodeStdResponse(bytes);
-	}
-	return decodeTelemetry(bytes);
+    if (bytes[0] == ENLINK_HEADER) {
+        // This is a reply to a downlink command
+        return decodeStdResponse(bytes);
+    }
+    return decodeTelemetry(bytes);
 }
 
 // --------------------------------------------------------------------------------------
@@ -469,9 +469,9 @@ function enlinkDecode(bytes) {
 //  - variables contains the device variables e.g. {"calibration": "3.5"} (both the key / value are of type string)
 // The function must return an object, e.g. {"temperature": 22.5}
 function Decode(fPort, bytes, variables) {
-	return {
-		data: enlinkDecode(bytes)
-	};
+    return {
+        data: enlinkDecode(bytes)
+    };
 }
 
 // --------------------------------------------------------------------------------------
@@ -486,7 +486,7 @@ function Decode(fPort, bytes, variables) {
 // Output must be an object with the following fields:
 // - data = Object representing the decoded payload.
 function decodeUplink(input) {
-	return {
-		data: enlinkDecode(input.bytes)
-	};
+    return {
+        data: enlinkDecode(input.bytes)
+    };
 }

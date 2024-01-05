@@ -1,30 +1,15 @@
-// Synetica enLink Zone Codec for Chirpstack v3 and v4
-// 18 August 2023 (FW Ver:5.14)
+// Synetica enLink GP Codec for Chirpstack v3 and v4
+// 31 January 2024 (FW Ver:6.03)
 // https://github.com/synetica/enlink-decoder
 
-/* Uplink Data */
-// Standard
+// Uplink Data
 var ENLINK_TEMP = 0x01;
 var ENLINK_RH = 0x02;
+// Gauge Pressure
+var ENLINK_GP_PRESSURE_PA = 0x32;
+var ENLINK_GP_TEMPERATURE = 0x33;
 
-// L
-var ENLINK_LUX = 0x03;
-
-// V
-var ENLINK_PRESSURE = 0x04;
-var ENLINK_VOC_IAQ = 0x05;
-var ENLINK_BVOC = 0x12;
-var ENLINK_CO2E = 0x3F;
-
-// C
-var ENLINK_CO2 = 0x08;
-
-// M
-var ENLINK_DETECTION_COUNT = 0x13;
-var ENLINK_OCC_TIME = 0x14;
-
-
-// Optional KPI values that can be included in the message
+// Optional KPI values that can be included in the uplink
 var ENLINK_CPU_TEMP_DEP = 0x40;
 var ENLINK_BATT_STATUS = 0x41;
 var ENLINK_BATT_VOLT = 0x42;
@@ -62,23 +47,6 @@ var ENLINK_SET_RX_PORT = 0x0E;
 var ENLINK_SET_JC_INTERVAL = 0x0F;    // Join Check Interval
 var ENLINK_SET_JC_PKT_TYPE = 0x10;    // Join Check Packet Type
 
-// Lux Sensor
-var ENLINK_SET_LUX_SCALE = 0x20;
-var ENLINK_SET_LUX_OFFSET = 0x21;
-
-// CO2 Sensors
-var ENLINK_SET_CO2_CALIB_ENABLE = 0x24;
-var ENLINK_SET_CO2_TARGET_PPM = 0x25;
-var ENLINK_SET_CO2_KNOWN_PPM = 0x26;
-// 0x27 Sunrise CO2 Only
-var ENLINK_SET_SR_CO2_FACTORY_CALIB = 0x27;
-var ENLINK_SET_CO2_REGULAR_INTERVAL = 0x28;
-// 0x29,0x30 GSS CO2 Only
-var ENLINK_SET_GSS_CO2_OOB_LIMITS = 0x29;
-var ENLINK_SET_GSS_CO2_INIT_INTERVAL = 0x2A;
-
-// Radio packet includes for VOC sensor
-var ENLINK_BME680_PKT_INC = 0x3C;
 
 var ENLINK_REBOOT = 0xFF;
 
@@ -152,48 +120,15 @@ function decodeTelemetry(data) {
                 obj.humidity = (data[i + 1]);
                 i += 1;
                 break;
-
-            // L
-            case ENLINK_LUX: // Light Level lux
-                obj.lux = U16((data[i + 1] << 8) | (data[i + 2]));
-                i += 2;
-                break;
-
-            // V
-            case ENLINK_PRESSURE: // Barometric Pressure
-                obj.pressure = U16((data[i + 1] << 8) | (data[i + 2]));
-                i += 2;
-                break;
-            case ENLINK_VOC_IAQ: // Indoor Air Quality (0-500)
-                obj.iaq = U16((data[i + 1] << 8) | (data[i + 2]));
-                i += 2;
-                break;
-            case ENLINK_BVOC:     // Breath VOC Estimate equivalent
-                obj.bvoc = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+            // Gauge Pressure
+            case ENLINK_GP_PRESSURE_PA: // 4 bytes F32, in Pascals. Typically up to 1MPa (10,000 mbar)
+                obj.gp_pa = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
                 i += 4;
                 break;
-            case ENLINK_CO2E: // CO2e Estimate Equivalent
-                obj.co2e_ppm = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
-                i += 4;
-                break;
-
-
-            // C
-            case ENLINK_CO2: // Carbon Dioxide
-                obj.co2_ppm = U16((data[i + 1] << 8) | (data[i + 2]));
+            case ENLINK_GP_TEMPERATURE:
+                obj.gp_t_c = (S16((data[i + 1] << 8) | (data[i + 2]))) / 100;
                 i += 2;
                 break;
-
-            // M
-            case ENLINK_DETECTION_COUNT:
-                obj.det_count = U32((data[i + 1] << 24) | (data[i + 2] << 16) | (data[i + 3] << 8) | (data[i + 4]));
-                i += 4;
-                break;
-            case ENLINK_OCC_TIME: // Occupied time in seconds
-                obj.occ_time_s = U32((data[i + 1] << 24) | (data[i + 2] << 16) | (data[i + 3] << 8) | (data[i + 4]));
-                i += 4;
-                break;
-
 
             // < -------------------------------------------------------------------------------->
             // Optional KPIs
@@ -309,30 +244,7 @@ function decodeStdResponse(data) {
                 } else if (data[i + 2] == ENLINK_SET_JC_PKT_TYPE) {
                     obj.command = "Set Join Check Packet Type";
 
-                } else if (data[i + 2] == ENLINK_SET_LUX_SCALE) {
-                    obj.command = "Set LUX Scale";
-                } else if (data[i + 2] == ENLINK_SET_LUX_OFFSET) {
-                    obj.command = "Set LUX Offset";
 
-                } else if (data[i + 2] == ENLINK_SET_CO2_CALIB_ENABLE) {
-                    obj.command = "Set CO2 Sensor Auto-Calib Enable/Disable Flag";
-                } else if (data[i + 2] == ENLINK_SET_CO2_TARGET_PPM) {
-                    obj.command = "Set CO2 Sensor Auto-Calib Target";
-                } else if (data[i + 2] == ENLINK_SET_CO2_KNOWN_PPM) {
-                    obj.command = "Set CO2 Sensor to Known ppm";
-                    // Sunrise Sensor Only
-                } else if (data[i + 2] == ENLINK_SET_SR_CO2_FACTORY_CALIB) {
-                    obj.command = "Set SR CO2 Sensor to Factory Calib";
-                } else if (data[i + 2] == ENLINK_SET_CO2_REGULAR_INTERVAL) {
-                    obj.command = "Set CO2 Sensor Regular Auto-Calib Interval";
-                    // GSS CO2 Only
-                } else if (data[i + 2] == ENLINK_SET_GSS_CO2_OOB_LIMITS) {
-                    obj.command = "Set GSS CO2 Sensor OOB Limits";
-                } else if (data[i + 2] == ENLINK_SET_GSS_CO2_INIT_INTERVAL) {
-                    obj.command = "Set GSS CO2 Sensor Initial Auto-Calib Interval";
-
-                } else if (data[i + 2] == ENLINK_BME680_PKT_INC) {
-                    obj.command = "Set VOC Sensor packet includes";
 
                 } else if (data[i + 2] == ENLINK_REBOOT) {
                     obj.command = "Reboot";

@@ -17,7 +17,7 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
   - [Status Pulse Counter](#enlink-status---pulse-counter)
   - [Status Leak Sensor](#enlink-status---leak-sensor)
   - [Status Differential Pressure](#enlink-status---differential-pressure--air-flow-velocity)
-  - [Status Absolute Pressure](#enlink-status---absolute-pressure)
+  - [Status Gauge Pressure](#enlink-status---gauge-pressure)
   - [Status Liquid Level](#enlink-status---liquid-level)
   - [Status Temperature Probes](#enlink-status---temperature-probes)
   - [Status Voltage/Current Sensor](#enlink-status---voltagecurrent-sensor)
@@ -157,11 +157,11 @@ The firmware code is a concatenation of the base model plus the options.
 |:-----------|:--------|:-------------|:------------|
 | FW-STS-DP/AF | (None)  | `0x2C`, `0x2D` | Pressure, Air flow. Either one or both can be selected
 
-## enLink Status - Absolute Pressure
+## enLink Status - Gauge Pressure
 
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| FW-STS-AP  | (None)  | `0x32`, `0x33` | Pressure Pa, Temperature (of the sensor)
+| FW-STS-GP  | (None)  | `0x32`, `0x33` | Pressure Pa, Temperature (of the sensor)
 
 ## enLink Status - Liquid Level
 
@@ -267,7 +267,7 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x1C` 028 | Time temperature probe 3 has spent in 'in band' zone |  | seconds | 4 | U32
 | `0x1D` 029 | Number of times in band alarm has been activated for temperature probe 1 |  | count | 2 | U16
 | `0x1E` 030 | Number of times in band alarm has been activated for temperature probe 2 |  | count | 2 | U16
-| `0x1F` 031| Number of times in band alarm has been activated for temperature probe 3 |  | count | 2 | U16
+| `0x1F` 031 | Number of times in band alarm has been activated for temperature probe 3 |  | count | 2 | U16
 | `0x20` 032 | Time temperature probe 1 has spent below low threshold |  | seconds | 4 | U32
 | `0x21` 033 | Time temperature probe 2 has spent below low threshold |  | seconds | 4 | U32
 | `0x22` 034 | Time temperature probe 3 has spent below low threshold |  | seconds | 4 | U32
@@ -286,8 +286,8 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x2F` 047 | Current | 0 to 20  | mA    | 2 | U16 | / 1000
 | `0x30` 048 | Resistance | 0 to 6553.5 kΩ (6.5MΩ) | kΩ | 2 | U16 | / 10
 | `0x31` 049 | Leak Detection (resistance rope) | 0 = No Leak<br />1 = Leak Detected | status | 1 | U8
-| `0x32` 050 | Absolute Pressure | 0 to 1000 kPa typ. | Pa | 4 | F32
-| `0x33` 051 | AP Sensor Temperature | -40 to 85 | °C | 2 | S16 | /100
+| `0x32` 050 | Gauge Pressure | 0 to 1000 kPa typ. | Pa | 4 | F32
+| `0x33` 051 | Gauge Pressure Sensor Temperature | -40 to 85 | °C | 2 | S16 | /100
 | `0x34` 052 | Liquid Level (Depth) | 0 to 5000 mm typ. | mm | 4 | F32
 | `0x35` 053 | LL Sensor Temperature | -40 to 85 | °C | 2 | S16 | /100
 | `0x36` 054 | TVOC Minimum |  | mg/m³ | 2 | F32
