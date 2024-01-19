@@ -434,7 +434,7 @@ The Gas types are listed here:
 | `0x1B` - Hydrogen - H<sub>2</sub></li>              | | `0x22` - Oxygen - O<sub>2</sub>
 | `0x1C` - Hydrogen Sulphide - H<sub>2</sub>S</li>    | | `0x23` - Ozone - O<sub>3</sub>
 | `0x1D` - Hydrogen Chloride - HCl</li>               | | `0x24` - Sulphur Dioxide / Sulfur Dioxide (IUPAC) - SO<sub>2</sub>
-| `0x32` - Odor - Smell</li>               | |
+| `0x32` - Odour - Smell</li>               | |
 
 ### Corrosion
 
