@@ -318,7 +318,9 @@ function GetGasName(gas_type) {
             return "Ozone";      //O3
         case 0x24:
             return "Sulphur Dioxide";      // Sulfur Dioxide (IUPAC) SO2
-    }
+        case 0x32:
+            return "Odour";      // Odour/Smell
+        }
     return "Unknown";
 }
 // Corrosion: Return metal name from id byte

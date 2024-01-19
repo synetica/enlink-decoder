@@ -1,5 +1,13 @@
 # Change Log
 
+## 2024 January Updates
+
+- Updated firmware to 6.01 then up to 6.03
+- Enhanced USB driver to work with Linux and Apple computers
+- Added new products to measure Gauge pressure and Liquid level with pressure sensors
+- Added new indoor air quality sensor to IAQ product. This complies with the PBAQ.
+- Added decoder for new Odour Gas sensor
+
 ## 2023 November Updates
 
 - Updated firmware to 5.16 then 5.17

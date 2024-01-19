@@ -49,6 +49,7 @@ var GAS_NO2 = 0x21;         // Nitrogen Dioxide
 var GAS_O2 = 0x22;          // Oxygen
 var GAS_O3 = 0x23;          // Ozone
 var GAS_SO2 = 0x24;         // Sulfur/Sulphur Dioxide (IUPAC) SO2
+var GAS_ODOUR = 0x32;       // Odour/Smell
 
 // S
 var ENLINK_SOUND_MIN = 0x50;
@@ -335,7 +336,10 @@ function decodeTelemetry(data) {
                     case GAS_SO2:
                         obj.SO2_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
-                }
+                    case GAS_ODOUR:
+                        obj.odour_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        break;
+                    }
                 i += 5;
                 break;
             case ENLINK_GAS_UGM3:
@@ -382,7 +386,10 @@ function decodeTelemetry(data) {
                     case GAS_SO2:
                         obj.SO2_ugm3 = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
-                }
+                    case GAS_ODOUR:
+                        obj.odour_ugm3 = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        break;
+                    }
                 i += 5;
                 break;
 
