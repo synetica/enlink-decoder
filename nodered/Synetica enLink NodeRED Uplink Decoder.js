@@ -1,5 +1,5 @@
 // Used for decoding enLink Uplink LoRa Messages
-// 05 Jan 2023 (FW Ver:6.03)
+// 20 Mar 2023 (FW Ver:6.09)
 // https://github.com/synetica/enlink-decoder
 
 // --------------------------------------------------------------------------------------
@@ -14,8 +14,7 @@ const ENLINK_CO = 0x07;                                    // U16  0 -> 655.35 p
 const ENLINK_CO2 = 0x08;                                   // U16  0 -> 65535 ppm (0..2000 ppm)
 const ENLINK_OZONE = 0x09;                                 // U16  0 -> 6.5535 ppm or 6553.5 ppb (0..1 ppm) [Divide by 10000]
 const ENLINK_POLLUTANTS = 0x0A;                            // U16  0 -> 6553.5 kOhm (Typically 100..1500 kOhm) [Divide by 10]
-const ENLINK_PM25 = 0x0B;                                  // U16  0 -> 65535 ug/m3 (0..1000 ug/m3)
-const ENLINK_PM10 = 0x0C;                                  // U16  0 -> 65535 ug/m3 (0..1000 ug/m3)
+
 const ENLINK_H2S = 0x0D;                                   // U16  0 -> 655.35 ppm (0..100 ppm) [Divide by 100]
 const ENLINK_COUNTER = 0x0E;                               // U32  0 -> 2^32
 const ENLINK_MB_EXCEPTION = 0x0F;                          // Type Byte + MBID + Exception Code so it's Type + 2 bytes
@@ -63,6 +62,7 @@ const ENLINK_AVG_TVOC = 0x37;
 const ENLINK_MAX_TVOC = 0x38;
 const ENLINK_ETOH = 0x39;
 const ENLINK_TVOC_IAQ = 0x3A;
+const ENLINK_HIRES_RH = 0x3B;
 
 const ENLINK_CO2E = 0x3F;                                  // F32  ppm CO2e Estimate Equivalent
 
@@ -360,6 +360,11 @@ function decodeTelemetry(data) {
                 i += 1;
                 msg_ok = true;
                 break;
+            case ENLINK_HIRES_RH: // Humidity %rH
+                obj.rh = (U16((data[i + 1] << 8) | (data[i + 2]))) / 100;
+                i += 2;
+                msg_ok = true;
+                break;
             case ENLINK_LUX: // Light Level lux
                 obj.lux = U16((data[i + 1] << 8) | (data[i + 2]));
                 i += 2;
@@ -398,16 +403,6 @@ function decodeTelemetry(data) {
                 break;
             case ENLINK_POLLUTANTS: // Pollutants kOhm
                 obj.pollutants_kohm = U16((data[i + 1] << 8) | (data[i + 2])) / 10;
-                i += 2;
-                msg_ok = true;
-                break;
-            case ENLINK_PM25: // Particulates @2.5
-                obj.pm25 = U16((data[i + 1] << 8) | (data[i + 2]));
-                i += 2;
-                msg_ok = true;
-                break;
-            case ENLINK_PM10: // Particulates @10
-                obj.pm10 = U16((data[i + 1] << 8) | (data[i + 2]));
                 i += 2;
                 msg_ok = true;
                 break;
@@ -1095,7 +1090,7 @@ function decodeTelemetry(data) {
 // Function to decode enLink response to downlink message
 function decodeStdResponse(data) {
     var obj = {};
-    obj.short_eui = msg.eui.slice(-11);
+    //obj.short_eui = msg.eui.slice(-11);
     var msg_ok = false;
     for (var i = 0; i < data.length; i++) {
         switch (data[i]) {

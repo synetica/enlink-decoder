@@ -4,7 +4,7 @@
 
 Online decoder can be found here: [Live Decoder](https://synetica.github.io/enlink-decoder/)
 
-> Latest firmware release is v6.03.
+> Latest firmware release is v6.09.
 
 ## Table of Contents
 - [Preamble](#preamble)
@@ -13,6 +13,7 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
   - [IAQ/OAQ](#enlink-iaqoaq---indooroutdoor-air-quality)
   - [ZonePlus](#enlink-zoneplus)
   - [Zone](#enlink-zone)
+  - [Zone View](#enlink-zone-view)
   - [Modbus](#enlink-modbus)
   - [Status Pulse Counter](#enlink-status---pulse-counter)
   - [Status Leak Sensor](#enlink-status---leak-sensor)
@@ -58,6 +59,8 @@ The **enLink** range of LoRaWAN devices are categorised into the following:
 - Pulse Counter
 - Leak Sensor
 - Differential Pressure / Air Flow
+- Gauge Pressure
+- Liquid Level
 - Temperature Probes
 - Voltage/Current Sensor
 
@@ -65,7 +68,7 @@ This repository contains various decoders for the LoRaWAN data packets. The upli
 
 This enLink firmware implements LoRa Mac 4.4.0 release from Semtech/StackForce [LoRaMac-Node](https://github.com/Lora-net/LoRaMac-node/tree/f42be67be402a40b3586724800771bfe13fb18e6).
 
-We implement EU863-870 and US902-928 (Hybrid mode) as defined in [LoRaWAN Regional Parameters v1.0.2rB](https://lora-alliance.org/resource_hub/lorawan-regional-parameters-v1-0-2rb/) document. Class A endpoint implementation is fully compatible with "LoRaWAN specification 1.0.2".
+We implement EU868, US915 and AU915 as defined in [LoRaWAN Regional Parameters v1.0.2rB](https://lora-alliance.org/resource_hub/lorawan-regional-parameters-v1-0-2rb/) document. Class A endpoint implementation is fully compatible with "LoRaWAN specification 1.0.2".
 
 </br>
 
@@ -133,6 +136,12 @@ The firmware code is a concatenation of the base model plus the options.
 | | C | `0x08` | NDIR CO<sub>2</sub> ppm
 | | M | `0x13`, `0x14` | Motion (PIR). Includes [ATI](#ati---adaptive-transmission-interval) feature
 
+## enLink Zone View
+
+| Firmware Code | Options | Data Type(s) | Description |
+|:-----------|:--------|:-------------|:------------|
+| FW-ZNV  | (default) | `0x01`, `0x3B` | Temperature, Humidity
+| 
 ## enLink Modbus
 
 | Firmware Code | Options | Data Type(s) | Description |
@@ -176,12 +185,11 @@ The firmware code is a concatenation of the base model plus the options.
 | FW-STS | 1T | `0x17`, `0x1A`, `0x1D`, `0x20`,<br/>`0x23`, `0x26`, `0x29` | Temperature, alarm status (if set) Includes [ATI](#ati---adaptive-transmission-interval) feature
 | | 2T  | As above, plus<br/>`0x18`, `0x1B`, `0x1E`, `0x21`,<br/>`0x24`, `0x27`, `0x2A` | Temperature, alarm status (if set) Includes [ATI](#ati---adaptive-transmission-interval) feature
 
-
 ## enLink Status - Voltage/Current Sensor
 
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| FW-STS-VC | (None)  | `0x2E` | Mode: Voltage
+| FW-STS-VC  | (None)  | `0x2E` | Mode: Voltage
 |            |         | `0x2F` | Mode: Current
 |            |         | `0x30` | Mode: Resistance
 
@@ -247,8 +255,6 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x08` 008 | Carbon Dioxide (2 sensor ranges) | 0 to 5000 or 0 to 50,000 | ppm | 2 | U16 | 
 | `0x09` 009 | Ozone (O3) | 0 to 1<br />0 to 1000 | ppm<br />ppb | 2 | U16 | / 10000<br />/ 10
 | `0x0A` 010 | Air Pollutants: CO, Ammonia, Ethanol, H2, Methane / Propane / Iso-Butane. | 100 to 1500 (Typ)| kΩ | 2 | U16 | / 10
-| `0x0B` 011 | Particulate Matter 2.5 | 0 to 1000 | µg/m3 | 2 | U16
-| `0x0C` 012 | Particulate Matter 10  | 0 to 1000 | µg/m3 | 2 | U16
 | `0x0D` 013 | Hydrogen Sulphide (H<sub>2</sub>S) | 0 to 100 | ppm | 2 | U16 | / 100
 | `0x0E` 014 | Pulse ID + Pulse Counter | ID: 0 to 3<br />Value: 0 to 2^32 | count | 1 + 4 | U32
 | `0x0F` 015 | MB ID + Modbus Exception | ID: 0 to 31<br />Error Num | | 1 + 1 | U8
@@ -295,6 +301,7 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x38` 056 | TVOC Maximum |  | mg/m³ | 2 | F32
 | `0x39` 057 | EtOH (Ethanol equivalent) |  | ppm | 4 | F32
 | `0x3A` 058 | IAQ (1.0 to 5.0) Not the `PBAQ` version|  | IAQ | 4 | F32
+| `0x3B` 059 | High resolution Humidity   | 0 to 100.00% | rH | 2 | U16 | / 100
 | `0x3F` 063 | CO<sub>2</sub>e estimate equivalent (BME680) |  | ppm | 4 | F32
 | `0x50` 080 | Sound Level Minimum |  | dB(A) | 4 | F32
 | `0x51` 081 | Sound Level Average |  | dB(A) | 4 | F32
@@ -331,7 +338,6 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x70` 112 | Detection: Event Count  | 0 to 65535 | count | 2 | U16
 | `0x71` 113 | Detection: Smoke Count  | 0 to 65535 | count | 2 | U16
 | `0x72` 114 | Detection: Vape Count   | 0 to 65535 | count | 2 | U16
-
 
 </br>
 
@@ -891,6 +897,30 @@ Set the bit value to `1` to include the data value; `0` to exclude it.
 > Example Payload Data: `A5 02 42 0C`
 
 This will include the `Maximum TVOC` and the `Latest EtOH reading` data values.
+
+</br>
+
+## Zone View e-paper Display Parameters
+
+Available from v6.09 onwards.
+
+The following are used in the Zone View product that includes an e-paper display.
+
+| Name | Msg Len | Command | Value |
+| ---- | ------- | ------- | ----- |
+| Refresh Interval | 2 | `0x43` | `5` to `30` minutes
+| Top line of display | 2 | `0x44` | `0`/`1` Temperature or Humidity
+| Temperature Units | 2 | `0x45` | `0`/`1` Celsius or Fahrenheit
+| Comfort Indicator | 2 | `0x46` | `0`/`1`/`2` None/Face/House
+| Comfort Indicator Location | 2 | `0x47` | `0`/`1` Right or Left
+| Comfort Indicator Status based on | 2 | `0x48` | `0`/`1` Downlink Message / Internal rH Sensor
+| Comfort Indicator Status | 2 | `0x49` | `0`/`1`/`2`/`3` None/Dry/Muggy/Damp
+| Internal Sensor Logic - Low Threshold | 2 | `0x4A` | `10` to `70` %rH - Below this is `Dry`
+| Internal Sensor Logic - High Threshold | 2 | `0x4B` | `30` to `90` %rH - Above this is `Damp`
+
+> Example Payload Data: `A5 02 43 0A`
+
+This will set the display refresh interval to 10 minutes.
 
 </br>
 

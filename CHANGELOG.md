@@ -1,5 +1,11 @@
 # Change Log
 
+## 2024 March Updates
+
+- Updated firmware up to 6.09
+- Introduction of Region AU915
+- Beta firmware release for the *NEW* Zone View product with 2.7" e-paper display
+
 ## 2024 January Updates
 
 - Updated firmware to 6.01 then up to 6.03

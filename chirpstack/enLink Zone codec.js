@@ -1,5 +1,5 @@
 // Synetica enLink Zone Codec for Chirpstack v3 and v4
-// 18 August 2023 (FW Ver:5.14)
+// 20 Mar 2024 (FW Ver:6.09)
 // https://github.com/synetica/enlink-decoder
 
 /* Uplink Data */
@@ -14,6 +14,7 @@ var ENLINK_LUX = 0x03;
 var ENLINK_PRESSURE = 0x04;
 var ENLINK_VOC_IAQ = 0x05;
 var ENLINK_BVOC = 0x12;
+var ENLINK_HIRES_RH = 0x3B;
 var ENLINK_CO2E = 0x3F;
 
 // C
@@ -152,7 +153,11 @@ function decodeTelemetry(data) {
                 obj.humidity = (data[i + 1]);
                 i += 1;
                 break;
-
+            case ENLINK_HIRES_RH: // Humidity %rH
+                obj.rh = (U16((data[i + 1] << 8) | (data[i + 2]))) / 100;
+                i += 2;
+                break;
+                
             // L
             case ENLINK_LUX: // Light Level lux
                 obj.lux = U16((data[i + 1] << 8) | (data[i + 2]));

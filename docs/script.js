@@ -134,7 +134,8 @@ function js_decoder(msg) {
     const ENLINK_AVG_TVOC = 0x37;
     const ENLINK_MAX_TVOC = 0x38;
     const ENLINK_ETOH = 0x39;
-    const ENLINK_TVOC_IAQ = 0x3A;
+    const ENLINK_TVOC_IAQ = 0x3a;
+    const ENLINK_HIRES_RH = 0x3b;
 
     const ENLINK_CO2E = 0x3f;
 
@@ -370,6 +371,10 @@ function js_decoder(msg) {
                 case ENLINK_RH: // Humidity %rH
                     obj.humidity = data[i + 1];
                     i += 1;
+                    break;
+                case ENLINK_HIRES_RH: // Humidity %rH
+                    obj.rh = (U16((data[i + 1] << 8) | (data[i + 2]))) / 100;
+                    i += 2;
                     break;
                 case ENLINK_LUX: // Light Level lux
                     obj.lux = U16((data[i + 1] << 8) | data[i + 2]);

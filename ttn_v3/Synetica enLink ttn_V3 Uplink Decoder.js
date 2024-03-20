@@ -1,5 +1,5 @@
 // Synetica Payload Decoder for The Things Stack V3
-// 29 Nov 2023 (FW Ver:6.02)
+// 20 Mar 2024 (FW Ver:6.09)
 // https://github.com/synetica/enlink-decoder
 
 function decodeUplink(input) {
@@ -20,8 +20,7 @@ function decodeUplink(input) {
     const ENLINK_CO2 = 0x08;
     const ENLINK_OZONE = 0x09;
     const ENLINK_POLLUTANTS = 0x0A;
-    const ENLINK_PM25 = 0x0B;
-    const ENLINK_PM10 = 0x0C;
+    
     const ENLINK_H2S = 0x0D;
     const ENLINK_COUNTER = 0x0E;
     const ENLINK_MB_EXCEPTION = 0x0F;
@@ -70,6 +69,7 @@ function decodeUplink(input) {
     const ENLINK_MAX_TVOC = 0x38;
     const ENLINK_ETOH = 0x39;
     const ENLINK_TVOC_IAQ = 0x3A;
+    const ENLINK_HIRES_RH = 0x3B;
 
     const ENLINK_CO2E = 0x3F;
 
@@ -237,6 +237,10 @@ function decodeUplink(input) {
                     obj.humidity = (data[i + 1]);
                     i += 1;
                     break;
+                case ENLINK_HIRES_RH: // Humidity %rH
+                    obj.rh = (U16((data[i + 1] << 8) | (data[i + 2]))) / 100;
+                    i += 2;
+                    break;
                 case ENLINK_LUX: // Light Level lux
                     obj.lux = U16((data[i + 1] << 8) | (data[i + 2]));
                     i += 2;
@@ -268,14 +272,6 @@ function decodeUplink(input) {
                     break;
                 case ENLINK_POLLUTANTS: // Pollutants kOhm
                     obj.pollutants_kohm = U16((data[i + 1] << 8) | (data[i + 2])) / 10;
-                    i += 2;
-                    break;
-                case ENLINK_PM25: // Particulates @2.5
-                    obj.pm25 = U16((data[i + 1] << 8) | (data[i + 2]));
-                    i += 2;
-                    break;
-                case ENLINK_PM10: // Particulates @10
-                    obj.pm10 = U16((data[i + 1] << 8) | (data[i + 2]));
                     i += 2;
                     break;
                 case ENLINK_H2S: // Hydrogen Sulphide
