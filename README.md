@@ -141,7 +141,7 @@ The firmware code is a concatenation of the base model plus the options.
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
 | FW-ZNV  | (default) | `0x01`, `0x3B` | Temperature, Humidity
-| 
+ 
 ## enLink Modbus
 
 | Firmware Code | Options | Data Type(s) | Description |
