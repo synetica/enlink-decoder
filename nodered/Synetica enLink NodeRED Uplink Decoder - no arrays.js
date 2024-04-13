@@ -1,5 +1,5 @@
 // Used for decoding enLink Uplink LoRa Messages
-// 20 Mar 2023 (FW Ver:6.09)
+// 20 Mar 2024 (FW Ver:6.09)
 // https://github.com/synetica/enlink-decoder
 
 // --------------------------------------------------------------------------------------
