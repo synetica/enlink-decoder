@@ -1,5 +1,5 @@
 // Used for decoding enLink Uplink LoRa Messages
-// 20 Mar 2024 (FW Ver:6.09)
+// 26 Jun 2024 (FW Ver:6.14)
 // https://github.com/synetica/enlink-decoder
 
 // --------------------------------------------------------------------------------------
@@ -291,36 +291,130 @@ function fromF32(byte0, byte1, byte2, byte3) {
 function GetGasName(gas_type) {
     switch (gas_type) {
         case 0x17:
-            return "Formaldehyde";       //HCHO/CH2O
+            return "Formaldehyde"; //HCHO/CH2O
         case 0x18:
             return "Volatile Organic Compounds";
         case 0x19:
-            return "Carbon Monoxide";    //CO
-        case 0x1A:
-            return "Chlorine";    //Cl2
-        case 0x1B:
-            return "Hydrogen";    //H2
-        case 0x1C:
-            return "Hydrogen Sulphide";    //H2S
-        case 0x1D:
-            return "Hydrogen Chloride";    //HCl
-        case 0x1E:
-            return "Hydrogen Cyanide";     //HCN
-        case 0x1F:
-            return "Hydrogen Fluoride";    //HF
+            return "Carbon Monoxide"; //CO
+        case 0x1a:
+            return "Chlorine"; //Cl2
+        case 0x1b:
+            return "Hydrogen"; //H2
+        case 0x1c:
+            return "Hydrogen Sulphide"; //H2S
+        case 0x1d:
+            return "Hydrogen Chloride"; //HCl
+        case 0x1e:
+            return "Hydrogen Cyanide"; //HCN
+        case 0x1f:
+            return "Hydrogen Fluoride"; //HF
         case 0x20:
-            return "Ammonia";              //NH3
+            return "Ammonia"; //NH3
         case 0x21:
-            return "Nitrogen Dioxide";     //NO2
+            return "Nitrogen Dioxide"; //NO2
         case 0x22:
-            return "Oxygen";     //O2
+            return "Oxygen"; //O2
         case 0x23:
-            return "Ozone";      //O3
+            return "Ozone"; //O3
         case 0x24:
-            return "Sulphur Dioxide";      // Sulfur Dioxide (IUPAC) SO2
+            return "Sulphur Dioxide"; // Sulfur Dioxide (IUPAC) SO2
+        case 0x25:
+            return "Hydrogen Bromide";     //HBr
+        case 0x26:
+            return "Bromine";     //Br2
+        case 0x27:
+            return "Elemental Fluorine";     //F2
+        case 0x28:
+            return "Hydrogen Phosphide (Phosphine)";     //PH3 
+        case 0x29:
+            return "Arsine";     //AsH3
+        case 0x2A:
+            return "Silane";     //SiH4
+        case 0x2B:
+            return "Germane (Germanium Tetrahydride)";     //GeH4
+        case 0x2C:
+            return "Diborane";     //B2H6
+        case 0x2D:
+            return "Boron Trifluoride";     //BF3
+        case 0x2E:
+            return "Tungsten Hexafluoride";     //WF6
+        case 0x2F:
+            return "Silicon Tetrafluoride";     //SiF4
+        case 0x30:
+            return "Xenon Difluoride";     //XeF2
+        case 0x31:
+            return "Titanium(IV) Fluoride";     //TiF4
         case 0x32:
-            return "Odour";      // Odour/Smell
-        }
+            return "Odour"; // Odour/Smell    
+        case 0x33:
+            return "IAQ - Indoor VOCs";     //IAQ
+        case 0x34:
+            return "AQI - Outdoor VOCs";     //AQI
+        case 0x35:
+            return "Nonmethane Hydrocarbons";     //NMHC
+        case 0x36:
+            return "Sulphur Oxides";     //SOx
+        case 0x37:
+            return "Nitrogen Oxides";     //NOx
+        case 0x38:
+            return "Nitric Oxide";     //NO
+        case 0x39:
+            return "Isobutylene";     //C4H8
+        case 0x3A:
+            return "Propylene Glycol";     //C3H8O2
+        case 0x3B:
+            return "Methanethiol";     //CH4S
+        case 0x3C:
+            return "Styrene";     //C8H8
+        case 0x3D:
+            return "Butane";     //C4H10
+        case 0x3E:
+            return "Butadiene";     //C4H6
+        case 0x3F:
+            return "Hexane";     //C6H14
+        case 0x40:
+            return "Ethylene Oxide";     //C2H4O
+        case 0x41:
+            return "Propylamine";     //C3H9N
+        case 0x42:
+            return "Acetone imine";     //C3H7N
+        case 0x43:
+            return "Ethyl Alcohol(Ethanol)";     //C2H6O
+        case 0x44:
+            return "Carbon Disulfide";     //CS2
+        case 0x45:
+            return "Dimethyl Sulfide";     //C2H6S
+        case 0x46:
+            return "Dimethyl Disulfide";     //C2H6S2
+        case 0x47:
+            return "Ethylene";     //C2H4
+        case 0x48:
+            return "Methanol";     //CH3OH
+        case 0x49:
+            return "Benzene";     //C6H6
+        case 0x4A:
+            return "Xylene";     //C8H10
+        case 0x4B:
+            return "Toluene";     //C7H8
+        case 0x4C:
+            return "Acetic Acid";     //CH3COOH
+        case 0x4D:
+            return "Chlorine Dioxide";     //C1O2
+        case 0x4E:
+            return "Hydrogen Peroxide";     //H2O2
+        case 0x4F:
+            return "Nitrogen Hydride (Hydrazine)";     //N2H4
+        case 0x50:
+            return "Ethylenediamine";     //C2H8N2
+        case 0x51:
+            return "Trichloroethylene";     //C2HC13
+        case 0x52:
+            return "Trichloromethane (Chloroform)";     //CHC13
+        case 0x53:
+            return "1,1,1-Trichloroethane";     //C2H3C13
+        case 0x54:
+            return "Hydrogen Selenide";     //H2Se
+    }
     return "Unknown";
 }
 // Corrosion: Return metal name from id byte

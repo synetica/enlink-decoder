@@ -4,7 +4,7 @@
 
 Online decoder can be found here: [Live Decoder](https://synetica.github.io/enlink-decoder/)
 
-> Latest firmware release is v6.09.
+> Latest firmware release is v6.14.
 
 ## Table of Contents
 - [Preamble](#preamble)
@@ -433,14 +433,38 @@ The Gas types are listed here:
 
 |  |  |  |
 |--|--|--|
-| `0x17` - Formaldehyde - HCHO / CH<sub>2</sub>O</li> | | `0x1E` - Hydrogen Cyanide - HCN
-| `0x18` - Volatile Organic Compounds</li>            | | `0x1F` - Hydrogen Fluoride - HF
-| `0x19` - Carbon Monoxide - CO</li>                  | | `0x20` - Ammonia - NH<sub>3</sub>
-| `0x1A` - Chlorine - Cl<sub>2</sub></li>             | | `0x21` - Nitrogen Dioxide - NO<sub>2</sub>
-| `0x1B` - Hydrogen - H<sub>2</sub></li>              | | `0x22` - Oxygen - O<sub>2</sub>
-| `0x1C` - Hydrogen Sulphide - H<sub>2</sub>S</li>    | | `0x23` - Ozone - O<sub>3</sub>
-| `0x1D` - Hydrogen Chloride - HCl</li>               | | `0x24` - Sulphur Dioxide / Sulfur Dioxide (IUPAC) - SO<sub>2</sub>
-| `0x32` - Odour - Smell</li>               | |
+| `0x17` - Formaldehyde - HCHO / CH<sub>2</sub>O                      | | `0x18` - Volatile Organic Compounds
+| `0x19` - Carbon Monoxide - CO                                       | | `0x1A` - Chlorine - Cl<sub>2</sub>     
+| `0x1B` - Hydrogen - H<sub>2</sub>                                   | | `0x1C` - Hydrogen Sulphide - H<sub>2</sub>S     
+| `0x1D` - Hydrogen Chloride – HCl                                    | | `0x1E` - Hydrogen Cyanide - HCN
+| `0x1F` - Hydrogen Fluoride - HF                                     | | `0x20` - Ammonia - NH<sub>3</sub>
+| `0x21` - Nitrogen Dioxide - NO<sub>2</sub>                          | | `0x22` - Oxygen - O<sub>2</sub>
+| `0x23` - Ozone - O<sub>3</sub>                                      | | `0x24` - Sulphur Dioxide / Sulfur Dioxide (IUPAC) - SO<sub>2</sub>
+| `0x25` - Hydrogen Bromide – HBr                                     | | `0x26` - Bromine – Br<sub>2</sub>
+| `0x27` - Elemental Fluorine – F<sub>2</sub>                         | | `0x28` - Hydrogen Phosphide (Phosphine) – PH<sub>3</sub>
+| `0x29` - Arsine – AsH<sub>3</sub>                                   | | `0x2A` - Silane – SiH<sub>4</sub>
+| `0x2B` - Germane(Germanium Tetrahydride) – GeH<sub>4</sub>          | | `0x2C` - Dibromane – B<sub>2</sub>H<sub>6</sub>
+| `0x2D` - Boron Trifluoride – BF<sub>3</sub>                         | | `0x2E` - Tungsten Hexafluoride – WF<sub>6</sub>
+| `0x2F` - Silicon Tetrafluoride – SiF<sub>4</sub                     | | `0x30` - Xenon Difluoride - XeF<sub>2</sub>
+| `0x31` - Titanium(IV) Fluoride – TiF<sub>4</sub>                    | | `0x32` - Odour – Odour/Smell
+| `0x33` - IAQ - Indoor Air Quality (TVOCs)                           | | `0x34` - AQI - Outdoor Air Quality (TVOCs)
+| `0x35` - Nonmethane Hydrocarbons - NMHC                             | | `0x36` - Sulphur Oxides – SOx
+| `0x37` - Nitrogen Oxides – NOx                                      | | `0x38` - Nitric Oxide – NO
+| `0x39` - Isobutylene – C<sub>4</sub>H<sub>8</sub>                   | | `0x3A` - Propylene Glycol – C<sub>3</sub>H<sub>8</sub>O<sub>2</sub>
+| `0x3B` - Methanethiol – CH<sub>4</sub>S                             | | `0x3C` - Styrene – C<sub>8</sub>H<sub>8</sub>
+| `0x3D` - Butane – C<sub>4</sub>H<sub>10</sub>                       | | `0x3E` - Butadiene – C<sub>4</sub>H<sub>6</sub>
+| `0x3F` - Hexane – C<sub>6</sub>H<sub>14</sub>                       | | `0x40` - Ethylene Oxide – C<sub>2</sub>H<sub>4</sub>O
+| `0x41` - Propylamine – C<sub>3</sub>H<sub>9</sub>N                  | | `0x42` - Acetone imine – C<sub>3</sub>H<sub>7</sub>N
+| `0x43` - Ethyl Alcohol(Ethanol) – C<sub>2</sub>H<sub>6</sub>O       | | `0x44` - Carbon Disulfide – CS<sub>2</sub>
+| `0x45` - Dimethyl Sulfide – C<sub>2</sub>H<sub>6</sub>S             | | `0x46` - Dimethyl Disulfide – C<sub>2</sub>H<sub>6</sub>S<sub>2</sub>
+| `0x47` - Ethylene – C<sub>2</sub>H<sub>4</sub>                      | | `0x48` - Methanol – CH<sub>3</sub>OH
+| `0x49` - Benzene – C<sub>6</sub>H<sub>6</sub>                       | | `0x4A` - Xylene – C<sub>8</sub>H<sub>10</sub>
+| `0x4B` - Toluene – C<sub>7</sub>H<sub>8</sub>                       | | `0x4C` - Acetic Acid – CH<sub>3</sub>COOH
+| `0x4D` - Chlorine Dioxide – C<sub>1</sub>O<sub>2</sub>              | | `0x4E` - Hydrogen Peroxide – H<sub>2</sub>O<sub>2</sub>
+| `0x4F` - Nitrogen Hydride (Hydrazine) – N<sub>2</sub>H<sub>4</sub>  | | `0x50` - Ethylenediamine – C<sub>2</sub>H<sub>8</sub>N<sub>2</sub>
+| `0x51` - Trichloroethylene – C<sub>2</sub>HC<sub>13</sub>           | | `0x52` - Trichloromethane (Chloroform) – CHC<sub>13</sub>
+| `0x53` - 1,1,1-Trichloroethane – C<sub>2</sub>H<sub>3</sub>C<sub>13</sub> | | `0x54` - Hydrogen Selenide – H<sub>2</sub>Se
+
 
 ### Corrosion
 

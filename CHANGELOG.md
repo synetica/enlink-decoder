@@ -1,5 +1,10 @@
 # Change Log
 
+## 2024 June Updates
+
+- Updated firmware up to 6.14
+- Increased number of supported gasses from 15 to 62
+
 ## 2024 March Updates
 
 - Updated firmware up to 6.09
