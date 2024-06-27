@@ -44,6 +44,7 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
   - [Leak Sensor Parameters](#leak-sensor-parameters)
   - [VOC Sensor Parameters](#voc-sensor-parameters)
   - [TVOC Sensor Parameters](#tvoc-sensor-parameters)
+  - [Zone View e-paper Display Parameters](#zone-view-e-paper-display-parameters)
   - [Sample Code](#sample-code)
 
 </br>
