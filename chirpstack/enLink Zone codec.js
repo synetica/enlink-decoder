@@ -1,4 +1,4 @@
-// Synetica enLink Zone Codec for Chirpstack v3 and v4
+// Synetica enLink Zone / Zone 2 / Zone View Codec for Chirpstack v3 and v4
 // 20 Mar 2024 (FW Ver:6.09)
 // https://github.com/synetica/enlink-decoder
 

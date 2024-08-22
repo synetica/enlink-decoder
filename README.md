@@ -8,21 +8,19 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
 
 ## Table of Contents
 - [Preamble](#preamble)
-- [Payload Contents of each enLink Model](#payload-contents-of-each-enlink-model)
+- [Payload Contents of each enLink Product](#payload-contents-of-each-enlink-product)
   - [AIR/AIR-X](#enlink-airair-x---indooroutdoor-air-quality-monitor)
-  - [IAQ/OAQ](#enlink-iaqoaq---indooroutdoor-air-quality)
+  - [IAQ/OAQ/Duct](#enlink-iaqoaq---indooroutdoor-air-quality-and-iaq-duct)
   - [ZonePlus](#enlink-zoneplus)
   - [Zone](#enlink-zone)
   - [Zone View](#enlink-zone-view)
   - [Modbus](#enlink-modbus)
   - [Status Pulse Counter](#enlink-status---pulse-counter)
   - [Status Leak Sensor](#enlink-status---leak-sensor)
-  - [Status Differential Pressure](#enlink-status---differential-pressure--air-flow-velocity)
+  - [Status Differential Pressure / Air Flow (Velocity)](#enlink-status---differential-pressure--air-flow-velocity)
   - [Status Gauge Pressure](#enlink-status---gauge-pressure)
-  - [Status Liquid Level](#enlink-status---liquid-level)
   - [Status Temperature Probes](#enlink-status---temperature-probes)
   - [Status Voltage/Current Sensor](#enlink-status---voltagecurrent-sensor)
-  - [Status Pura Sanitiser Liquid Level](#enlink-status---pura-sanitiser-liquid-level)
 - [Uplink Payload](#uplink-payload)
   - [Uplink Payload Structure](#uplink-payload-structure)
   - [Uplink Transmission Port](#uplink-transmission-port)
@@ -36,16 +34,18 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
   - [Downlink Message Examples](#downlink-message-examples)
   - [Example Uplink Replies to Downlink Messages](#example-uplink-replies-to-downlink-messages)
   - [Downlink Message Index Tables](#downlink-message-index-tables)
-  - [Light Sensor Parameters](#light-sensor-parameters)
-  - [AQM / Air Parameters](#aqm--air-parameters)
-  - [CO<sub>2</sub> Sensor Parameters](#carbon-dioxide-sensor-parameters)
-  - [Particulate Sensor Parameters](#particulate-sensor-parameters)
-  - [Gas Sensor Parameters](#gas-sensor-parameters)
-  - [Leak Sensor Parameters](#leak-sensor-parameters)
-  - [VOC Sensor Parameters](#voc-sensor-parameters)
-  - [TVOC Sensor Parameters](#tvoc-sensor-parameters)
-  - [Zone View e-paper Display Parameters](#zone-view-e-paper-display-parameters)
-  - [Sample Code](#sample-code)
+  - [Product and Sensor Specific Downlinks](#product-and-sensor-specific-downlinks)
+    - [Air / Air-X Downlinks](#air--air-x-downlinks)
+    - [Light Sensor Downlinks](#light-sensor-downlinks)
+    - [VOC Sensor Downlinks](#voc-sensor-downlinks)
+    - [TVOC Sensor Downlinks](#tvoc-sensor-downlinks)
+    - [CO<sub>2</sub> Sensor Downlinks](#carbon-dioxide-sensor-downlinks)
+    - [Particulate Sensor Downlinks](#particulate-sensor-downlinks)
+    - [Gas Sensor Downlinks](#gas-sensor-downlinks)
+    - [Leak Sensor Downlinks](#leak-sensor-downlinks)
+    - [Differential Pressure / Air Flow Downlinks](#differential-pressure--air-flow-downlinks)
+    - [Zone View e-paper Display Downlinks](#zone-view-e-paper-display-downlinks)
+- [Sample CODECs for Decoding Messages](#sample-codecs-for-decoding-messages)
 
 </br>
 
@@ -73,9 +73,9 @@ We implement EU868, US915 and AU915 as defined in [LoRaWAN Regional Parameters v
 
 </br>
 
-# Payload Contents of each enLink Model
+# Payload Contents of each enLink Product
 
-Each model of enLink device has specific sensors. Each sensor exposes one or more data values. The **firmware code** is used to determine the sensors in the device. Note: the product code is similar to, but not the same as the firmware code. The following table can be used to determine the expected values in a uplink message. The [KPI](#enlink-kpi-payload-data) values are optional.
+Each enLink device has specific sensors. Each sensor exposes one or more data values. The **firmware code** is used to determine the sensors in the device. Note: the product code is similar to, but not the same as the firmware code. The following table can be used to determine the expected values in a uplink message. The [KPI](#enlink-kpi-payload-data) values are optional.
 
 The firmware code is a concatenation of the base model plus the options.
 
@@ -85,65 +85,85 @@ The firmware code is a concatenation of the base model plus the options.
 
 ## enLink AIR/AIR-X - Indoor/Outdoor Air Quality Monitor
 
+ > [enLink Air Web Page](https://synetica.net/enlink-air/)
+ </br>[enLink Air-X Web Page](https://synetica.net/enlink-air-x/)
+
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
 | FW-AQM  | (default) | `0x01`, `0x02` | Temperature, Humidity
-| | L | `0x03` | Light Level (Indoor only)
-| | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e
-| | C | `0x08` | NDIR CO<sub>2</sub> ppm
+| | L | `0x03` | Light Level (Indoor Air only) - [Light Sensor Downlinks](#light-sensor-downlinks)
+| | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e - [VOC Sensor Downlinks](#voc-sensor-downlinks)
+| | C | `0x08` | NDIR CO<sub>2</sub> ppm - [CO<sub>2</sub> Sensor Downlinks](#carbon-dioxide-sensor-downlinks)
 | | X | `0x06` | Oxygen
-| | K | `0x07`, `0x09`, `0x0A`, `0x0D`,<br/>`0x53`, `0x54`, `0x55`, `0x56` | Optional Gas Socket Sensors
 | | S | `0x50`, `0x51`, `0x52` | Sound
-| | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`,`0x5F`, `0x60` | Particles
+| | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`,`0x5F`, `0x60` | Particles - [Particulate Sensor Downlinks](#airair-x-and-iaqoaq-particulate-sensor-downlinks)
 | | O | `0x61` | Ozone
-| | G | `0x61`, `0x66` | Single Gas Sensor
 | | G+ | `0x61`, `0x66` | Up to 4 x Gas Sensors
 
-## enLink IAQ/OAQ - Indoor/Outdoor Air Quality
+Link to: [Air / Air-X Downlinks](#air--air-x-downlinks)
+
+## enLink IAQ/OAQ - Indoor/Outdoor Air Quality and IAQ Duct
+
+> [enLink IAQ Web Page](https://synetica.net/enlink-iaq/)
+ </br>[enLink IAQ Plus Web Page](https://synetica.net/enlink-iaq-plus/)
+ </br>[enLink IAQ Vape Web Page](https://synetica.net/enlink-iaq-vape/)
+ </br>[enLink IAQ Duct Web Page](https://synetica.net/enlink-iaq-duct/)
+ </br>[enLink OAQ Web Page](https://synetica.net/enlink-oaq/)
+ 
 
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
 | FW-AQ  | (default) | `0x01`, `0x02` | Temperature, Humidity
-| | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e
-| | C | `0x08` | NDIR CO<sub>2</sub> ppm
-| | I | `0x36`, `0x37`, `0x38`, `0x39`, `0x3A` | Indoor TVOC Sensor (enLink IAQ)
+| | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e - [VOC Sensor Downlinks](#voc-sensor-downlinks)
+| | C | `0x08` | NDIR CO<sub>2</sub> ppm - [CO<sub>2</sub> Sensor Downlinks](#carbon-dioxide-sensor-downlinks)
+| | I | `0x36`, `0x37`, `0x38`, `0x39`, `0x3A` | Indoor TVOC Sensor (enLink IAQ) - [TVOC Sensor Downlinks](#tvoc-sensor-downlinks)
 | | D | `0x67`, `0x68` | Outdoor EPA Sensor (enLink OAQ)
 | | O | `0x61` | Ozone
-| | G | `0x61`, `0x66` | Single Gas Sensor
+| | G | `0x61`, `0x66` | Single Gas Sensor - [Gas Sensor Downlinks](#gas-sensor-downlinks)
 | | S | `0x50`, `0x51`, `0x52` | Sound
-| | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`, `0x5F`, `0x60` | Particles
-| | PP | `0x69`, `0x6A`, `0x6B`, `0x57`, `0x58`, `0x6C`, <br/>`0x5A`, `0x6D`, `0x6E`, `0x5B`, `0x5C`, `0x5D`, <br/>`0x6F`, `0x5F` | Particles (Piera Sensor)</br>**Unit must be externally powered**
-| | PV | `0x69`, `0x6A`, `0x6B`, `0x57`, `0x58`, `0x6C`, <br/>`0x5A`, `0x6D`, `0x6E`, `0x5B`, `0x5C`, `0x5D`, <br/>`0x6F`, `0x5F`, `0x70`, `0x71`, `0x72` | Particles, Smoke/Vape</br>**Unit must be externally powered**
+| | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`, `0x5F`, `0x60` | Particles ([IAQ](https://synetica.net/enlink-iaq/)/[OAQ](https://synetica.net/enlink-oaq/)) </br> [Particulate Sensor Downlinks](#airair-x-and-iaqoaq-particulate-sensor-downlinks)
+| | PP | `0x69`, `0x6A`, `0x6B`, `0x57`, `0x58`, `0x6C`, <br/>`0x5A`, `0x6D`, `0x6E`, `0x5B`, `0x5C`, `0x5D`, <br/>`0x6F`, `0x5F` | Particles ([IAQ Plus](https://synetica.net/enlink-iaq-plus/)) </br> [Particulate Sensor Downlinks](#iaq-plusvape-particulate-sensor-downlinks) </br> **Unit must be externally powered**
+| | PV | `0x69`, `0x6A`, `0x6B`, `0x57`, `0x58`, `0x6C`, <br/>`0x5A`, `0x6D`, `0x6E`, `0x5B`, `0x5C`, `0x5D`, <br/>`0x6F`, `0x5F`, `0x70`, `0x71`, `0x72` | Particles, Smoke/Vape ([IAQ Vape](https://synetica.net/enlink-iaq-vape/)) - Includes [ATI](#ati---adaptive-transmission-interval) feature </br> [Particulate Sensor Downlinks](#iaq-plusvape-particulate-sensor-downlinks) </br> **Unit must be externally powered**
 
 ## enLink ZonePlus
+
+> [enLink Zone Plus Web Page](https://synetica.net/enlink-zone-plus/)
 
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
 | FW-ZNP  | (default) | `0x01`, `0x02` | Temperature, Humidity
-| | L | `0x03` | Light Level
-| | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e
-| | C | `0x08` | NDIR CO<sub>2</sub> ppm
+| | L | `0x03` | Light Level - [Light Sensor Downlinks](#light-sensor-downlinks)
+| | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e - [VOC Sensor Downlinks](#voc-sensor-downlinks)
+| | C | `0x08` | NDIR CO<sub>2</sub> ppm - [CO<sub>2</sub> Sensor Downlinks](#carbon-dioxide-sensor-downlinks)
 | | M | `0x13`, `0x14` | Motion (PIR). Includes [ATI](#ati---adaptive-transmission-interval) feature
 | | S | `0x50`, `0x51`, `0x52` | Sound
-| | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`, `0x5F`, `0x60` | Particles
 
 ## enLink Zone
+
+> [enLink Zone Web Page](https://synetica.net/enlink-zone/)
 
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
 | FW-ZN  | (default) | `0x01`, `0x02` | Temperature, Humidity
-| | L | `0x03` | Light Level
-| | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e
-| | C | `0x08` | NDIR CO<sub>2</sub> ppm
+| | L | `0x03` | Light Level - [Light Sensor Downlinks](#light-sensor-downlinks)
+| | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e - [VOC Sensor Downlinks](#voc-sensor-downlinks)
+| | C | `0x08` | NDIR CO<sub>2</sub> ppm - [CO<sub>2</sub> Sensor Downlinks](#carbon-dioxide-sensor-downlinks)
 | | M | `0x13`, `0x14` | Motion (PIR). Includes [ATI](#ati---adaptive-transmission-interval) feature
 
 ## enLink Zone View
 
+> [enLink Zone View Web Page](https://synetica.net/enlink-zone-view/)
+> [enLink Zone View Home Web Page](https://synetica.net/enlink-zone-view-home/)
+
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
 | FW-ZNV  | (default) | `0x01`, `0x3B` | Temperature, Humidity
- 
+
+[Zone View e-paper Display Downlinks](#zone-view-e-paper-display-downlinks)
+
 ## enLink Modbus
+
+> [enLink Modbus Web Page](https://synetica.net/enlink-modbus/)
 
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
@@ -151,35 +171,43 @@ The firmware code is a concatenation of the base model plus the options.
 
 ## enLink Status - Pulse Counter
 
+> [enLink Status Pulse Web Page](https://synetica.net/enlink-status-p/)
+
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
 | FW-STS-P/PX | (None) | `0x0E`, `0x15` | Count (0 to 2^32), [Change of State](#pulse-counters---change-of-state) - Includes [ATI](#ati---adaptive-transmission-interval) feature
 
 ## enLink Status - Leak Sensor
 
+> [enLink Status Leak Web Page](https://synetica.net/enlink-status-l/)
+
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
 | FW-STS-L  | (None)  | `0x30`, `0x31` | Resistance, Leak Event. Includes [ATI](#ati---adaptive-transmission-interval) feature on the leak event
 
+ [Leak Sensor Downlinks](#leak-sensor-downlinks)
+
 ## enLink Status - Differential Pressure / Air Flow (Velocity)
+
+> [enLink Status DP Web Page](https://synetica.net/enlink-status-dp/) /  [enLink Status AF Web Page](https://synetica.net/enlink-status-af/)
 
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
 | FW-STS-DP/AF | (None)  | `0x2C`, `0x2D` | Pressure, Air flow. Either one or both can be selected
 
+[DP/AF Downlinks](#differential-pressure--air-flow-downlinks)
+
 ## enLink Status - Gauge Pressure
+
+> [enLink Status GP Web Page](https://synetica.net/enlink-status-gp/)
 
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
 | FW-STS-GP  | (None)  | `0x32`, `0x33` | Pressure Pa, Temperature (of the sensor)
 
-## enLink Status - Liquid Level
-
-| Firmware Code | Options | Data Type(s) | Description |
-|:-----------|:--------|:-------------|:------------|
-| FW-STS-LL  | (None)  | `0x34`, `0x35` | Depth mm, Temperature (of the sensor)
-
 ## enLink Status - Temperature Probes
+
+> [enLink Status T Web Page](https://synetica.net/enlink-status-t/)
 
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
@@ -188,17 +216,15 @@ The firmware code is a concatenation of the base model plus the options.
 
 ## enLink Status - Voltage/Current Sensor
 
+> [enLink Status VC Web Page](https://synetica.net/enlink-status-vc/)
+
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
 | FW-STS-VC  | (None)  | `0x2E` | Mode: Voltage
 |            |         | `0x2F` | Mode: Current
 |            |         | `0x30` | Mode: Resistance
 
-## enLink Status - Pura Sanitiser Liquid Level
-
-| Firmware Code | Options | Data Type(s) | Description |
-|:-----------|:--------|:-------------|:------------|
-| FW-STS-PURA  | (None)  | `0x16` | Status Changed
+</br>
 
 ## ATI - Adaptive Transmission Interval
 
@@ -247,7 +273,7 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | Type Hex&nbsp;Dec| Sensor | Sensor Range | Units | Num Bytes | Format | Scaling |
 |:---------:| ------ | ------------ | ----- |:---------:|:-----------:| ------- |
 | `0x01` 001 | Temperature | -40 to 85 | °C | 2 | S16 | / 10
-| `0x02` 002 | Humidity | 0 to 100 | % | 1 | U8
+| `0x02` 002 | Humidity | 0 to 100 | %rH | 1 | U8
 | `0x03` 003 | Ambient Light | 0.01 to 83k | lux | 2 | U16
 | `0x04` 004 | Pressure | 300 to 1100 | mbar | 2 | U16
 | `0x05` 005 | Volatile Organic Compounds (VOC) See: [BOSCH Datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme680-ds001.pdf) | 0 to 500 | IAQ | 2 | U16
@@ -302,7 +328,7 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x38` 056 | TVOC Maximum |  | mg/m³ | 2 | F32
 | `0x39` 057 | EtOH (Ethanol equivalent) |  | ppm | 4 | F32
 | `0x3A` 058 | IAQ (1.0 to 5.0) Not the `PBAQ` version|  | IAQ | 4 | F32
-| `0x3B` 059 | High resolution Humidity   | 0 to 100.00% | rH | 2 | U16 | / 100
+| `0x3B` 059 | High resolution Relative Humidity   | 0 to 100.00% | %rH | 2 | U16 | / 100
 | `0x3F` 063 | CO<sub>2</sub>e estimate equivalent (BME680) |  | ppm | 4 | F32
 | `0x50` 080 | Sound Level Minimum |  | dB(A) | 4 | F32
 | `0x51` 081 | Sound Level Average |  | dB(A) | 4 | F32
@@ -356,7 +382,7 @@ The enLink Modbus data types for Interval and Cumulative values use 5 bytes to e
 - Modbus Interval Value – for Modbus data types which do not accumulate, e.g. Voltage, Current, Temperature etc.
 - Modbus Cumulative Value – for Modbus data types which are linked to a value which accumulates, e.g. kWh, Volume etc.
 
-The first byte indicates which of the 32 available Modbus items is being accessed (0 to 31), followed by the Modbus Value represented as a 32 bit floating point value (IEEE754 format). Interval Value types are used for instantaneous values, such as Voltage, Current, Temperature, Pressure etc. Cumulative Values are used for items such as energy consumption and total volume.
+The first byte indicates which of the 32 available Modbus items is being accessed (0 to 31), followed by the Modbus Value represented as a 32 bit floating point value ([IEEE754](https://en.wikipedia.org/wiki/IEEE_754) format). Interval Value types are used for instantaneous values, such as Voltage, Current, Temperature, Pressure etc. Cumulative Values are used for items such as energy consumption and total volume.
 
 > Example Payload Data: `10 04 41 BC 7A E1`
 
@@ -465,7 +491,6 @@ The Gas types are listed here:
 | `0x4F` - Nitrogen Hydride (Hydrazine) – N<sub>2</sub>H<sub>4</sub>  | | `0x50` - Ethylenediamine – C<sub>2</sub>H<sub>8</sub>N<sub>2</sub>
 | `0x51` - Trichloroethylene – C<sub>2</sub>HC<sub>13</sub>           | | `0x52` - Trichloromethane (Chloroform) – CHC<sub>13</sub>
 | `0x53` - 1,1,1-Trichloroethane – C<sub>2</sub>H<sub>3</sub>C<sub>13</sub> | | `0x54` - Hydrogen Selenide – H<sub>2</sub>Se
-
 
 ### Corrosion
 
@@ -651,10 +676,21 @@ The Indexes for some settings depend on the region the unit is programmed for.
 | 7 | 4 dBm
 | 8 | 2 dBm 
 
+</br>
 
-## Light Sensor Parameters
+## Product and Sensor Specific Downlinks
 
-The following are used in the AQM/Air, Zone and ZonePlus (with Light Sensor)
+### Air / Air-X Downlinks
+
+The following are used in the enLink Air/Air-X
+
+| Name | Msg Len | Command | Value |
+| ---- | ------- | ------- | ----- |
+| Case Fan Run Time| 3 | `0x22` | `10` to `600` Seconds (`0x000A` to `0x0258`)
+
+### Light Sensor Downlinks
+
+The following are used in the Air, Zone and Zone Plus (with Light Sensor)
 
 | Name | Msg Len | Command | Value | Scaling |
 | ---- | ------- | ------- | ----- | ------- |
@@ -666,27 +702,66 @@ To scale the lux reading to compensate for the enclosure light pipe, a scaling f
 > Adjusted_Reading = (Sensor_Value x Scale) + Offset
 
 Defaults are:
-- Scale = **2.0** (AQM/AIR), **1.678** (Zone and ZonePlus)
+- Scale = **2.0** (Air), **1.678** (Zone and Zone Plus)
 - Offset = **0** (All devices)
 
 For example, set Scale to **12.345** (12345 in hexadecimal is `0x3039`)
 
 > Payload Data: `A5 03 20 30 39`
 
-</br>
+### VOC Sensor Downlinks
 
-## AQM / Air Parameters
+Available from v5.12 onwards.
 
-The following are used in the AQM/Air
+The following are used in devices with the BME680 VOC sensor (Firmware option code `V`). These options are for setting which data values are included in the transmitted radio packets. Sending smaller radio packets size will reduce battery consumption.
 
 | Name | Msg Len | Command | Value |
 | ---- | ------- | ------- | ----- |
-| Case Fan Run Time| 3 | `0x22` | `10` to `600` Seconds (`0x000A` to `0x0258`)
-| HPM Particulate Fan Run Time<br />(Discontinued)| 3 | `0x23` | `10` to `60` Seconds
+| Include Parameter | 2 | `0x3C` | `0x00` to `0x0F` as a bit pattern (see below)
 
-</br>
+Set the bit value to `1` to include the data value; `0` to exclude it.
 
-## Carbon Dioxide Sensor Parameters
+- Bit 0 - `Pressure`
+- Bit 1 - `CO2e Estimate`
+- Bit 2 - `bVOC`
+- Bit 3 - `IAQ`
+- Bit 4 - Not used
+- Bit 5 - Not used
+- Bit 6 - Not used
+- Bit 7 - Not used
+
+> Example Payload Data: `A5 02 3C 0C`
+
+This will include the `bVOC` and `IAQ` data values.
+
+### TVOC Sensor Downlinks
+
+Available from v6.02 onwards.
+
+The following are used in devices with the ZMOD4410 indoor TVOC sensor (Firmware option code `I`). These options are for setting which data values are included in the transmitted radio packets. Sending smaller radio packets size will reduce battery consumption. There is a standard and a PBAQ option with this sensor.
+
+| Name | Msg Len | Command | Value |
+| ---- | ------- | ------- | ----- |
+| Include Parameter | 2 | `0x42` | `0x00` to `0x1F` as a bit pattern (see below)
+
+Set the bit value to `1` to include the data value; `0` to exclude it.
+
+- Bit 0 - `Minimum TVOC`
+- Bit 1 - `Average TVOC`
+- Bit 2 - `Maximum TVOC`
+- Bit 3 - `Latest EtOH reading` (Ethanol equivalent)
+- Bit 4 - `Latest IAQ reading` (Not the PBAQ version)
+- Bit 5 - Not used
+- Bit 6 - Not used
+- Bit 7 - Not used
+
+> Note: The Minimum, Average and Maximum are calculated between radio transmissions. The `PBAQ` version samples every 5 seconds.
+
+> Example Payload Data: `A5 02 42 0C`
+
+This will include the `Maximum TVOC` and the `Latest EtOH reading` data values.
+
+### Carbon Dioxide Sensor Downlinks
 
 The following are used in devices with CO<sub>2</sub> sensor
 
@@ -720,20 +795,22 @@ To set the auto-calibration interval to 10 days (240 hours, `0x00F0`)
 
 > Payload Data: `A5 03 28 00 F0`
 
-</br>
+### Particulate Sensor Downlinks
 
-## Particulate Sensor Parameters
-
-Available from v5.03 onwards.
-
+Available from v5.03 onwards.  
 The following are used in devices with particulate sensors
+
+#### Air/Air-X and IAQ/OAQ Particulate Sensor Downlinks
 
 | Name | Msg Len | Command | Value |
 | ---- | ------- | ------- | ----- |
 | Set fan run period (Sample time) | 2 | `0x2B` | `3` to `180` Seconds (`0x03` to `0xB4`)
 | Set cleaning interval | 3 | `0x2C` | `6` to `1440` hours (`0x0006` to `0x05A0`)
+| Message Include Parameter (from v5.12) | 3 | `0x3D` | `0x0000` to `0xFFFF` as a bit pattern (see below)
 
-To set the fan run period to 35 seconds:
+'Message Include' is for setting which data values are included in the transmitted radio packets. Sending smaller radio packets size will reduce battery consumption.
+
+Examples: To set the fan run period to 35 seconds:
 
 > Payload Data: `A5 02 2B 23`
 
@@ -741,19 +818,7 @@ To set the cleaning interval to 8 days (192 hours, `0x00C0`)
 
 > Payload Data: `A5 03 2C 00 C0`
 
-These next settings are available from v5.12 onwards:
-
-Setting which data values are included in the transmitted radio packets. Sending smaller radio packets size will reduce battery consumption.
-
-
-| Name | Msg Len | Command | Value |
-| ---- | ------- | ------- | ----- |
-| SPS30 Include Parameter | 3 | `0x3D` | `0x0000` to `0xFFFF` as a bit pattern (see below)
-| IPS7100 Include Parameter | 3 | `0x3E` | `0x0000` to `0xFFFF` as a bit pattern (see below)
-
-Set the bit value to `1` to include the data value; `0` to exclude it.
-
-### SPS30
+For the 'Message Include' settings, you should set the bit value to `1` to include the data value; `0` to exclude it.
 
  PM = Particle Mass  
  PC = Particle Count
@@ -769,14 +834,31 @@ Set the bit value to `1` to include the data value; `0` to exclude it.
 | Bit 6 - `PC 2.5` | | Bit 6 - Not used
 | Bit 7 - `PC 4.0` | | Bit 7 - Not used
 
-
 > Example Payload Data: `A5 03 3D 0A 02`
 
 This will include `PM 10.0`, `PM 2.5` and `Typical Particle Size` data values.
 
 </br>
 
-### IPS7100
+#### IAQ Plus/Vape Particulate Sensor Downlinks
+
+| Name | Msg Len | Command | Value |
+| ---- | ------- | ------- | ----- |
+| Set fan run period (Sample time) | 2 | `0x2B` | `3` to `180` Seconds (`0x03` to `0xB4`)
+| Set cleaning interval | 3 | `0x2C` | `6` to `1440` hours (`0x0006` to `0x05A0`)
+| Message Include Parameter (from v5.12) | 3 | `0x3E` | `0x0000` to `0xFFFF` as a bit pattern (see below)
+
+'Message Include' is for setting which data values are included in the transmitted radio packets. Sending smaller radio packets size will reduce battery consumption.
+
+Examples: To set the fan run period to 35 seconds:
+
+> Payload Data: `A5 02 2B 23`
+
+To set the cleaning interval to 8 days (192 hours, `0x00C0`)
+
+> Payload Data: `A5 03 2C 00 C0`
+
+For the 'Message Include' settings, you should set the bit value to `1` to include the data value; `0` to exclude it.
 
  PM = Particle Mass  
  PC = Particle Count
@@ -792,14 +874,13 @@ This will include `PM 10.0`, `PM 2.5` and `Typical Particle Size` data values.
 | Bit 6 - `PM 10.0` | | Bit 6 - `PC 10.0`
 | Bit 7 - Not used | | Bit 7 - Not used
 
-
 > Example Payload Data:  `A5 03 3E 59 08`
 
 This will include `PM 10.0`, `PM 2.5`, `PM 1.0`, `PM 0.5` and `PC 1.0` data values.
 
 </br>
 
-## Gas Sensor Parameters
+### Gas Sensor Downlinks
 
 Available from v5.07 onwards.
 
@@ -818,7 +899,7 @@ The following are used in devices with a Gas sensor (Option Code 'G')
 
 </br>
 
-## Leak Sensor Parameters
+### Leak Sensor Downlinks
 
 Available from v5.08 onwards.
 
@@ -843,36 +924,7 @@ Note: All options are shown. However, for the supplied leak cable, the Alarm Mod
 | Low Hysteresis = 100 kOhm | `A5 03 39 01 2C`
 | Sample Interval = 3 minutes | `A5 03 3A 00 B4`
 
-</br>
-
-## VOC Sensor Parameters
-
-Available from v5.12 onwards.
-
-The following are used in devices with the BME680 VOC sensor (Firmware option code `V`). These options are for setting which data values are included in the transmitted radio packets. Sending smaller radio packets size will reduce battery consumption.
-
-| Name | Msg Len | Command | Value |
-| ---- | ------- | ------- | ----- |
-| Include Parameter | 2 | `0x3C` | `0x00` to `0x0F` as a bit pattern (see below)
-
-Set the bit value to `1` to include the data value; `0` to exclude it.
-
-- Bit 0 - `Pressure`
-- Bit 1 - `CO2e Estimate`
-- Bit 2 - `bVOC`
-- Bit 3 - `IAQ`
-- Bit 4 - Not used
-- Bit 5 - Not used
-- Bit 6 - Not used
-- Bit 7 - Not used
-
-> Example Payload Data: `A5 02 3C 0C`
-
-This will include the `bVOC` and `IAQ` data values.
-
-</br>
-
-## Differential Pressure / Airflow Parameters
+### Differential Pressure / Air Flow Downlinks
 
 Available from v5.14 onwards.
 
@@ -894,38 +946,7 @@ The following over-the-air settings are used for the enLink Status Differential 
 
 For an online value converter, see [Hex to Float Converter](https://gregstoll.com/~gregstoll/floattohex/)
 
-</br>
-
-## TVOC Sensor Parameters
-
-Available from v6.02 onwards.
-
-The following are used in devices with the ZMOD4410 indoor TVOC sensor (Firmware option code `I`). These options are for setting which data values are included in the transmitted radio packets. Sending smaller radio packets size will reduce battery consumption. There is a standard and a PBAQ option with this sensor.
-
-| Name | Msg Len | Command | Value |
-| ---- | ------- | ------- | ----- |
-| Include Parameter | 2 | `0x42` | `0x00` to `0x1F` as a bit pattern (see below)
-
-Set the bit value to `1` to include the data value; `0` to exclude it.
-
-- Bit 0 - `Minimum TVOC`
-- Bit 1 - `Average TVOC`
-- Bit 2 - `Maximum TVOC`
-- Bit 3 - `Latest EtOH reading` (Ethanol equivalent)
-- Bit 4 - `Latest IAQ reading` (Not the PBAQ version)
-- Bit 5 - Not used
-- Bit 6 - Not used
-- Bit 7 - Not used
-
-> Note: The Minimum, Average and Maximum are calculated between radio transmissions. The `PBAQ` version samples every 5 seconds.
-
-> Example Payload Data: `A5 02 42 0C`
-
-This will include the `Maximum TVOC` and the `Latest EtOH reading` data values.
-
-</br>
-
-## Zone View e-paper Display Parameters
+### Zone View e-paper Display Downlinks
 
 Available from v6.09 onwards.
 
@@ -949,6 +970,6 @@ This will set the display refresh interval to 10 minutes.
 
 </br>
 
-## Sample Code
+# Sample CODECs for Decoding Messages
 
-A NodeRED example for decoding these messages is included in the folders on this site. It is so visual feedback can be seen during evaluation and commissioning. If you require these messages in your system, please modify the code to suit your platform.
+Examples for decoding these messages are included in the folders on this site. These include all the sensor options to give basic decoding to enable feedback  during evaluation and commissioning. If you require these messages in your system, please modify the code to suit your platform.

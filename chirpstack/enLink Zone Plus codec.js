@@ -1,4 +1,4 @@
-// Synetica enLink ZonePlus Codec for Chirpstack v3 and v4
+// Synetica enLink Zone Plus Codec for Chirpstack v3 and v4
 // 18 August 2023 (FW Ver:5.14)
 // https://github.com/synetica/enlink-decoder
 

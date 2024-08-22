@@ -502,6 +502,7 @@ function decodeTelemetry(data) {
     var cpn;
     var metal;
     var obj = {};
+    obj.short_eui = msg.eui.slice(-11);
     var msg_ok = false;
     for (var i = 0; i < data.length; i++) {
         switch (data[i]) {
@@ -1731,7 +1732,7 @@ function decodeTelemetry(data) {
 // Function to decode enLink response to downlink message
 function decodeStdResponse(data) {
     var obj = {};
-    //obj.short_eui = msg.eui.slice(-11);
+    obj.short_eui = msg.eui.slice(-11);
     var msg_ok = false;
     for (var i = 0; i < data.length; i++) {
         switch (data[i]) {
@@ -1952,7 +1953,7 @@ function decodeModbusResponse(data) {
     var msg_ok = false;
     var msg_ack = false;
     var obj = {};
-
+    obj.short_eui = msg.eui.slice(-11);
     if (data[1] == ENLINK_ACK_V2) {
         obj.reply = "ACK";
         msg_ok = true;
@@ -2060,6 +2061,7 @@ if (msg.payload[0] == ENLINK_HEADER) {
 if (res !== null) {
     //msg.hex = bytesToHex(msg.payload);
     msg.payload = res;  // use for further function processing
+    //delete msg.payload.short_eui;
     msg.human_readable = JSON.stringify(res, null, 4);
     return msg;
 }
