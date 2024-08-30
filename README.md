@@ -481,7 +481,7 @@ The Gas types are listed here:
 | `0x3B` - Methanethiol – CH<sub>4</sub>S                             | | `0x3C` - Styrene – C<sub>8</sub>H<sub>8</sub>
 | `0x3D` - Butane – C<sub>4</sub>H<sub>10</sub>                       | | `0x3E` - Butadiene – C<sub>4</sub>H<sub>6</sub>
 | `0x3F` - Hexane – C<sub>6</sub>H<sub>14</sub>                       | | `0x40` - Ethylene Oxide – C<sub>2</sub>H<sub>4</sub>O
-| `0x41` - Trimethylamine – C<sub>3</sub>H<sub>9</sub>N                  | | `0x42` - Acetone imine – C<sub>3</sub>H<sub>7</sub>N
+| `0x41` - Trimethylamine – C<sub>3</sub>H<sub>9</sub>N                  | | `0x42` - Dimethylamine – C<sub>2</sub>H<sub>7</sub>N
 | `0x43` - Ethyl Alcohol (Ethanol) – C<sub>2</sub>H<sub>6</sub>O       | | `0x44` - Carbon Disulphide – CS<sub>2</sub>
 | `0x45` - Ethanethiol – C<sub>2</sub>H<sub>6</sub>S             | | `0x46` - Dimethyl Disulphide – C<sub>2</sub>H<sub>6</sub>S<sub>2</sub>
 | `0x47` - Ethylene – C<sub>2</sub>H<sub>4</sub>                      | | `0x48` - Methanol – CH<sub>3</sub>OH
