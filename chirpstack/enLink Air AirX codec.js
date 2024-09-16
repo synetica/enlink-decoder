@@ -1,5 +1,5 @@
 // Synetica Air/Air-X Codec for Chirpstack v3 and v4
-// 26 Jun 2024 (FW Ver:6.14)
+// 04 Sep 2024 (FW Ver:6.14)
 // https://github.com/synetica/enlink-decoder
 
 // Uplink Data
@@ -97,7 +97,7 @@ var GAS_C4H6 = 0x3E;
 var GAS_C6H14 = 0x3F;
 var GAS_C2H4O = 0x40;
 var GAS_C3H9N = 0x41;
-var GAS_C3H7N = 0x42;
+var GAS_C2H7N = 0x42;
 var GAS_C2H6O = 0x43;
 var GAS_CS2 = 0x44;
 var GAS_C2H6S = 0x45;
@@ -142,6 +142,7 @@ var ENLINK_ACK = 0x06;
 var ENLINK_NACK = 0x15;
 
 // Downlink reply message values
+var ENLINK_SET_ANT_GAIN = 0x01;
 var ENLINK_SET_PUBLIC = 0x02;
 var ENLINK_SET_APPEUI = 0x05;   // 8 bytes
 var ENLINK_SET_APPKEY = 0x06;   // 16 bytes
@@ -520,8 +521,8 @@ function decodeTelemetry(data) {
                     case GAS_C3H9N:
                         obj.C3H9N_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
-                    case GAS_C3H7N:
-                        obj.C3H7N_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                    case GAS_C2H7N:
+                        obj.C2H7N_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C2H6O:
                         obj.C2H6O_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
@@ -713,8 +714,8 @@ function decodeTelemetry(data) {
                     case GAS_C3H9N:
                         obj.C3H9N_ugm3 = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
-                    case GAS_C3H7N:
-                        obj.C3H7N_ugm3 = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                    case GAS_C2H7N:
+                        obj.C2H7N_ugm3 = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C2H6O:
                         obj.C2H6O_ugm3 = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
@@ -837,10 +838,6 @@ function decodeTelemetry(data) {
                 obj.fan_run_time_s =
                     U32((data[i + 1] << 24) | (data[i + 2] << 16) | (data[i + 3] << 8) | (data[i + 4]));
                 i += 4;
-                break;
-
-            case ENLINK_MB_SYS: // Ignore this message
-                i = data.length;
                 break;
 
             default: // something is wrong with data

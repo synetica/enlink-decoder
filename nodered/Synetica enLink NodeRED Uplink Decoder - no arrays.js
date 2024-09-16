@@ -133,7 +133,7 @@ const GAS_C4H6 = 0x3E;
 const GAS_C6H14 = 0x3F;
 const GAS_C2H4O = 0x40;
 const GAS_C3H9N = 0x41;
-const GAS_C3H7N = 0x42;
+const GAS_C2H7N = 0x42;
 const GAS_C2H6O = 0x43;
 const GAS_CS2 = 0x44;
 const GAS_C2H6S = 0x45;
@@ -439,17 +439,17 @@ function GetGasName(gas_type) {
         case 0x40:
             return "Ethylene Oxide";     //C2H4O
         case 0x41:
-            return "Propylamine";     //C3H9N
+            return "Trimethylamine";     //C3H9N
         case 0x42:
-            return "Acetone imine";     //C3H7N
+            return "Dimethylamine";     //C3H7N
         case 0x43:
             return "Ethyl Alcohol(Ethanol)";     //C2H6O
         case 0x44:
-            return "Carbon Disulfide";     //CS2
+            return "Carbon Disulphide";     //CS2
         case 0x45:
-            return "Dimethyl Sulfide";     //C2H6S
+            return "Dimethyl Sulphide";     //C2H6S
         case 0x46:
-            return "Dimethyl Disulfide";     //C2H6S2
+            return "Dimethyl Disulphide";     //C2H6S2
         case 0x47:
             return "Ethylene";     //C2H4
         case 0x48:
@@ -457,7 +457,7 @@ function GetGasName(gas_type) {
         case 0x49:
             return "Benzene";     //C6H6
         case 0x4A:
-            return "Xylene";     //C8H10
+            return "Paraxylene";     //C8H10
         case 0x4B:
             return "Toluene";     //C7H8
         case 0x4C:
@@ -1299,10 +1299,10 @@ function decodeTelemetry(data) {
                         obj.C2H4O_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C3H9N:
-                        obj.C3H9N_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.C2H9N_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
-                    case GAS_C3H7N:
-                        obj.C3H7N_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                    case GAS_C2H7N:
+                        obj.C2H7N_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C2H6O:
                         obj.C2H6O_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
@@ -1494,8 +1494,8 @@ function decodeTelemetry(data) {
                     case GAS_C3H9N:
                         obj.C3H9N_ugm3 = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
-                    case GAS_C3H7N:
-                        obj.C3H7N_ugm3 = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                    case GAS_C2H7N:
+                        obj.C2H7N_ugm3 = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C2H6O:
                         obj.C2H6O_ugm3 = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);

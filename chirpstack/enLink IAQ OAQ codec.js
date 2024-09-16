@@ -1,11 +1,12 @@
 // Synetica Indoor and Outdoor Air Quality (IAQ/OAQ) Codec for Chirpstack v3 and v4
-// 26 Jun 2024 (FW Ver:6.14)
+// 16 Sept 2024 (FW Ver:6.15)
 // https://github.com/synetica/enlink-decoder
 
 // Uplink Data
 // Standard
 var ENLINK_TEMP = 0x01;
 var ENLINK_RH = 0x02;
+var ENLINK_HIRES_RH = 0x3B;
 
 // L
 var ENLINK_LUX = 0x03;
@@ -78,7 +79,7 @@ var GAS_C4H6 = 0x3E;
 var GAS_C6H14 = 0x3F;
 var GAS_C2H4O = 0x40;
 var GAS_C3H9N = 0x41;
-var GAS_C3H7N = 0x42;
+var GAS_C2H7N = 0x42;
 var GAS_C2H6O = 0x43;
 var GAS_CS2 = 0x44;
 var GAS_C2H6S = 0x45;
@@ -274,6 +275,10 @@ function decodeTelemetry(data) {
             case ENLINK_RH: // Humidity %rH
                 obj.humidity = (data[i + 1]);
                 i += 1;
+                break;
+            case ENLINK_HIRES_RH: // Humidity %rH
+                obj.rh = (U16((data[i + 1] << 8) | (data[i + 2]))) / 100;
+                i += 2;
                 break;
 
             // L
@@ -471,8 +476,8 @@ function decodeTelemetry(data) {
                     case GAS_C3H9N:
                         obj.C3H9N_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
-                    case GAS_C3H7N:
-                        obj.C3H7N_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                    case GAS_C2H7N:
+                        obj.C2H7N_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C2H6O:
                         obj.C2H6O_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
@@ -664,8 +669,8 @@ function decodeTelemetry(data) {
                     case GAS_C3H9N:
                         obj.C3H9N_ugm3 = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
-                    case GAS_C3H7N:
-                        obj.C3H7N_ugm3 = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                    case GAS_C2H7N:
+                        obj.C2H7N_ugm3 = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C2H6O:
                         obj.C2H6O_ugm3 = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);

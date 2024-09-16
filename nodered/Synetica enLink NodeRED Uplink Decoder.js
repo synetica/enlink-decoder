@@ -375,17 +375,17 @@ function GetGasName(gas_type) {
         case 0x40:
             return "Ethylene Oxide";     //C2H4O
         case 0x41:
-            return "Propylamine";     //C3H9N
+            return "Trimethylamine";     //C3H9N
         case 0x42:
-            return "Acetone imine";     //C3H7N
+            return "Dimethylamine";     //C2H7N
         case 0x43:
             return "Ethyl Alcohol(Ethanol)";     //C2H6O
         case 0x44:
-            return "Carbon Disulfide";     //CS2
+            return "Carbon Disulphide";     //CS2
         case 0x45:
-            return "Dimethyl Sulfide";     //C2H6S
+            return "Dimethyl Sulphide";     //C2H6S
         case 0x46:
-            return "Dimethyl Disulfide";     //C2H6S2
+            return "Dimethyl Disulphide";     //C2H6S2
         case 0x47:
             return "Ethylene";     //C2H4
         case 0x48:
@@ -393,7 +393,7 @@ function GetGasName(gas_type) {
         case 0x49:
             return "Benzene";     //C6H6
         case 0x4A:
-            return "Xylene";     //C8H10
+            return "Paraxylene";     //C8H10
         case 0x4B:
             return "Toluene";     //C7H8
         case 0x4C:

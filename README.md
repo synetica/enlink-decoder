@@ -468,11 +468,11 @@ The Gas types are listed here:
 | `0x21` - Nitrogen Dioxide - NO<sub>2</sub>                          | | `0x22` - Oxygen - O<sub>2</sub>
 | `0x23` - Ozone - O<sub>3</sub>                                      | | `0x24` - Sulphur Dioxide - SO<sub>2</sub>
 | `0x25` - Hydrogen Bromide – HBr                                     | | `0x26` - Bromine – Br<sub>2</sub>
-| `0x27` - Fluorine – F<sub>2</sub>                         | | `0x28` - Phosphine – PH<sub>3</sub>
+| `0x27` - Fluorine – F<sub>2</sub>                                   | | `0x28` - Phosphine – PH<sub>3</sub>
 | `0x29` - Arsine – AsH<sub>3</sub>                                   | | `0x2A` - Silane – SiH<sub>4</sub>
-| `0x2B` - Germanium Alkane – GeH<sub>4</sub>          | | `0x2C` - Ethylboranec – B<sub>2</sub>H<sub>6</sub>
+| `0x2B` - Germanium Alkane – GeH<sub>4</sub>                         | | `0x2C` - Diborane – B<sub>2</sub>H<sub>6</sub>
 | `0x2D` - Boron Trifluoride – BF<sub>3</sub>                         | | `0x2E` - Tungsten Hexafluoride – WF<sub>6</sub>
-| `0x2F` - Silicon Tetrafluoride – SiF<sub>4</sub>                     | | `0x30` - Xenon Difluoride - XeF<sub>2</sub>
+| `0x2F` - Silicon Tetrafluoride – SiF<sub>4</sub>                    | | `0x30` - Xenon Difluoride - XeF<sub>2</sub>
 | `0x31` - Titanium(IV) Fluoride – TiF<sub>4</sub>                    | | `0x32` - Odour/Smell
 | `0x33` - IAQ - Indoor Air Quality (TVOCs)                           | | `0x34` - AQI - Outdoor Air Quality (TVOCs)
 | `0x35` - Nonmethane Hydrocarbons - NMHC                             | | `0x36` - Sulphur Oxides – SOx
@@ -481,13 +481,13 @@ The Gas types are listed here:
 | `0x3B` - Methanethiol – CH<sub>4</sub>S                             | | `0x3C` - Styrene – C<sub>8</sub>H<sub>8</sub>
 | `0x3D` - Butane – C<sub>4</sub>H<sub>10</sub>                       | | `0x3E` - Butadiene – C<sub>4</sub>H<sub>6</sub>
 | `0x3F` - Hexane – C<sub>6</sub>H<sub>14</sub>                       | | `0x40` - Ethylene Oxide – C<sub>2</sub>H<sub>4</sub>O
-| `0x41` - Trimethylamine – C<sub>3</sub>H<sub>9</sub>N                  | | `0x42` - Dimethylamine – C<sub>2</sub>H<sub>7</sub>N
-| `0x43` - Ethyl Alcohol (Ethanol) – C<sub>2</sub>H<sub>6</sub>O       | | `0x44` - Carbon Disulphide – CS<sub>2</sub>
-| `0x45` - Ethanethiol – C<sub>2</sub>H<sub>6</sub>S             | | `0x46` - Dimethyl Disulphide – C<sub>2</sub>H<sub>6</sub>S<sub>2</sub>
+| `0x41` - Trimethylamine – C<sub>3</sub>H<sub>9</sub>N               | | `0x42` - Dimethylamine – C<sub>2</sub>H<sub>7</sub>N
+| `0x43` - Ethyl Alcohol (Ethanol) – C<sub>2</sub>H<sub>6</sub>O      | | `0x44` - Carbon Disulphide – CS<sub>2</sub>
+| `0x45` - Ethanethiol – C<sub>2</sub>H<sub>6</sub>S                  | | `0x46` - Dimethyl Disulphide – C<sub>2</sub>H<sub>6</sub>S<sub>2</sub>
 | `0x47` - Ethylene – C<sub>2</sub>H<sub>4</sub>                      | | `0x48` - Methanol – CH<sub>3</sub>OH
 | `0x49` - Benzene – C<sub>6</sub>H<sub>6</sub>                       | | `0x4A` - Paraxylene – C<sub>8</sub>H<sub>10</sub>
 | `0x4B` - Toluene – C<sub>7</sub>H<sub>8</sub>                       | | `0x4C` - Acetic Acid – CH<sub>3</sub>COOH
-| `0x4D` - Chlorine Dioxide – ClO<sub>2</sub>              | | `0x4E` - Hydrogen Peroxide – H<sub>2</sub>O<sub>2</sub>
+| `0x4D` - Chlorine Dioxide – ClO<sub>2</sub>                         | | `0x4E` - Hydrogen Peroxide – H<sub>2</sub>O<sub>2</sub>
 | `0x4F` - Nitrogen Hydride (Hydrazine) – N<sub>2</sub>H<sub>4</sub>  | | `0x50` - Ethylenediamine – C<sub>2</sub>H<sub>8</sub>N<sub>2</sub>
 | `0x51` - Trichloroethylene – C<sub>2</sub>HCl<sub>3</sub>           | | `0x52` - Trichloromethane (Chloroform) – CHCl<sub>3</sub>
 | `0x53` - 1,1,1-Trichloroethane – C<sub>2</sub>H<sub>3</sub>Cl<sub>3</sub> | | `0x54` - Hydrogen Selenide – H<sub>2</sub>Se
