@@ -4,7 +4,7 @@
 
 Online decoder can be found here: [Live Decoder](https://synetica.github.io/enlink-decoder/)
 
-> Latest firmware release is v6.14.
+> Latest firmware release is v7.01.
 
 ## Table of Contents
 - [Preamble](#preamble)
@@ -157,7 +157,7 @@ Link to: [Air / Air-X Downlinks](#air--air-x-downlinks)
 
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| FW-ZNV  | (default) | `0x01`, `0x3B` | Temperature, Humidity
+| FW-ZV  | (default) | `0x01`, `0x3B` | Temperature, Humidity
 
 [Zone View e-paper Display Downlinks](#zone-view-e-paper-display-downlinks)
 
@@ -954,19 +954,38 @@ The following are used in the Zone View product that includes an e-paper display
 
 | Name | Msg Len | Command | Value |
 | ---- | ------- | ------- | ----- |
-| Refresh Interval | 2 | `0x43` | `5` to `30` minutes
+| Screen Refresh Interval | 2 | `0x43` | `5` to `30` minutes
 | Top line of display | 2 | `0x44` | `0`/`1` Temperature or Humidity
 | Temperature Units | 2 | `0x45` | `0`/`1` Celsius or Fahrenheit
 | Comfort Indicator | 2 | `0x46` | `0`/`1`/`2` None/Face/House
-| Comfort Indicator Location | 2 | `0x47` | `0`/`1` Right or Left
-| Comfort Indicator Status based on | 2 | `0x48` | `0`/`1` Downlink Message / Internal rH Sensor
-| Comfort Indicator Status | 2 | `0x49` | `0`/`1`/`2`/`3` None/Dry/Muggy/Damp
+| Comfort Indicator Location | 2 | `0x47` | `0`/`1` Left or Right
+| Comfort Indicator Status based on | 2 | `0x48` | `0`/`1` Internal rH Sensor/Downlink Message
+| Comfort Indicator Status | 2 | `0x49` | `0`/`1`/`2`/`3` None/Dry/Humid/Damp
 | Internal Sensor Logic - Low Threshold | 2 | `0x4A` | `10` to `70` %rH - Below this is `Dry`
 | Internal Sensor Logic - High Threshold | 2 | `0x4B` | `30` to `90` %rH - Above this is `Damp`
+| Help Screen | 2 | `0x4C` | `0`/`1` Disable/Enable
+| Set text for information screens</br>(* use this field for the text index. `0x00` to `0x03` for the 4 information screens. `0x04` for Help text.) | * | `0xD0` | Hexadecimal values for ASCII Text.</br>See example, below.
+| Set text to default | 2 | `0xD1` | Use this field for the text index. `0x00` to `0x03` for the 4 information screens. `0x04` for Help text.
 
 > Example Payload Data: `A5 02 43 0A`
 
 This will set the display refresh interval to 10 minutes.
+
+> Example Payload Data: `A5 02 48 01`
+
+This will set the comfort icon logic to use a downlink message (`0x49`)
+
+> Example Payload Data: `A5 02 49 02`
+
+Show the comfort icon as `Humid`
+
+> Example Payload Data: `A5 02 4C 01`
+
+Enable the Help Screen (Disabled by default)
+
+> Example Payload Data: `A5 03 D0 48 65 6C 6C 6F 20 57 6F 72 6C 64`
+
+Set the text for the `Damp` (index `0x03`) comfort icon as `Hello World`. Up to 240 characters can be sent at SF7.
 
 </br>
 

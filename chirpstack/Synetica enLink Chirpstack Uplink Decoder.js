@@ -1,5 +1,5 @@
 // Synetica Payload Decoder for Chirpstack v3 and v4
-// 26 Jun 2024 (FW Ver:6.14)
+// 08 Nov 2024 (FW Ver:7.01)
 // https://github.com/synetica/enlink-decoder
 
 // Uplink Data
@@ -268,13 +268,32 @@ var ENLINK_LEAK_LOWER_HYST = 0x39;
 var ENLINK_LEAK_SAMPLE_TIME_S = 0x3A;
 var ENLINK_LEAK_TEST_DURATION = 0x3B;
 
+// Radio packet includes for VOC and Particulate sensors
 var ENLINK_BME680_PKT_INC = 0x3C;
 var ENLINK_SPS30_PKT_INC = 0x3D;
 var ENLINK_PIERA_PKT_INC = 0x3E;
 
+// Diff Press/ Air Flow Settings
 var ENLINK_DP_PKT_INC = 0x3F;
 var ENLINK_DP_AUTO_ZERO = 0x40;
 var ENLINK_DP_SET_DELTA = 0x41;
+
+// Radio packet includes for TVOC sensor
+var ENLINK_ZMOD4410_PKT_INC = 0x42;
+
+// Options for the Zone View e-paper
+var ENLINK_ZV_SCN_REFRESH_INT = 0x43;
+var ENLINK_ZV_DISPLAY_TOPLINE = 0x44;
+var ENLINK_ZV_DISPLAY_TEMP_UNITS = 0x45;
+var ENLINK_ZV_DISPLAY_COMF_ICON_TYPE = 0x46;
+var ENLINK_ZV_DISPLAY_COMF_LOCN = 0x47;
+var ENLINK_ZV_COMF_LOGIC = 0x48;
+var ENLINK_ZV_DISPLAY_COMF_ICON_STATUS = 0x49;
+var ENLINK_ZV_INT_LOGIC_LOW_THRESH = 0x4A;
+var ENLINK_ZV_INT_LOGIC_HIGH_THRESH = 0x4B;
+var ENLINK_ZV_HELP_SCN_ENABLE = 0x4C;
+var ENLINK_ZV_SET_TEXT = 0xD0;
+var ENLINK_ZV_SET_TEXT_TO_DEFAULT = 0xD1;
 
 var ENLINK_REBOOT = 0xFF;
 
@@ -1592,6 +1611,34 @@ function decodeStdResponse(data) {
                     obj.command = "DP/AF trigger Auto-Zero process";
                 } else if (data[i + 2] == ENLINK_DP_SET_DELTA) {
                     obj.command = "Set DP/AF delta offset";
+
+                } else if (data[i + 2] == ENLINK_ZMOD4410_PKT_INC) {
+                    obj.command = "Set TVOC Sensor packet includes";
+
+                } else if (data[i + 2] == ENLINK_ZV_SCN_REFRESH_INT) {
+                    obj.command = "Set Zone View Screen Refresh rate";
+                } else if (data[i + 2] == ENLINK_ZV_DISPLAY_TOPLINE) {
+                    obj.command = "Set Zone View display top line option";
+                } else if (data[i + 2] == ENLINK_ZV_DISPLAY_TEMP_UNITS) {
+                    obj.command = "Set Zone View display temperature unit";
+                } else if (data[i + 2] == ENLINK_ZV_DISPLAY_COMF_ICON_TYPE) {
+                    obj.command = "Set Zone View display comfort icon type";
+                } else if (data[i + 2] == ENLINK_ZV_DISPLAY_COMF_LOCN) {
+                    obj.command = "Set Zone View display comfort icon location";
+                } else if (data[i + 2] == ENLINK_ZV_COMF_LOGIC) {
+                    obj.command = "Set Zone View comfort logic";
+                } else if (data[i + 2] == ENLINK_ZV_DISPLAY_COMF_ICON_STATUS) {
+                    obj.command = "Set Zone View display comfort icon status";
+                } else if (data[i + 2] == ENLINK_ZV_INT_LOGIC_LOW_THRESH) {
+                    obj.command = "Set Zone View internal logic low threshold";
+                } else if (data[i + 2] == ENLINK_ZV_INT_LOGIC_HIGH_THRESH) {
+                    obj.command = "Set Zone View internal logic high threshold";
+                } else if (data[i + 2] == ENLINK_ZV_HELP_SCN_ENABLE) {
+                    obj.command = "Enable/Disable Zone View Help Screen";
+                } else if (data[i + 2] == ENLINK_ZV_SET_TEXT) {
+                    obj.command = "Set Zone View text string";
+                } else if (data[i + 2] == ENLINK_ZV_SET_TEXT_TO_DEFAULT) {
+                    obj.command = "Set Zone View text string to factory default";
 
                 } else if (data[i + 2] == ENLINK_REBOOT) {
                     obj.command = "Reboot";

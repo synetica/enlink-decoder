@@ -1,5 +1,5 @@
 // Synetica enLink Zone / Zone 2 / Zone View Codec for Chirpstack v3 and v4
-// 16 Sep 2024 (FW Ver:6.15)
+// 08 Nov 2024 (FW Ver:7.01)
 // https://github.com/synetica/enlink-decoder
 
 /* Uplink Data */
@@ -24,6 +24,12 @@ var ENLINK_CO2 = 0x08;
 var ENLINK_DETECTION_COUNT = 0x13;
 var ENLINK_OCC_TIME = 0x14;
 
+// I (PBAQ)
+var ENLINK_MIN_TVOC = 0x36;
+var ENLINK_AVG_TVOC = 0x37;
+var ENLINK_MAX_TVOC = 0x38;
+var ENLINK_ETOH = 0x39;
+var ENLINK_TVOC_IAQ = 0x3A;
 
 // Optional KPI values that can be included in the message
 var ENLINK_CPU_TEMP_DEP = 0x40;
@@ -80,6 +86,23 @@ var ENLINK_SET_GSS_CO2_INIT_INTERVAL = 0x2A;
 
 // Radio packet includes for VOC sensor
 var ENLINK_BME680_PKT_INC = 0x3C;
+
+// Radio packet includes for TVOC sensor
+var ENLINK_ZMOD4410_PKT_INC = 0x42;
+
+// Options for the Zone View e-paper
+var ENLINK_ZV_SCN_REFRESH_INT = 0x43;
+var ENLINK_ZV_DISPLAY_TOPLINE = 0x44;
+var ENLINK_ZV_DISPLAY_TEMP_UNITS = 0x45;
+var ENLINK_ZV_DISPLAY_COMF_ICON_TYPE = 0x46;
+var ENLINK_ZV_DISPLAY_COMF_LOCN = 0x47;
+var ENLINK_ZV_COMF_LOGIC = 0x48;
+var ENLINK_ZV_DISPLAY_COMF_ICON_STATUS = 0x49;
+var ENLINK_ZV_INT_LOGIC_LOW_THRESH = 0x4A;
+var ENLINK_ZV_INT_LOGIC_HIGH_THRESH = 0x4B;
+var ENLINK_ZV_HELP_SCN_ENABLE = 0x4C;
+var ENLINK_ZV_SET_TEXT = 0xD0;
+var ENLINK_ZV_SET_TEXT_TO_DEFAULT = 0xD1;
 
 var ENLINK_REBOOT = 0xFF;
 
@@ -199,6 +222,27 @@ function decodeTelemetry(data) {
                 i += 4;
                 break;
 
+            // I
+            case ENLINK_MIN_TVOC:
+                obj.tvoc_min_mg_m3 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+                i += 4;
+                break;
+            case ENLINK_AVG_TVOC:
+                obj.tvoc_avg_mg_m3 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+                i += 4;
+                break;
+            case ENLINK_MAX_TVOC:
+                obj.tvoc_max_mg_m3 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+                i += 4;
+                break;
+            case ENLINK_ETOH: // Ethanol equivalent
+                obj.etoh_ppm = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+                i += 4;
+                break;
+            case ENLINK_TVOC_IAQ:
+                obj.tvoc_iaq = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+                i += 4;
+                break;
 
             // < -------------------------------------------------------------------------------->
             // Optional KPIs
@@ -338,6 +382,34 @@ function decodeStdResponse(data) {
 
                 } else if (data[i + 2] == ENLINK_BME680_PKT_INC) {
                     obj.command = "Set VOC Sensor packet includes";
+
+                } else if (data[i + 2] == ENLINK_ZMOD4410_PKT_INC) {
+                    obj.command = "Set TVOC Sensor packet includes";
+
+                } else if (data[i + 2] == ENLINK_ZV_SCN_REFRESH_INT) {
+                    obj.command = "Set Zone View Screen Refresh rate";
+                } else if (data[i + 2] == ENLINK_ZV_DISPLAY_TOPLINE) {
+                    obj.command = "Set Zone View display top line option";
+                } else if (data[i + 2] == ENLINK_ZV_DISPLAY_TEMP_UNITS) {
+                    obj.command = "Set Zone View display temperature unit";
+                } else if (data[i + 2] == ENLINK_ZV_DISPLAY_COMF_ICON_TYPE) {
+                    obj.command = "Set Zone View display comfort icon type";
+                } else if (data[i + 2] == ENLINK_ZV_DISPLAY_COMF_LOCN) {
+                    obj.command = "Set Zone View display comfort icon location";
+                } else if (data[i + 2] == ENLINK_ZV_COMF_LOGIC) {
+                    obj.command = "Set Zone View comfort logic";
+                } else if (data[i + 2] == ENLINK_ZV_DISPLAY_COMF_ICON_STATUS) {
+                    obj.command = "Set Zone View display comfort icon status";
+                } else if (data[i + 2] == ENLINK_ZV_INT_LOGIC_LOW_THRESH) {
+                    obj.command = "Set Zone View internal logic low threshold";
+                } else if (data[i + 2] == ENLINK_ZV_INT_LOGIC_HIGH_THRESH) {
+                    obj.command = "Set Zone View internal logic high threshold";
+                } else if (data[i + 2] == ENLINK_ZV_HELP_SCN_ENABLE) {
+                    obj.command = "Enable/Disable Zone View Help Screen";
+                } else if (data[i + 2] == ENLINK_ZV_SET_TEXT) {
+                    obj.command = "Set Zone View text string";
+                } else if (data[i + 2] == ENLINK_ZV_SET_TEXT_TO_DEFAULT) {
+                    obj.command = "Set Zone View text string to factory default";
 
                 } else if (data[i + 2] == ENLINK_REBOOT) {
                     obj.command = "Reboot";
