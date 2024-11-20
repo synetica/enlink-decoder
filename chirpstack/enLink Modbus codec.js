@@ -1,5 +1,5 @@
 // Synetica enLink Modbus Codec for Chirpstack v3 and v4
-// 18 August 2023 (FW Ver:3.6)
+// 14 Nov 2024 (FW Ver:7.02)
 // https://github.com/synetica/enlink-decoder
 
 // Uplink Data
@@ -44,6 +44,12 @@ var ENLINK_SET_POW_INDEX = 0x0D;   // Data Rate Index 0~6
 var ENLINK_SET_RX_PORT = 0x0E;
 var ENLINK_SET_JC_INTERVAL = 0x0F;    // Join Check Interval
 var ENLINK_SET_JC_PKT_TYPE = 0x10;    // Join Check Packet Type
+var ENLINK_SET_ATI_MIN = 0x11;
+var ENLINK_SET_ATI_MAX = 0x12;
+var ENLINK_SET_FULL_PKT_MUL = 0x13;
+var ENLINK_SET_WELL_DEFAULT = 0x14;
+var ENLINK_SET_KPI_INCLUDES_DIRECT = 0x15;
+var ENLINK_SET_KPI_INCLUDES_INDEX = 0x16;
 
 var ENLINK_REBOOT = 0xFF;
 
@@ -386,7 +392,19 @@ function decodeStdResponse(data) {
                     obj.command = "Set Join Check Interval";
                 } else if (data[i + 2] == ENLINK_SET_JC_PKT_TYPE) {
                     obj.command = "Set Join Check Packet Type";
-
+                } else if (data[i + 2] == ENLINK_SET_ATI_MIN) {
+                    obj.command = "Set ATI Min";
+                } else if (data[i + 2] == ENLINK_SET_ATI_MAX) {
+                    obj.command = "Set ATI Max";
+                } else if (data[i + 2] == ENLINK_SET_FULL_PKT_MUL) {
+                    obj.command = "Set Full Packet Multiplier";
+                } else if (data[i + 2] == ENLINK_SET_WELL_DEFAULT) {
+                    obj.command = "Set WELL defaults";
+                } else if (data[i + 2] == ENLINK_SET_KPI_INCLUDES_DIRECT) {
+                    obj.command = "Set KPI Includes";
+                } else if (data[i + 2] == ENLINK_SET_KPI_INCLUDES_INDEX) {
+                    obj.command = "Set KPI Includes";
+                    
                 } else if (data[i + 2] == ENLINK_REBOOT) {
                     obj.command = "Reboot";
                 } else {

@@ -4,7 +4,7 @@
 
 Online decoder can be found here: [Live Decoder](https://synetica.github.io/enlink-decoder/)
 
-> Latest firmware release is v7.01.
+> Latest firmware release is v7.02.
 
 ## Table of Contents
 - [Preamble](#preamble)
@@ -153,7 +153,7 @@ Link to: [Air / Air-X Downlinks](#air--air-x-downlinks)
 ## enLink Zone View
 
 > [enLink Zone View Web Page](https://synetica.net/enlink-zone-view/)
-> [enLink Zone View Home Web Page](https://synetica.net/enlink-zone-view-home/)
+</br> [enLink Zone View Home Web Page](https://synetica.net/enlink-zone-view-home/)
 
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
@@ -586,6 +586,13 @@ When the enLink device receives a downlink message, it first checks the port byt
 | Set Join Check Packet Type (v5.07) | 2 | `0x10` | `0` = 'Standard' or `1` = 'Single Byte' of value `0x00`
 | [ATI](#ati---adaptive-transmission-interval) Min TX Interval Index (v5.08) | 2  | `0x11` | `1` to `11`
 | [ATI](#ati---adaptive-transmission-interval) Max TX Interval Index (v5.08) | 2  | `0x12` | `1` to `11`
+| Disable/Enable KPI values in radio packet | 5  | `0x15` | `0x0000` to `0x3FFF` Each bit corresponds to the 14 KPI messages `0x41` to `0x4E`
+| Disable/Enable KPI values in radio packet: Alternative method | 5  | `0x16` | First byte is the index: 0 to 14. `0x00` to `0x0E`. Index corresponds to the 15 KPI messages `0x40` to `0x4E`. Second byte is either off or on, `0x00`, `0x01`
+
+### WELL Specfic Downlink Messages
+
+| Name | Msg Len | Command | Value |
+| -----| ------- | ------- | ------|
 | * Set Full Packet Multiplier (v5.12) | 2 | `0x13` | `1` to `200`
 | ** Set WELL defaults (v5.12) | 2 | `0x14` | `1`
 
@@ -618,15 +625,60 @@ Particulates included data packets: PM 2.5 and PM 10.0 only
 
 > Payload Data: `A5 02 09 01`
 
+### Set included KPIs - First Method
+
+Available from v7.02 onwards.
+
+This uses a bit-map to enable/disable all KPI options in one message.
+
+| Example Setting | Message |
+| --------------- | ------- |
+| Include Battery Status and Battery Voltage | `A5 03 15 60 00`
+| Include RX RSSI, RX SNR and CPU Temperature (0x4E) | `A5 03 15 18 02`
+
+| Byte 1 |    | Byte 2 |
+| ------ | -- | ------ |
+| Bit 0 - Transmit power (0x47)         | | Bit 0 - n/a
+| Bit 1 - Transmit Time (0x46)          | | Bit 1 - CPU Temperature (0x4E)
+| Bit 2 - Downlink message count (0x45) | | Bit 2 - Air Fan Run Time (0x4D)
+| Bit 3 - Received SNR  (0x44)          | | Bit 3 - Login Fail Count (0x4C)
+| Bit 4 - Received RSSI (0x43)          | | Bit 4 - Login OK Count (0x4B)
+| Bit 5 - Battery Voltage (0x42)        | | Bit 5 - USB Insert Count (0x4A)
+| Bit 6 - Battery Status (0x41)         | | Bit 6 - Power up count (0x49)
+| Bit 7 - CPU Temperature (0x40)        | | Bit 7 - Transmit message count (0x48)
+
+### Set included KPIs - Second Method
+
+Available from v7.02 onwards.
+
+This uses a message to enable/disable a single KPI at a time. The message is a simple `index` byte followed by the disable/enable byte `0x00`/`0x01`.
+
+| Index - KPI |    | Index - KPI |
+| ------ | -- | ------ |
+| `0x00` - CPU Temperature (0x40)        | | `0x08` - Transmit message count (0x48)
+| `0x01` - Battery Status (0x41)         | | `0x09` - Power up count (0x49)
+| `0x02` - Battery Voltage (0x42)        | | `0x0A` - USB Insert Count (0x4A)
+| `0x03` - Received RSSI (0x43)          | | `0x0B` - Login OK Count (0x4B)
+| `0x04` - Received SNR  (0x44)          | | `0x0C` - Login Fail Count (0x4C)
+| `0x05` - Downlink message count (0x45) | | `0x0D` - Air Fan Run Time (0x4D)
+| `0x06` - Transmit Time (0x46)          | | `0x0E` - CPU Temperature (0x4E)
+| `0x07` - Transmit power (0x47)         | | 
+
+| Example Setting | Message |
+| --------------- | ------- |
+| Include Battery Status (0x41) | `A5 03 16 01 01`
+| Include Battery Voltage (0x42) | `A5 03 16 02 01`
+| Disable Battery Voltage (0x42) | `A5 03 16 02 00`
+
 </br>
 
 ## Example Uplink Replies to Downlink Messages
 
-**ACK** (`0x06`) - Successfully changed the Message Confirmation Option (`0x09`)
+**ACK** `0x06` - Successfully changed the Message Confirmation Option (`0x09`)
 
 > Return Data: `A5 06 09`
 
-**NACK** (`0x15`) - failed to change the Transmit Port (`0x0A`)
+**NACK** `0x15` - failed to change the Transmit Port (`0x0A`)
 
 > Return Data: `A5 15 0A`
 
@@ -730,9 +782,10 @@ Set the bit value to `1` to include the data value; `0` to exclude it.
 - Bit 6 - Not used
 - Bit 7 - Not used
 
-> Example Payload Data: `A5 02 3C 0C`
+Example:
 
-This will include the `bVOC` and `IAQ` data values.
+> To include the `bVOC` and `IAQ` data values: </br>
+> Payload Data: `A5 02 3C 0C`
 
 ### TVOC Sensor Downlinks
 
@@ -757,9 +810,10 @@ Set the bit value to `1` to include the data value; `0` to exclude it.
 
 > Note: The Minimum, Average and Maximum are calculated between radio transmissions. The `PBAQ` version samples every 5 seconds.
 
-> Example Payload Data: `A5 02 42 0C`
+Example:
 
-This will include the `Maximum TVOC` and the `Latest EtOH reading` data values.
+> To include the `Maximum TVOC` and the `Latest EtOH reading` data values: </br>
+> Payload Data: `A5 02 42 0C`
 
 ### Carbon Dioxide Sensor Downlinks
 
@@ -775,25 +829,13 @@ The following are used in devices with CO<sub>2</sub> sensor
 | Set the Out-of-Bounds limits<br />**Only GSS model** | 3 | `0x29` | `10` to `5000` ppm (`0x000A` to `0x1388`)
 | Set initial auto-cal interval<br />**Only GSS model** | 3 | `0x2A` | `1` to `8760` hours (`0x0001` to `0x2238`)
 
-To Enable Auto-Calibration:
-
-> Payload Data: `A5 02 24 01`
-
-To set the auto-calibration target to 450ppm
-
-> Payload Data: `A5 03 25 01 C2`
-
-To set the sensor to known CO<sub>2</sub> concentration of 780ppm (`0x030C`)
-
-> Payload Data: `A5 03 26 03 0C`
-
-To reset the sensor back to factory calibration (Sunrise Only)
-
-> Payload Data: `A5 01 27`
-
-To set the auto-calibration interval to 10 days (240 hours, `0x00F0`)
-
-> Payload Data: `A5 03 28 00 F0`
+| Example Setting | Message |
+| --------------- | ------- |
+| Enable Auto-Calibration | `A5 02 24 01`
+| Set the auto-calibration target to 450ppm | `A5 03 25 01 C2`
+| Set the sensor to known CO<sub>2</sub> concentration of 780ppm (`0x030C`) | `A5 03 26 03 0C`
+| To reset the sensor back to factory calibration (Sunrise Only) | `A5 01 27`
+| Set the auto-calibration interval to 10 days (240 hours, `0x00F0`) | `A5 03 28 00 F0`
 
 ### Particulate Sensor Downlinks
 
@@ -810,13 +852,10 @@ The following are used in devices with particulate sensors
 
 'Message Include' is for setting which data values are included in the transmitted radio packets. Sending smaller radio packets size will reduce battery consumption.
 
-Examples: To set the fan run period to 35 seconds:
-
-> Payload Data: `A5 02 2B 23`
-
-To set the cleaning interval to 8 days (192 hours, `0x00C0`)
-
-> Payload Data: `A5 03 2C 00 C0`
+| Example Setting | Message |
+| --------------- | ------- |
+| Set the fan run period to 35 seconds | `A5 02 2B 23`
+| Set the cleaning interval to 8 days (192 hours, `0x00C0`) | `A5 03 2C 00 C0`
 
 For the 'Message Include' settings, you should set the bit value to `1` to include the data value; `0` to exclude it.
 
@@ -825,18 +864,19 @@ For the 'Message Include' settings, you should set the bit value to `1` to inclu
 
 | Byte 1 | | Byte 2 |
 | ---- | -- | ------- |
-| Bit 0 - `PM 1.0` | | Bit 0 - `PC 10.0`
-| Bit 1 - `PM 2.5` | | Bit 1 - `Typical Particle Size`
-| Bit 2 - `PM 4.0` | | Bit 2 - Not used
+| Bit 0 - `PM 1.0`  | | Bit 0 - `PC 10.0`
+| Bit 1 - `PM 2.5`  | | Bit 1 - `Typical Particle Size`
+| Bit 2 - `PM 4.0`  | | Bit 2 - Not used
 | Bit 3 - `PM 10.0` | | Bit 3 - Not used
-| Bit 4 - `PC 0.5` | | Bit 4 - Not used
-| Bit 5 - `PC 1.0` | | Bit 5 - Not used
-| Bit 6 - `PC 2.5` | | Bit 6 - Not used
-| Bit 7 - `PC 4.0` | | Bit 7 - Not used
+| Bit 4 - `PC 0.5`  | | Bit 4 - Not used
+| Bit 5 - `PC 1.0`  | | Bit 5 - Not used
+| Bit 6 - `PC 2.5`  | | Bit 6 - Not used
+| Bit 7 - `PC 4.0`  | | Bit 7 - Not used
 
-> Example Payload Data: `A5 03 3D 0A 02`
+Example:
 
-This will include `PM 10.0`, `PM 2.5` and `Typical Particle Size` data values.
+> To include `PM 10.0`, `PM 2.5` and `Typical Particle Size` data values: </br>
+> Payload Data: `A5 03 3D 0A 02`
 
 </br>
 
@@ -850,13 +890,10 @@ This will include `PM 10.0`, `PM 2.5` and `Typical Particle Size` data values.
 
 'Message Include' is for setting which data values are included in the transmitted radio packets. Sending smaller radio packets size will reduce battery consumption.
 
-Examples: To set the fan run period to 35 seconds:
-
-> Payload Data: `A5 02 2B 23`
-
-To set the cleaning interval to 8 days (192 hours, `0x00C0`)
-
-> Payload Data: `A5 03 2C 00 C0`
+| Example Setting | Message |
+| --------------- | ------- |
+| Set the fan run period to 35 seconds | `A5 02 2B 23`
+| Set the cleaning interval to 8 days (192 hours, `0x00C0`) | `A5 03 2C 00 C0`
 
 For the 'Message Include' settings, you should set the bit value to `1` to include the data value; `0` to exclude it.
 
@@ -874,9 +911,8 @@ For the 'Message Include' settings, you should set the bit value to `1` to inclu
 | Bit 6 - `PM 10.0` | | Bit 6 - `PC 10.0`
 | Bit 7 - Not used | | Bit 7 - Not used
 
-> Example Payload Data:  `A5 03 3E 59 08`
-
-This will include `PM 10.0`, `PM 2.5`, `PM 1.0`, `PM 0.5` and `PC 1.0` data values.
+> To include `PM 10.0`, `PM 2.5`, `PM 1.0`, `PM 0.5` and `PC 1.0` data values: </br>
+> Payload Data:  `A5 03 3E 59 08`
 
 </br>
 
@@ -918,7 +954,7 @@ The following are used in the enLink Status Leak Sensor.
 Note: All options are shown. However, for the supplied leak cable, the Alarm Mode should be set to **Low Threshold** (2). Low alarm level to **1000 kOhms** with a Low hysteresis of **100 kOhms**.
 
 | Example Setting | Message |
-| ---- | ------- |
+| --------------- | ------- |
 | Mode = Low Threshold | `A5 02 35 02`
 | Low Alarm Level = 1000 kOhm | `A5 03 38 03 E8`
 | Low Hysteresis = 100 kOhm | `A5 03 39 01 2C`
@@ -939,7 +975,7 @@ The following over-the-air settings are used for the enLink Status Differential 
 > Note: When the device receives a `Zero reading` downlink message it performs a measurement and uses the result as a delta offset value, effectively causing the reading to be zero.
 
 | Example Setting | Message |
-| ---- | ------- |
+| --------------- | ------- |
 | Only transmit pressure value | `A5 02 3F 00`
 | Zero the reading | `A5 01 40`
 | Set delta offset to `-1.234` | `A5 05 41 BF 9D F3 B6`
@@ -948,7 +984,7 @@ For an online value converter, see [Hex to Float Converter](https://gregstoll.co
 
 ### Zone View e-paper Display Downlinks
 
-Available from v6.09 onwards.
+Available from v7.01 onwards.
 
 The following are used in the Zone View product that includes an e-paper display.
 
@@ -959,7 +995,7 @@ The following are used in the Zone View product that includes an e-paper display
 | Temperature Units | 2 | `0x45` | `0`/`1` Celsius or Fahrenheit
 | Comfort Indicator | 2 | `0x46` | `0`/`1`/`2` None/Face/House
 | Comfort Indicator Location | 2 | `0x47` | `0`/`1` Left or Right
-| Comfort Indicator Status based on | 2 | `0x48` | `0`/`1` Internal rH Sensor/Downlink Message
+| Comfort Indicator Status logic based on | 2 | `0x48` | `0`/`1` Internal rH Sensor/Downlink Message
 | Comfort Indicator Status | 2 | `0x49` | `0`/`1`/`2`/`3` None/Dry/Humid/Damp
 | Internal Sensor Logic - Low Threshold | 2 | `0x4A` | `10` to `70` %rH - Below this is `Dry`
 | Internal Sensor Logic - High Threshold | 2 | `0x4B` | `30` to `90` %rH - Above this is `Damp`
@@ -967,28 +1003,18 @@ The following are used in the Zone View product that includes an e-paper display
 | Set text for information screens</br>(* use this field for the text index. `0x00` to `0x03` for the 4 information screens. `0x04` for Help text.) | * | `0xD0` | Hexadecimal values for ASCII Text.</br>See example, below.
 | Set text to default | 2 | `0xD1` | Use this field for the text index. `0x00` to `0x03` for the 4 information screens. `0x04` for Help text.
 
-> Example Payload Data: `A5 02 43 0A`
+| Example Setting | Message |
+| --------------- | ------- |
+| To set the display refresh interval to 10 minutes                        | `A5 02 43 0A`
+| To set the comfort icon logic to use a downlink message (`0x49`)         | `A5 02 48 01`
+| Show the comfort icon as `Humid`                                         | `A5 02 49 02`
+| Enable the Help Screen (Disabled by default)                             | `A5 02 4C 01`
+| Set the text for the `Damp` (index `0x03`) comfort icon as `Hello World` | `A5 03 D0 48 65 6C 6C 6F 20 57 6F 72 6C 64`
 
-This will set the display refresh interval to 10 minutes.
-
-> Example Payload Data: `A5 02 48 01`
-
-This will set the comfort icon logic to use a downlink message (`0x49`)
-
-> Example Payload Data: `A5 02 49 02`
-
-Show the comfort icon as `Humid`
-
-> Example Payload Data: `A5 02 4C 01`
-
-Enable the Help Screen (Disabled by default)
-
-> Example Payload Data: `A5 03 D0 48 65 6C 6C 6F 20 57 6F 72 6C 64`
-
-Set the text for the `Damp` (index `0x03`) comfort icon as `Hello World`. Up to 240 characters can be sent at SF7.
+The 'Set Text' feature can send up to 239 characters at SF7. Special formatting characters are available. See the device configuration screens via the USB connection for more information.
 
 </br>
 
 # Sample CODECs for Decoding Messages
 
-Examples for decoding these messages are included in the folders on this site. These include all the sensor options to give basic decoding to enable feedback  during evaluation and commissioning. If you require these messages in your system, please modify the code to suit your platform.
+Examples for decoding these messages are included in the folders on this site. These include all the sensor options to give basic decoding to enable feedback during evaluation and commissioning. If you require these messages in your system, please modify the code to suit your platform.

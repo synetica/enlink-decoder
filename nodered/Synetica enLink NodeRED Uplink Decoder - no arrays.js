@@ -1,5 +1,5 @@
 // Used for decoding enLink Uplink LoRa Messages
-// 08 Nov 2024 (FW Ver:7.01)
+// 14 Nov 2024 (FW Ver:7.02)
 // https://github.com/synetica/enlink-decoder
 
 // --------------------------------------------------------------------------------------
@@ -218,6 +218,9 @@ const ENLINK_SET_ATI_MIN = 0x11;
 const ENLINK_SET_ATI_MAX = 0x12;
 const ENLINK_SET_FULL_PKT_MUL = 0x13;
 const ENLINK_SET_WELL_DEFAULT = 0x14;
+
+const ENLINK_SET_KPI_INCLUDES_DIRECT = 0x15;
+const ENLINK_SET_KPI_INCLUDES_INDEX = 0x16;
 
 const ENLINK_SET_LUX_SCALE = 0x20;
 const ENLINK_SET_LUX_OFFSET = 0x21;
@@ -1798,6 +1801,10 @@ function decodeStdResponse(data) {
                     obj.command = "Set Full Packet Multiplier";
                 } else if (data[i + 2] == ENLINK_SET_WELL_DEFAULT) {
                     obj.command = "Set WELL defaults";
+                } else if (data[i + 2] == ENLINK_SET_KPI_INCLUDES_DIRECT) {
+                    obj.command = "Set KPI Includes";
+                } else if (data[i + 2] == ENLINK_SET_KPI_INCLUDES_INDEX) {
+                    obj.command = "Set KPI Includes";
 
                 } else if (data[i + 2] == ENLINK_SET_LUX_SCALE) {
                     obj.command = "Set LUX Scale";

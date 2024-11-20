@@ -208,6 +208,7 @@ function js_decoder(msg) {
     const ENLINK_ACK = 0x06;
     const ENLINK_NACK = 0x15;
     // Downlink reply message values
+    const ENLINK_SET_ANTENNA_GAIN = 0x01;
     const ENLINK_SET_PUBLIC = 0x02;
     const ENLINK_SET_APPEUI = 0x05; // 8 bytes
     const ENLINK_SET_APPKEY = 0x06; // 16 bytes
@@ -219,13 +220,22 @@ function js_decoder(msg) {
     const ENLINK_SET_TX_INDEX = 0x0c; // Data Rate Index 0~10
     const ENLINK_SET_POW_INDEX = 0x0d; // Data Rate Index 0~6
     const ENLINK_SET_RX_PORT = 0x0e;
-
+    const ENLINK_SET_JC_INTERVAL = 0x0f;    // Join Check Interval
+    const ENLINK_SET_JC_PKT_TYPE = 0x10;    // Join Check Packet Type
+    const ENLINK_SET_ATI_MIN = 0x11;
+    const ENLINK_SET_ATI_MAX = 0x12;
+    const ENLINK_SET_FULL_PKT_MUL = 0x13;
+    const ENLINK_SET_WELL_DEFAULT = 0x14;
+    
+    const ENLINK_SET_KPI_INCLUDES_DIRECT = 0x15;
+    const ENLINK_SET_KPI_INCLUDES_INDEX = 0x16;
+    
     const ENLINK_SET_LUX_SCALE = 0x20;
     const ENLINK_SET_LUX_OFFSET = 0x21;
-
+    
     const ENLINK_SET_CASE_FAN_RUN_TIME = 0x22;
     const ENLINK_SET_HPM_FAN_RUN_TIME = 0x23;
-
+    
     // CO2 Sensors
     const ENLINK_SET_CO2_CALIB_ENABLE = 0x24;
     const ENLINK_SET_CO2_TARGET_PPM = 0x25;
@@ -236,6 +246,57 @@ function js_decoder(msg) {
     // 0x29,0x30 GSS CO2 Only
     const ENLINK_SET_GSS_CO2_OOB_LIMITS = 0x29;
     const ENLINK_SET_GSS_CO2_INIT_INTERVAL = 0x2a;
+    
+    // Set PM options
+    const ENLINK_SET_PM_RUN_PERIOD = 0x2b;
+    const ENLINK_SET_PM_CLEANING_PERIOD = 0x2c;
+    
+    // Set Gas Sensor options
+    const ENLINK_SET_GAS_IDLE_STATE = 0x2d;
+    const ENLINK_SET_GAS_PRE_DELAY = 0x2e;
+    const ENLINK_SET_GAS_NUM_READS = 0x2f;
+    const ENLINK_SET_GAS_READ_INT = 0x30;
+    const ENLINK_SET_GAS_AGG_METHOD = 0x31;
+    const ENLINK_SET_GAS_EMA_FACTOR = 0x32;
+    const ENLINK_SET_GAS_TRIM_PPB = 0x33;
+    const ENLINK_SET_GAS_TRIM_UGM3 = 0x34;
+    
+    // Leak Sensor options
+    const ENLINK_LEAK_ALARM_MODE = 0x35;
+    const ENLINK_LEAK_UPPER_ALARM = 0x36;
+    const ENLINK_LEAK_UPPER_HYST = 0x37;
+    const ENLINK_LEAK_LOWER_ALARM = 0x38;
+    const ENLINK_LEAK_LOWER_HYST = 0x39;
+    const ENLINK_LEAK_SAMPLE_TIME_S = 0x3a;
+    const ENLINK_LEAK_TEST_DURATION = 0x3b;
+    
+    // Radio packet includes for VOC and Particulate sensors
+    const ENLINK_BME680_PKT_INC = 0x3c;
+    const ENLINK_SPS30_PKT_INC = 0x3d;
+    const ENLINK_PIERA_PKT_INC = 0x3e;
+    
+    // Diff Press/ Air Flow Settings
+    const ENLINK_DP_PKT_INC = 0x3f;
+    const ENLINK_DP_AUTO_ZERO = 0x40;
+    const ENLINK_DP_SET_DELTA = 0x41;
+    
+    // Radio packet includes for TVOC sensor
+    const ENLINK_ZMOD4410_PKT_INC = 0x42;
+    
+    // Options for the Zone View e-paper
+    const ENLINK_ZV_SCN_REFRESH_INT = 0x43;
+    const ENLINK_ZV_DISPLAY_TOPLINE = 0x44;
+    const ENLINK_ZV_DISPLAY_TEMP_UNITS = 0x45;
+    const ENLINK_ZV_DISPLAY_COMF_ICON_TYPE = 0x46;
+    const ENLINK_ZV_DISPLAY_COMF_LOCN = 0x47;
+    const ENLINK_ZV_COMF_LOGIC = 0x48;
+    const ENLINK_ZV_DISPLAY_COMF_ICON_STATUS = 0x49;
+    const ENLINK_ZV_INT_LOGIC_LOW_THRESH = 0x4a;
+    const ENLINK_ZV_INT_LOGIC_HIGH_THRESH = 0x4b;
+    const ENLINK_ZV_HELP_SCN_ENABLE = 0x4c;
+    const ENLINK_ZV_SET_TEXT = 0xd0;
+    const ENLINK_ZV_SET_TEXT_TO_DEFAULT = 0xd1;
+   
 
     const ENLINK_REBOOT = 0xff;
 
@@ -1362,7 +1423,9 @@ function js_decoder(msg) {
                         obj.reply = "Reply parse failure";
                     }
 
-                    if (data[i + 2] == ENLINK_SET_PUBLIC) {
+                    if (data[i + 2] == ENLINK_SET_ANTENNA_GAIN) {
+                        obj.command = "Set Antenna Gain";
+                    } else if (data[i + 2] == ENLINK_SET_PUBLIC) {
                         obj.command = "Set Public";
                     } else if (data[i + 2] == ENLINK_SET_APPEUI) {
                         obj.command = "Set AppEUI";
@@ -1384,14 +1447,33 @@ function js_decoder(msg) {
                         obj.command = "Set TX Power";
                     } else if (data[i + 2] == ENLINK_SET_RX_PORT) {
                         obj.command = "Set RX Port";
+                    } else if (data[i + 2] == ENLINK_SET_JC_INTERVAL) {
+                        obj.command = "Set Join Check Interval";
+                    } else if (data[i + 2] == ENLINK_SET_JC_PKT_TYPE) {
+                        obj.command = "Set Join Check Packet Type";
+                    } else if (data[i + 2] == ENLINK_SET_ATI_MIN) {
+                        obj.command = "Set ATI Min";
+                    } else if (data[i + 2] == ENLINK_SET_ATI_MAX) {
+                        obj.command = "Set ATI Max";
+                    } else if (data[i + 2] == ENLINK_SET_FULL_PKT_MUL) {
+                        obj.command = "Set Full Packet Multiplier";
+                    } else if (data[i + 2] == ENLINK_SET_WELL_DEFAULT) {
+                        obj.command = "Set WELL defaults";
+                    } else if (data[i + 2] == ENLINK_SET_KPI_INCLUDES_DIRECT) {
+                        obj.command = "Set KPI Includes";
+                    } else if (data[i + 2] == ENLINK_SET_KPI_INCLUDES_INDEX) {
+                        obj.command = "Set KPI Includes";
+
                     } else if (data[i + 2] == ENLINK_SET_LUX_SCALE) {
                         obj.command = "Set LUX Scale";
                     } else if (data[i + 2] == ENLINK_SET_LUX_OFFSET) {
                         obj.command = "Set LUX Offset";
+
                     } else if (data[i + 2] == ENLINK_SET_CASE_FAN_RUN_TIME) {
                         obj.command = "Set Case Fan Run Time";
                     } else if (data[i + 2] == ENLINK_SET_HPM_FAN_RUN_TIME) {
                         obj.command = "Set Particle Sensor Fan Run Time";
+
                     } else if (data[i + 2] == ENLINK_SET_CO2_CALIB_ENABLE) {
                         obj.command = "Set CO2 Sensor Auto-Calib Enable/Disable Flag";
                     } else if (data[i + 2] == ENLINK_SET_CO2_TARGET_PPM) {
@@ -1408,6 +1490,86 @@ function js_decoder(msg) {
                         obj.command = "Set GSS CO2 Sensor OOB Limits";
                     } else if (data[i + 2] == ENLINK_SET_GSS_CO2_INIT_INTERVAL) {
                         obj.command = "Set GSS CO2 Sensor Initial Auto-Calib Interval";
+                       // PM Sensors
+                    } else if (data[i + 2] == ENLINK_SET_PM_RUN_PERIOD) {
+                        obj.command = "Set PM Sensor Run Period";
+                    } else if (data[i + 2] == ENLINK_SET_PM_CLEANING_PERIOD) {
+                        obj.command = "Set PM Sensor Cleaning Interval";
+                        // Gas Sensors
+                    } else if (data[i + 2] == ENLINK_SET_GAS_IDLE_STATE) {
+                        obj.command = "Set Gas Idle State";
+                    } else if (data[i + 2] == ENLINK_SET_GAS_PRE_DELAY) {
+                        obj.command = "Set Gas Preamble Delay";
+                    } else if (data[i + 2] == ENLINK_SET_GAS_NUM_READS) {
+                        obj.command = "Set Gas Number of Reads";
+                    } else if (data[i + 2] == ENLINK_SET_GAS_READ_INT) {
+                        obj.command = "Set Gas Read Interval";
+                    } else if (data[i + 2] == ENLINK_SET_GAS_AGG_METHOD) {
+                        obj.command = "Set Gas Aggregation Method";
+                    } else if (data[i + 2] == ENLINK_SET_GAS_EMA_FACTOR) {
+                        obj.command = "Set Gas EMA Factor";
+                    } else if (data[i + 2] == ENLINK_SET_GAS_TRIM_PPB) {
+                        obj.command = "Set Gas PPB trim value";
+                    } else if (data[i + 2] == ENLINK_SET_GAS_TRIM_UGM3) {
+                        obj.command = "Set Gas UGM3 trim value";
+
+                    } else if (data[i + 2] == ENLINK_LEAK_ALARM_MODE) {
+                        obj.command = "Set Leak Sensor Alarm Mode";
+                    } else if (data[i + 2] == ENLINK_LEAK_UPPER_ALARM) {
+                        obj.command = "Set Leak Sensor High Alarm Level";
+                    } else if (data[i + 2] == ENLINK_LEAK_UPPER_HYST) {
+                        obj.command = "Set Leak Sensor High Hysteresis";
+                    } else if (data[i + 2] == ENLINK_LEAK_LOWER_ALARM) {
+                        obj.command = "Set Leak Sensor Low Alarm Level";
+                    } else if (data[i + 2] == ENLINK_LEAK_LOWER_HYST) {
+                        obj.command = "Set Leak Sensor Low Hysteresis";
+                    } else if (data[i + 2] == ENLINK_LEAK_SAMPLE_TIME_S) {
+                        obj.command = "Set Leak Sensor Sample Time";
+                    } else if (data[i + 2] == ENLINK_LEAK_TEST_DURATION) {
+                        obj.command = "Set Leak Sensor Test Time";
+
+                    } else if (data[i + 2] == ENLINK_BME680_PKT_INC) {
+                        obj.command = "Set VOC Sensor packet includes";
+                    } else if (data[i + 2] == ENLINK_SPS30_PKT_INC) {
+                        obj.command = "Set SPS30 packet includes";
+                    } else if (data[i + 2] == ENLINK_PIERA_PKT_INC) {
+                        obj.command = "Set PIERA/IPS7100 packet includes";
+
+                    } else if (data[i + 2] == ENLINK_DP_PKT_INC) {
+                        obj.command = "Set DP/AF packet includes";
+                    } else if (data[i + 2] == ENLINK_DP_AUTO_ZERO) {
+                        obj.command = "DP/AF trigger Auto-Zero process";
+                    } else if (data[i + 2] == ENLINK_DP_SET_DELTA) {
+                        obj.command = "Set DP/AF delta offset";
+
+                    } else if (data[i + 2] == ENLINK_ZMOD4410_PKT_INC) {
+                        obj.command = "Set TVOC Sensor packet includes";
+
+                    } else if (data[i + 2] == ENLINK_ZV_SCN_REFRESH_INT) {
+                        obj.command = "Set Zone View Screen Refresh rate";
+                    } else if (data[i + 2] == ENLINK_ZV_DISPLAY_TOPLINE) {
+                        obj.command = "Set Zone View display top line option";
+                    } else if (data[i + 2] == ENLINK_ZV_DISPLAY_TEMP_UNITS) {
+                        obj.command = "Set Zone View display temperature unit";
+                    } else if (data[i + 2] == ENLINK_ZV_DISPLAY_COMF_ICON_TYPE) {
+                        obj.command = "Set Zone View display comfort icon type";
+                    } else if (data[i + 2] == ENLINK_ZV_DISPLAY_COMF_LOCN) {
+                        obj.command = "Set Zone View display comfort icon location";
+                    } else if (data[i + 2] == ENLINK_ZV_COMF_LOGIC) {
+                        obj.command = "Set Zone View comfort logic";
+                    } else if (data[i + 2] == ENLINK_ZV_DISPLAY_COMF_ICON_STATUS) {
+                        obj.command = "Set Zone View display comfort icon status";
+                    } else if (data[i + 2] == ENLINK_ZV_INT_LOGIC_LOW_THRESH) {
+                        obj.command = "Set Zone View internal logic low threshold";
+                    } else if (data[i + 2] == ENLINK_ZV_INT_LOGIC_HIGH_THRESH) {
+                        obj.command = "Set Zone View internal logic high threshold";
+                    } else if (data[i + 2] == ENLINK_ZV_HELP_SCN_ENABLE) {
+                        obj.command = "Enable/Disable Zone View Help Screen";
+                    } else if (data[i + 2] == ENLINK_ZV_SET_TEXT) {
+                        obj.command = "Set Zone View text string";
+                    } else if (data[i + 2] == ENLINK_ZV_SET_TEXT_TO_DEFAULT) {
+                        obj.command = "Set Zone View text string to factory default";
+                        
                     } else if (data[i + 2] == ENLINK_REBOOT) {
                         obj.command = "Reboot";
                     } else {

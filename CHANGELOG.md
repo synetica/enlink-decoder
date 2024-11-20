@@ -1,5 +1,11 @@
 # Change Log
 
+## 2024 November Updates
+
+- Updated firmware up to 7.02
+- Added OTA downlinks for KPI inclusion in radio messages
+- Increased downlink messages to Zone View
+
 ## 2024 June Updates
 
 - Updated firmware up to 6.14
