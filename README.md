@@ -625,50 +625,50 @@ Particulates included data packets: PM 2.5 and PM 10.0 only
 
 > Payload Data: `A5 02 09 01`
 
-### Set included KPIs - First Method
+### Set included KPIs - First Method (Command `0x15`)
 
 Available from v7.02 onwards.
 
 This uses a bit-map to enable/disable all KPI options in one message.
+
+| Byte 1 - KPI Name (Uplink Type byte)  |    | Byte 2 - KPI Name (Uplink Type byte) |
+| ------------------------------------- | -- | ------------------------------------ |
+| Bit 0 - Transmit power (0x47)         |    | Bit 0 - n/a
+| Bit 1 - Transmit Time (0x46)          |    | Bit 1 - CPU Temperature (0x4E)
+| Bit 2 - Downlink message count (0x45) |    | Bit 2 - Air Fan Run Time (0x4D)
+| Bit 3 - Received SNR  (0x44)          |    | Bit 3 - Login Fail Count (0x4C)
+| Bit 4 - Received RSSI (0x43)          |    | Bit 4 - Login OK Count (0x4B)
+| Bit 5 - Battery Voltage (0x42)        |    | Bit 5 - USB Insert Count (0x4A)
+| Bit 6 - Battery Status (0x41)         |    | Bit 6 - Power up count (0x49)
+| Bit 7 - CPU Temperature (0x40)        |    | Bit 7 - Transmit message count (0x48)
 
 | Example Setting | Message |
 | --------------- | ------- |
 | Include Battery Status and Battery Voltage | `A5 03 15 60 00`
 | Include RX RSSI, RX SNR and CPU Temperature (0x4E) | `A5 03 15 18 02`
 
-| Byte 1 |    | Byte 2 |
-| ------ | -- | ------ |
-| Bit 0 - Transmit power (0x47)         | | Bit 0 - n/a
-| Bit 1 - Transmit Time (0x46)          | | Bit 1 - CPU Temperature (0x4E)
-| Bit 2 - Downlink message count (0x45) | | Bit 2 - Air Fan Run Time (0x4D)
-| Bit 3 - Received SNR  (0x44)          | | Bit 3 - Login Fail Count (0x4C)
-| Bit 4 - Received RSSI (0x43)          | | Bit 4 - Login OK Count (0x4B)
-| Bit 5 - Battery Voltage (0x42)        | | Bit 5 - USB Insert Count (0x4A)
-| Bit 6 - Battery Status (0x41)         | | Bit 6 - Power up count (0x49)
-| Bit 7 - CPU Temperature (0x40)        | | Bit 7 - Transmit message count (0x48)
-
-### Set included KPIs - Second Method
+### Set included KPIs - Second Method (Command `0x16`)
 
 Available from v7.02 onwards.
 
 This uses a message to enable/disable a single KPI at a time. The message is a simple `index` byte followed by the disable/enable byte `0x00`/`0x01`.
 
-| Index - KPI |    | Index - KPI |
-| ------ | -- | ------ |
-| `0x00` - CPU Temperature (0x40)        | | `0x08` - Transmit message count (0x48)
-| `0x01` - Battery Status (0x41)         | | `0x09` - Power up count (0x49)
-| `0x02` - Battery Voltage (0x42)        | | `0x0A` - USB Insert Count (0x4A)
-| `0x03` - Received RSSI (0x43)          | | `0x0B` - Login OK Count (0x4B)
-| `0x04` - Received SNR  (0x44)          | | `0x0C` - Login Fail Count (0x4C)
-| `0x05` - Downlink message count (0x45) | | `0x0D` - Air Fan Run Time (0x4D)
-| `0x06` - Transmit Time (0x46)          | | `0x0E` - CPU Temperature (0x4E)
-| `0x07` - Transmit power (0x47)         | | 
+| Index - KPI Name (Uplink Type Byte)    |    | Index - KPI Name (Uplink Type Byte)    |
+| -------------------------------------- | -- | -------------------------------------- |
+| `0x00` - CPU Temperature (0x40)        |    | `0x08` - Transmit message count (0x48)
+| `0x01` - Battery Status (0x41)         |    | `0x09` - Power up count (0x49)
+| `0x02` - Battery Voltage (0x42)        |    | `0x0A` - USB Insert Count (0x4A)
+| `0x03` - Received RSSI (0x43)          |    | `0x0B` - Login OK Count (0x4B)
+| `0x04` - Received SNR  (0x44)          |    | `0x0C` - Login Fail Count (0x4C)
+| `0x05` - Downlink message count (0x45) |    | `0x0D` - Air Fan Run Time (0x4D)
+| `0x06` - Transmit Time (0x46)          |    | `0x0E` - CPU Temperature (0x4E)
+| `0x07` - Transmit power (0x47)         |    | 
 
 | Example Setting | Message |
 | --------------- | ------- |
-| Include Battery Status (0x41) | `A5 03 16 01 01`
-| Include Battery Voltage (0x42) | `A5 03 16 02 01`
-| Disable Battery Voltage (0x42) | `A5 03 16 02 00`
+| Include Battery Status  | `A5 03 16 01 01`
+| Include Battery Voltage | `A5 03 16 02 01`
+| Disable Battery Voltage | `A5 03 16 02 00`
 
 </br>
 
@@ -690,14 +690,15 @@ The Indexes for some settings depend on the region the unit is programmed for.
 
 `0x0B` - Data Rate Index
 
-| Index | EU868 |   | Index | US915 Hybrid |
-| ----- | ----- | - | ----- | ------------ |
-| 0 | DR0 SF12 BW125 |  | 0 | DR0 SF10 BW125
-| 1 | DR1 SF11 BW125 |  | 1 | DR1 SF9 BW125
-| 2 | DR2 SF10 BW125 |  | 2 | DR2 SF8 BW125
-| 3 | DR3 SF9 BW125 |  | 3 | DR3 SF7 BW125
-| 4 | DR4 SF8 BW125 |  | 4 | DR4 SF8 BW500
-| 5 | DR5 SF7 BW125
+| Index | EU868 |   | Index | US915 Hybrid |   | Index | AU915  |
+| ----- | ----- | - | ----- | ------------ | - | ----- | ------ |
+| 0 | DR0 SF12 BW125 |  | 0 | DR0 SF10 BW125 | | 0 | DR0 SF12 BW125
+| 1 | DR1 SF11 BW125 |  | 1 | DR1 SF9 BW125  | | 1 | DR1 SF11 BW125
+| 2 | DR2 SF10 BW125 |  | 2 | DR2 SF8 BW125  | | 2 | DR2 SF10 BW125
+| 3 | DR3 SF9 BW125  |  | 3 | DR3 SF7 BW125  | | 3 | DR3 SF9  BW125
+| 4 | DR4 SF8 BW125  |  | 4 | DR4 SF8 BW500  | | 4 | DR4 SF8  BW125
+| 5 | DR5 SF7 BW125  |  |   |                | | 5 | DR5 SF7  BW125
+|   |                |  |   |                | | 6 | DR6 SF8  BW500
 
 `0x0C` - Transmit Interval Index
 
@@ -717,14 +718,14 @@ The Indexes for some settings depend on the region the unit is programmed for.
 
 `0x0D` - Transmit Power Index
 
-| Index | EU868 |   | Index | US195 Hybrid |
-| ----- | ------ | - | ----- | -------------- |
-| 1 | 16 dBm |  | 6 | 20 dBm
-| 2 | 14 dBm |  | 7 | 18 dBm
-| 3 | 11 dBm |  | 8 | 16 dBm
-| 4 | 9 dBm |  | 9 | 14 dBm
-| 5 | 8 dBm |  | 10 | 12 dBm
-| 6 | 6 dBm |  | 11 | 10 dBm
+| Index | EU868 |   | Index | US195 Hybrid |   | Index | AU195 |
+| ----- | ----- | - | ----- | ------------ | - | ----- | ----- |
+| 1 | 16 dBm     |  | 6  | 20 dBm  |  | 6  | 20 dBm
+| 2 | 14 dBm     |  | 7  | 18 dBm  |  | 7  | 18 dBm
+| 3 | 11 dBm     |  | 8  | 16 dBm  |  | 8  | 16 dBm
+| 4 | 9 dBm      |  | 9  | 14 dBm  |  | 9  | 14 dBm
+| 5 | 8 dBm      |  | 10 | 12 dBm  |  | 10 | 12 dBm
+| 6 | 6 dBm      |  | 11 | 10 dBm  |  | 11 | 10 dBm
 | 7 | 4 dBm
 | 8 | 2 dBm 
 
