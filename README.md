@@ -1012,7 +1012,9 @@ The following are used in the Zone View product that includes an e-paper display
 | Enable the Help Screen (Disabled by default)                             | `A5 02 4C 01`
 | Set the text for the `Damp` (index `0x03`) comfort icon as `Hello World` | `A5 03 D0 48 65 6C 6C 6F 20 57 6F 72 6C 64`
 
-The 'Set Text' feature can send up to 239 characters at SF7. Special formatting characters are available. See the device configuration screens via the USB connection for more information.
+> Be aware of the maximum message size for the 'Set Text' feature. You can send a downlink up to 242 bytes at SF7 for EU868. Look out for downlink failures for your Region and Data Rates.
+
+See the device configuration screens via the USB connection for more information on formatting screen messages.
 
 </br>
 
