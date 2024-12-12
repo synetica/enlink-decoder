@@ -302,6 +302,8 @@ var ENLINK_ZV_HELP_SCN_ENABLE = 0x4C;
 var ENLINK_ZV_SET_TEXT = 0xD0;
 var ENLINK_ZV_SET_TEXT_TO_DEFAULT = 0xD1;
 
+var ENLINK_ENABLE_EPA = 0x50;
+
 var ENLINK_REBOOT = 0xFF;
 
 // --------------------------------------------------------------------------------------
@@ -1658,6 +1660,9 @@ function decodeStdResponse(data) {
                     obj.command = "Set Zone View text string";
                 } else if (data[i + 2] == ENLINK_ZV_SET_TEXT_TO_DEFAULT) {
                     obj.command = "Set Zone View text string to factory default";
+
+                } else if (data[i + 2] == ENLINK_ENABLE_EPA) {
+                    obj.command = "Enable/Disable EPA Sensor";
 
                 } else if (data[i + 2] == ENLINK_REBOOT) {
                     obj.command = "Reboot";

@@ -294,9 +294,11 @@ function js_decoder(msg) {
     const ENLINK_ZV_INT_LOGIC_LOW_THRESH = 0x4a;
     const ENLINK_ZV_INT_LOGIC_HIGH_THRESH = 0x4b;
     const ENLINK_ZV_HELP_SCN_ENABLE = 0x4c;
+    
     const ENLINK_ZV_SET_TEXT = 0xd0;
     const ENLINK_ZV_SET_TEXT_TO_DEFAULT = 0xd1;
    
+    const ENLINK_ENABLE_EPA = 0x50;
 
     const ENLINK_REBOOT = 0xff;
 
@@ -1569,7 +1571,10 @@ function js_decoder(msg) {
                         obj.command = "Set Zone View text string";
                     } else if (data[i + 2] == ENLINK_ZV_SET_TEXT_TO_DEFAULT) {
                         obj.command = "Set Zone View text string to factory default";
-                        
+                    
+                    } else if (data[i + 2] == ENLINK_ENABLE_EPA) {
+                        obj.command = "Enable/Disable EPA Sensor";
+
                     } else if (data[i + 2] == ENLINK_REBOOT) {
                         obj.command = "Reboot";
                     } else {

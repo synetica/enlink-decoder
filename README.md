@@ -4,7 +4,7 @@
 
 Online decoder can be found here: [Live Decoder](https://synetica.github.io/enlink-decoder/)
 
-> Latest firmware release is v7.02.
+> Latest firmware release is v7.04.
 
 ## Table of Contents
 - [Preamble](#preamble)
@@ -39,6 +39,7 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
     - [Light Sensor Downlinks](#light-sensor-downlinks)
     - [VOC Sensor Downlinks](#voc-sensor-downlinks)
     - [TVOC Sensor Downlinks](#tvoc-sensor-downlinks)
+    - [EPA Sensor Downlink](#epa-sensor-downlink)
     - [CO<sub>2</sub> Sensor Downlinks](#carbon-dioxide-sensor-downlinks)
     - [Particulate Sensor Downlinks](#particulate-sensor-downlinks)
     - [Gas Sensor Downlinks](#gas-sensor-downlinks)
@@ -117,7 +118,7 @@ Link to: [Air / Air-X Downlinks](#air--air-x-downlinks)
 | | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e - [VOC Sensor Downlinks](#voc-sensor-downlinks)
 | | C | `0x08` | NDIR CO<sub>2</sub> ppm - [CO<sub>2</sub> Sensor Downlinks](#carbon-dioxide-sensor-downlinks)
 | | I | `0x36`, `0x37`, `0x38`, `0x39`, `0x3A` | Indoor TVOC Sensor (enLink IAQ) - [TVOC Sensor Downlinks](#tvoc-sensor-downlinks)
-| | D | `0x67`, `0x68` | Outdoor EPA Sensor (enLink OAQ)
+| | D | `0x67`, `0x68` | Outdoor EPA Sensor (enLink OAQ) [EPA Sensor Downlink](#epa-sensor-downlink)
 | | O | `0x61` | Ozone
 | | G | `0x61`, `0x66` | Single Gas Sensor - [Gas Sensor Downlinks](#gas-sensor-downlinks)
 | | S | `0x50`, `0x51`, `0x52` | Sound
@@ -193,9 +194,7 @@ Link to: [Air / Air-X Downlinks](#air--air-x-downlinks)
 
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| FW-STS-DP/AF | (None)  | `0x2C`, `0x2D` | Pressure, Air flow. Either one or both can be selected
-
-[DP/AF Downlinks](#differential-pressure--air-flow-downlinks)
+| FW-STS-DP/AF | (None)  | `0x2C`, `0x2D` | Pressure, Air flow. Either one or both can be selected [DP/AF Downlinks](#differential-pressure--air-flow-downlinks)
 
 ## enLink Status - Gauge Pressure
 
@@ -276,7 +275,7 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x02` 002 | Humidity | 0 to 100 | %rH | 1 | U8
 | `0x03` 003 | Ambient Light | 0.01 to 83k | lux | 2 | U16
 | `0x04` 004 | Pressure | 300 to 1100 | mbar | 2 | U16
-| `0x05` 005 | Volatile Organic Compounds (VOC) See: [BOSCH Datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme680-ds001.pdf) | 0 to 500 | IAQ | 2 | U16
+| `0x05` 005 | Volatile Organic Compounds (VOC) |  | Static IAQ | 2 | U16
 | `0x06` 006 | Oxygen | 0 to 25 | % | 1 | U8 | / 10
 | `0x07` 007 | Carbon Monoxide | 0 to 100  | ppm | 2 | U16 | / 100
 | `0x08` 008 | Carbon Dioxide (2 sensor ranges) | 0 to 5000 or 0 to 50,000 | ppm | 2 | U16 | 
@@ -354,7 +353,7 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x65` 101 | Corrosion: percentage of thickness between original thickness (100%) and minimum (0%) |  | % | 1 + 4 | F32
 | `0x66` 102 | Gas ID + Gas Concentration |  | µg/m³ | 1 + 4 | F32
 | `0x67` 103 | Outdoor EPA Index Sensor Fast AQI (reading taken over 1 minute) | 0 to 500 | AQI | 2 | U16
-| `0x68` 104 | Outdoor EPA Index Sensor EPA AQI See: [AirNow Technical Doc](https://www.airnow.gov/sites/default/files/2020-05/aqi-technical-assistance-document-sept2018.pdf) | 0 to 500 | AQI | 2 | U16
+| `0x68` 104 | Outdoor EPA Index Sensor EPA AQI | 0 to 500 | AQI | 2 | U16
 | `0x69` 105 | Particulate matter mass concentration at PM0.1 |  | µg/m³ | 4 | F32
 | `0x6A` 106 | As above, PM0.3  |  | µg/m³ | 4 | F32
 | `0x6B` 107 | As above, PM0.5  |  | µg/m³ | 4 | F32
@@ -816,6 +815,21 @@ Example:
 > To include the `Maximum TVOC` and the `Latest EtOH reading` data values: </br>
 > Payload Data: `A5 02 42 0C`
 
+### EPA Sensor Downlink
+
+Available from v7.04 onwards.
+
+The following is used in OAQ units with the ZMOD4510 outdoor EPA sensor (Firmware option code `D`).
+
+| Name | Msg Len | Command | Value |
+| ---- | ------- | ------- | ----- |
+| Disable/Enable Sensor | 2 | `0x50` | `0x00`/`0x01`
+
+Example:
+
+> To enable the sensor:</br>
+> Payload Data: `A5 02 50 01`
+
 ### Carbon Dioxide Sensor Downlinks
 
 The following are used in devices with CO<sub>2</sub> sensor
@@ -879,8 +893,6 @@ Example:
 > To include `PM 10.0`, `PM 2.5` and `Typical Particle Size` data values: </br>
 > Payload Data: `A5 03 3D 0A 02`
 
-</br>
-
 #### IAQ Plus/Vape Particulate Sensor Downlinks
 
 | Name | Msg Len | Command | Value |
@@ -915,8 +927,6 @@ For the 'Message Include' settings, you should set the bit value to `1` to inclu
 > To include `PM 10.0`, `PM 2.5`, `PM 1.0`, `PM 0.5` and `PC 1.0` data values: </br>
 > Payload Data:  `A5 03 3E 59 08`
 
-</br>
-
 ### Gas Sensor Downlinks
 
 Available from v5.07 onwards.
@@ -933,8 +943,6 @@ The following are used in devices with a Gas sensor (Option Code 'G')
 | Set the EMA (smoothing) Factor | 2 | `0x32` | `1` to `100` (`0x01` to `0x64`)
 | Set trim value for ppb reading | 2 | `0x33` | `-100` to `100` (`0x9C` to `0x64`)
 | Set trim value for µg/m³ reading | 2 | `0x34` | `-100` to `100` (`0x9C` to `0x64`)
-
-</br>
 
 ### Leak Sensor Downlinks
 
@@ -1011,6 +1019,8 @@ The following are used in the Zone View product that includes an e-paper display
 | Show the comfort icon as `Humid`                                         | `A5 02 49 02`
 | Enable the Help Screen (Disabled by default)                             | `A5 02 4C 01`
 | Set the text for the `Damp` (index `0x03`) comfort icon as `Hello World` | `A5 03 D0 48 65 6C 6C 6F 20 57 6F 72 6C 64`
+| Set the text for the `Damp` (index `0x03`) to default | `A5 04 D1 03`
+| Set the text for the `Dry` (index `0x01`) to default | `A5 04 D1 01`
 
 > Be aware of the maximum message size for the 'Set Text' feature. You can send a downlink up to 242 bytes at SF7 for EU868. Look out for downlink failures for your Region and Data Rates.
 

@@ -205,6 +205,8 @@ var ENLINK_SET_GAS_TRIM_UGM3 = 0x34;
 var ENLINK_BME680_PKT_INC = 0x3C;
 var ENLINK_SPS30_PKT_INC = 0x3D;
 var ENLINK_PIERA_PKT_INC = 0x3E;
+// Enable/Disable the EPA sensor
+const ENLINK_ENABLE_EPA = 0x50;
 
 var ENLINK_REBOOT = 0xFF;
 
@@ -1013,6 +1015,9 @@ function decodeStdResponse(data) {
                     obj.command = "Set SPS30 packet includes";
                 } else if (data[i + 2] == ENLINK_PIERA_PKT_INC) {
                     obj.command = "Set PIERA/IPS7100 packet includes";
+
+                } else if (data[i + 2] == ENLINK_ENABLE_EPA) {
+                    obj.command = "Enable/Disable EPA Sensor";
 
                 } else if (data[i + 2] == ENLINK_REBOOT) {
                     obj.command = "Reboot";
