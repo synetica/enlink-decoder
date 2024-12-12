@@ -1,5 +1,5 @@
 // Synetica Indoor and Outdoor Air Quality (IAQ/OAQ) Codec for Chirpstack v3 and v4
-// 14 Nov 2024 (FW Ver:7.02)
+// 12 Dec 2024 (FW Ver:7.04)
 // https://github.com/synetica/enlink-decoder
 
 // Uplink Data
