@@ -4,7 +4,7 @@
 
 Online decoder can be found here: [Live Decoder](https://synetica.github.io/enlink-decoder/)
 
-> Latest firmware release is v7.04.
+> Latest firmware release is v7.06.
 
 ## Table of Contents
 - [Preamble](#preamble)
@@ -35,11 +35,12 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
   - [Example Uplink Replies to Downlink Messages](#example-uplink-replies-to-downlink-messages)
   - [Downlink Message Index Tables](#downlink-message-index-tables)
   - [Product and Sensor Specific Downlinks](#product-and-sensor-specific-downlinks)
-    - [Air / Air-X Downlinks](#air--air-x-downlinks)
+    - [Fan Run-Time (Air/Air-X) Downlinks](#fan-run-time-airair-x-downlinks)
+    - [Temperature/Humidity Downlinks](#temperaturehumidity-downlinks)
     - [Light Sensor Downlinks](#light-sensor-downlinks)
     - [VOC Sensor Downlinks](#voc-sensor-downlinks)
     - [TVOC Sensor Downlinks](#tvoc-sensor-downlinks)
-    - [EPA Sensor Downlink](#epa-sensor-downlink)
+    - [EPA Sensor Downlinks](#epa-sensor-downlinks)
     - [CO<sub>2</sub> Sensor Downlinks](#carbon-dioxide-sensor-downlinks)
     - [Particulate Sensor Downlinks](#particulate-sensor-downlinks)
     - [Gas Sensor Downlinks](#gas-sensor-downlinks)
@@ -114,7 +115,7 @@ Link to: [Air / Air-X Downlinks](#air--air-x-downlinks)
 
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| FW-AQ  | (default) | `0x01`, `0x02` | Temperature, Humidity
+| FW-AQ  | (default) | `0x01`, `0x02`, `0x3B` | Temperature, Humidity/Hi-Res Humidity (Selectable from v7.05) [Temperature/Humidity Downlinks](#temperaturehumidity-downlinks)
 | | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e - [VOC Sensor Downlinks](#voc-sensor-downlinks)
 | | C | `0x08` | NDIR CO<sub>2</sub> ppm - [CO<sub>2</sub> Sensor Downlinks](#carbon-dioxide-sensor-downlinks)
 | | I | `0x36`, `0x37`, `0x38`, `0x39`, `0x3A` | Indoor TVOC Sensor (enLink IAQ) - [TVOC Sensor Downlinks](#tvoc-sensor-downlinks)
@@ -132,7 +133,7 @@ Link to: [Air / Air-X Downlinks](#air--air-x-downlinks)
 
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| FW-ZNP  | (default) | `0x01`, `0x02` | Temperature, Humidity
+| FW-ZNP  | (default) | `0x01`, `0x02`, `0x3B` | Temperature, Humidity/Hi-Res Humidity (Selectable from v7.05) [Temperature/Humidity Downlinks](#temperaturehumidity-downlinks)
 | | L | `0x03` | Light Level - [Light Sensor Downlinks](#light-sensor-downlinks)
 | | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e - [VOC Sensor Downlinks](#voc-sensor-downlinks)
 | | C | `0x08` | NDIR CO<sub>2</sub> ppm - [CO<sub>2</sub> Sensor Downlinks](#carbon-dioxide-sensor-downlinks)
@@ -158,7 +159,7 @@ Link to: [Air / Air-X Downlinks](#air--air-x-downlinks)
 
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
-| FW-ZV  | (default) | `0x01`, `0x3B` | Temperature, Humidity
+| FW-ZV  | (default) | `0x01`, `0x3B` | Temperature, Hi-Res Humidity
 
 [Zone View e-paper Display Downlinks](#zone-view-e-paper-display-downlinks)
 
@@ -732,13 +733,31 @@ The Indexes for some settings depend on the region the unit is programmed for.
 
 ## Product and Sensor Specific Downlinks
 
-### Air / Air-X Downlinks
+### Fan Run-Time (Air/Air-X) Downlinks
 
 The following are used in the enLink Air/Air-X
 
 | Name | Msg Len | Command | Value |
 | ---- | ------- | ------- | ----- |
 | Case Fan Run Time| 3 | `0x22` | `10` to `600` Seconds (`0x000A` to `0x0258`)
+
+> For example, to set the fan run-time to 30 seconds: </br>
+> Payload Data: `A5 03 22 00 1E`
+
+### Temperature/Humidity Downlinks
+
+Available from v7.06 onwards.
+
+The following is used in the Zone Plus, IAQ and OAQ
+
+| Name | Msg Len | Command | Value | Description |
+| ---- | ------- | ------- | ----- | ---------- |
+| Transmit Humidity Data | 2 | `0x51` | `0`/`1` | Low/High resolution data
+
+The humidity data is, by default, transmitted as a single byte. Type is `0x02`. From v7.06 you can choose to send the data using the type `0x3B` as two bytes. Divide the unsigned 16bit result by 100 to see the humidity value.
+
+> For example, set the radio transmission to use high-resolution data:</br>
+> Payload Data: `A5 02 51 01`
 
 ### Light Sensor Downlinks
 
@@ -757,8 +776,7 @@ Defaults are:
 - Scale = **2.0** (Air), **1.678** (Zone and Zone Plus)
 - Offset = **0** (All devices)
 
-For example, set Scale to **12.345** (12345 in hexadecimal is `0x3039`)
-
+> For example, set Scale to **12.345** (12345 in hexadecimal is `0x3039`):</br>
 > Payload Data: `A5 03 20 30 39`
 
 ### VOC Sensor Downlinks
@@ -782,9 +800,7 @@ Set the bit value to `1` to include the data value; `0` to exclude it.
 - Bit 6 - Not used
 - Bit 7 - Not used
 
-Example:
-
-> To include the `bVOC` and `IAQ` data values: </br>
+> For example, to include the `bVOC` and `IAQ` data values: </br>
 > Payload Data: `A5 02 3C 0C`
 
 ### TVOC Sensor Downlinks
@@ -815,7 +831,7 @@ Example:
 > To include the `Maximum TVOC` and the `Latest EtOH reading` data values: </br>
 > Payload Data: `A5 02 42 0C`
 
-### EPA Sensor Downlink
+### EPA Sensor Downlinks
 
 Available from v7.04 onwards.
 

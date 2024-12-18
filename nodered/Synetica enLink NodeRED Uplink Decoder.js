@@ -226,6 +226,7 @@ const ENLINK_ZV_SET_TEXT = 0xD0;
 const ENLINK_ZV_SET_TEXT_TO_DEFAULT = 0xD1;
 
 const ENLINK_ENABLE_EPA = 0x50;
+const ENLINK_HUMIDITY_TX_RES = 0x51;
 
 const ENLINK_REBOOT = 0xFF;
 
@@ -1369,7 +1370,9 @@ function decodeStdResponse(data) {
 
                 } else if (data[i + 2] == ENLINK_ENABLE_EPA) {
                     obj.command = "Enable/Disable EPA Sensor";
-
+                } else if (data[i + 2] == ENLINK_HUMIDITY_TX_RES) {
+                    obj.command = "Humidity data resolution changed";
+                    
                 } else if (data[i + 2] == ENLINK_REBOOT) {
                     obj.command = "Reboot";
                 } else {

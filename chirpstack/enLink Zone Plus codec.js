@@ -108,6 +108,8 @@ var ENLINK_SET_PM_CLEANING_PERIOD = 0x2C;
 var ENLINK_BME680_PKT_INC = 0x3C;
 var ENLINK_SPS30_PKT_INC = 0x3D;
 
+var ENLINK_HUMIDITY_TX_RES = 0x51;
+
 var ENLINK_REBOOT = 0xFF;
 
 // --------------------------------------------------------------------------------------
@@ -442,6 +444,9 @@ function decodeStdResponse(data) {
                     obj.command = "Set VOC Sensor packet includes";
                 } else if (data[i + 2] == ENLINK_SPS30_PKT_INC) {
                     obj.command = "Set SPS30 packet includes";
+                    
+                } else if (data[i + 2] == ENLINK_HUMIDITY_TX_RES) {
+                    obj.command = "Humidity data resolution changed";
 
                 } else if (data[i + 2] == ENLINK_REBOOT) {
                     obj.command = "Reboot";

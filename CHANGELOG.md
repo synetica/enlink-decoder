@@ -1,5 +1,10 @@
 # Change Log
 
+## 2024 December Updates
+
+- Updated firmware up to 7.06
+- Added OTA downlink for EPA sensor
+
 ## 2024 November Updates
 
 - Updated firmware up to 7.02

@@ -206,7 +206,9 @@ var ENLINK_BME680_PKT_INC = 0x3C;
 var ENLINK_SPS30_PKT_INC = 0x3D;
 var ENLINK_PIERA_PKT_INC = 0x3E;
 // Enable/Disable the EPA sensor
-const ENLINK_ENABLE_EPA = 0x50;
+var ENLINK_ENABLE_EPA = 0x50;
+
+var ENLINK_HUMIDITY_TX_RES = 0x51;
 
 var ENLINK_REBOOT = 0xFF;
 
@@ -1018,7 +1020,9 @@ function decodeStdResponse(data) {
 
                 } else if (data[i + 2] == ENLINK_ENABLE_EPA) {
                     obj.command = "Enable/Disable EPA Sensor";
-
+                } else if (data[i + 2] == ENLINK_HUMIDITY_TX_RES) {
+                    obj.command = "Humidity data resolution changed";
+                    
                 } else if (data[i + 2] == ENLINK_REBOOT) {
                     obj.command = "Reboot";
                 } else {
