@@ -1,5 +1,11 @@
 # Change Log
 
+## 2025 February Updates
+
+- Updated firmware up to 7.08
+- Improved output from Sunrise CO2 sensor to smooth readings
+- Added new Zone V2 model
+
 ## 2024 December Updates
 
 - Updated firmware up to 7.06

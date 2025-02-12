@@ -152,6 +152,15 @@ Link to: [Air / Air-X Downlinks](#air--air-x-downlinks)
 | | C | `0x08` | NDIR CO<sub>2</sub> ppm - [CO<sub>2</sub> Sensor Downlinks](#carbon-dioxide-sensor-downlinks)
 | | M | `0x13`, `0x14` | Motion (PIR). Includes [ATI](#ati---adaptive-transmission-interval) feature
 
+## enLink Zone V2
+
+Available from 2025
+
+| Firmware Code | Options | Data Type(s) | Description |
+|:-----------|:--------|:-------------|:------------|
+| FW-ZN2  | (default) | `0x01`, `0x3B` | Temperature, High resolution humidity
+| | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e - [VOC Sensor Downlinks](#voc-sensor-downlinks)
+
 ## enLink Zone View
 
 > [enLink Zone View Web Page](https://synetica.net/enlink-zone-view/)
