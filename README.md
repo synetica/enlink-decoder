@@ -13,6 +13,7 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
   - [IAQ/OAQ/Duct](#enlink-iaqoaq---indooroutdoor-air-quality-and-iaq-duct)
   - [ZonePlus](#enlink-zoneplus)
   - [Zone](#enlink-zone)
+  - [Zone V2](#enlink-zone-v2)
   - [Zone View](#enlink-zone-view)
   - [Modbus](#enlink-modbus)
   - [Status Pulse Counter](#enlink-status---pulse-counter)
