@@ -4,7 +4,7 @@
 
 Online decoder can be found here: [Live Decoder](https://synetica.github.io/enlink-decoder/)
 
-> Latest firmware release is v7.07.
+> Latest firmware release is v7.10.
 
 ## Table of Contents
 - [Preamble](#preamble)
@@ -125,8 +125,8 @@ Link to: [Air / Air-X Downlinks](#air--air-x-downlinks)
 | | G | `0x61`, `0x66` | Single Gas Sensor - [Gas Sensor Downlinks](#gas-sensor-downlinks)
 | | S | `0x50`, `0x51`, `0x52` | Sound
 | | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`, `0x5F`, `0x60` | Particles ([IAQ](https://synetica.net/enlink-iaq/)/[OAQ](https://synetica.net/enlink-oaq/)) </br> [Particulate Sensor Downlinks](#airair-x-and-iaqoaq-particulate-sensor-downlinks)
-| | PP | `0x69`, `0x6A`, `0x6B`, `0x57`, `0x58`, `0x6C`, <br/>`0x5A`, `0x6D`, `0x6E`, `0x5B`, `0x5C`, `0x5D`, <br/>`0x6F`, `0x5F` | Particles ([IAQ Plus](https://synetica.net/enlink-iaq-plus/)) </br> [Particulate Sensor Downlinks](#iaq-plusvape-particulate-sensor-downlinks) </br> **Unit must be externally powered**
-| | PV | `0x69`, `0x6A`, `0x6B`, `0x57`, `0x58`, `0x6C`, <br/>`0x5A`, `0x6D`, `0x6E`, `0x5B`, `0x5C`, `0x5D`, <br/>`0x6F`, `0x5F`, `0x70`, `0x71`, `0x72` | Particles, Smoke/Vape ([IAQ Vape](https://synetica.net/enlink-iaq-vape/)) - Includes [ATI](#ati---adaptive-transmission-interval) feature </br> [Particulate Sensor Downlinks](#iaq-plusvape-particulate-sensor-downlinks) </br> **Unit must be externally powered**
+| | PP | `0x69`, `0x6A`, `0x6B`, `0x57`, `0x58`, `0x6C`, <br/>`0x5A`, `0x6D`, `0x6E`, `0x5B`, `0x5C`, `0x5D`, <br/>`0x6F`, `0x5F`, <br/>`0x3C`, `0x3D` | Particles ([IAQ Plus](https://synetica.net/enlink-iaq-plus/)) </br> [Particulate Sensor Downlinks](#iaq-plusvape-particulate-sensor-downlinks) </br> **Unit must be externally powered** </br></br> Compensated Temp/Humidity
+| | PV | `0x69`, `0x6A`, `0x6B`, `0x57`, `0x58`, `0x6C`, <br/>`0x5A`, `0x6D`, `0x6E`, `0x5B`, `0x5C`, `0x5D`, <br/>`0x6F`, `0x5F`, `0x70`, `0x71`, `0x72`, <br/>`0x3C`, `0x3D` | Particles, Smoke/Vape ([IAQ Vape](https://synetica.net/enlink-iaq-vape/)) - Includes [ATI](#ati---adaptive-transmission-interval) feature </br> [Particulate Sensor Downlinks](#iaq-plusvape-particulate-sensor-downlinks) </br> **Unit must be externally powered** </br></br> Compensated Temp/Humidity
 
 ## enLink ZonePlus
 
@@ -339,6 +339,8 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x39` 057 | EtOH (Ethanol equivalent) |  | ppm | 4 | F32
 | `0x3A` 058 | IAQ (1.0 to 5.0) Not the `PBAQ` version|  | IAQ | 4 | F32
 | `0x3B` 059 | High resolution Relative Humidity   | 0 to 100.00% | %rH | 2 | U16 | / 100
+| `0x3C` 060 | Compensated Temperature | -40 to 85 | °C | 2 | S16 | / 10
+| `0x3D` 061 | Compensated Relative Humidity | 0 to 100.00% | %rH | 2 | U16 | / 100
 | `0x3F` 063 | CO<sub>2</sub>e estimate equivalent (BME680) |  | ppm | 4 | F32
 | `0x50` 080 | Sound Level Minimum |  | dB(A) | 4 | F32
 | `0x51` 081 | Sound Level Average |  | dB(A) | 4 | F32

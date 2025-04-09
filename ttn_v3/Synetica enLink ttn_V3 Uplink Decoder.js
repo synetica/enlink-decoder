@@ -1,5 +1,5 @@
 // Synetica Payload Decoder for The Things Stack V3
-// 26 Jun 2024 (FW Ver:6.14)
+// 10 Apr 2025 (FW Ver:7.10)
 // https://github.com/synetica/enlink-decoder
 
 function decodeUplink(input) {
@@ -67,6 +67,8 @@ function decodeUplink(input) {
  const ENL_ETOH = 0x39;
  const ENL_TVOC_IAQ = 0x3A;
  const ENL_HIRES_RH = 0x3B;
+ const ENL_COMP_TEMP_C = 0x3C;
+ const ENL_COMP_RH = 0x3D;
  const ENL_CO2E = 0x3F;
  const ENL_SOUND_MIN = 0x50;
  const ENL_SOUND_AVG = 0x51;
@@ -257,12 +259,20 @@ function decodeUplink(input) {
      obj.temp_c = (S16((data[i + 1] << 8) | (data[i + 2]))) / 10;
      i += 2;
      break;
+    case ENL_COMP_TEMP_C:
+     obj.comp_temp_c = (S16((data[i + 1] << 8) | (data[i + 2]))) / 10;
+     i += 2;
+     break;
     case ENL_RH:
      obj.humidity = (data[i + 1]);
      i += 1;
      break;
     case ENL_HIRES_RH:
      obj.rh = (u16_1(data, i)) / 100;
+     i += 2;
+     break;
+    case ENL_COMP_RH:
+     obj.comp_rh = (u16_1(data, i)) / 100;
      i += 2;
      break;
     case ENL_LUX:

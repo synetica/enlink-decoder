@@ -1,5 +1,5 @@
 // Synetica Indoor and Outdoor Air Quality (IAQ/OAQ) Codec for Chirpstack v3 and v4
-// 12 Dec 2024 (FW Ver:7.04)
+// 10 Apr 2025 (FW Ver:7.10)
 // https://github.com/synetica/enlink-decoder
 
 // Uplink Data
@@ -7,6 +7,9 @@
 var ENLINK_TEMP = 0x01;
 var ENLINK_RH = 0x02;
 var ENLINK_HIRES_RH = 0x3B;
+// Additions for IAQ+/IAQ-Vape
+var ENLINK_COMP_TEMP_C = 0x3C;
+var ENLINK_COMP_RH = 0x3D;
 
 // L
 var ENLINK_LUX = 0x03;
@@ -277,12 +280,20 @@ function decodeTelemetry(data) {
                 //obj.temp_f = ((obj.temp_c * 9 / 5) + 32);
                 i += 2;
                 break;
+            case ENLINK_COMP_TEMP_C: // Compensated Temperature
+                obj.comp_temp_c = (S16((data[i + 1] << 8) | (data[i + 2]))) / 10;
+                i += 2;
+                break;
             case ENLINK_RH: // Humidity %rH
                 obj.humidity = (data[i + 1]);
                 i += 1;
                 break;
             case ENLINK_HIRES_RH: // Humidity %rH
                 obj.rh = (U16((data[i + 1] << 8) | (data[i + 2]))) / 100;
+                i += 2;
+                break;
+            case ENLINK_COMP_RH: // Compensated Humidity %rH
+                obj.comp_rh = (U16((data[i + 1] << 8) | (data[i + 2]))) / 100;
                 i += 2;
                 break;
 

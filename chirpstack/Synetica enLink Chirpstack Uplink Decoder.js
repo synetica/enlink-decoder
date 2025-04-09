@@ -1,5 +1,5 @@
 // Synetica Payload Decoder for Chirpstack v3 and v4
-// 12 Dec 2024 (FW Ver:7.04)
+// 10 Apr 2025 (FW Ver:7.10)
 // https://github.com/synetica/enlink-decoder
 
 // Uplink Data
@@ -76,6 +76,8 @@ var ENLINK_MAX_TVOC = 0x38;
 var ENLINK_ETOH = 0x39;
 var ENLINK_TVOC_IAQ = 0x3A;
 var ENLINK_HIRES_RH = 0x3B;
+var ENLINK_COMP_TEMP_C = 0x3C;
+var ENLINK_COMP_RH = 0x3D;
 
 var ENLINK_CO2E = 0x3F;
 
@@ -407,12 +409,20 @@ function decodeTelemetry(data) {
                 //obj.temp_f = ((obj.temp_c * 9 / 5) + 32);
                 i += 2;
                 break;
+            case ENLINK_COMP_TEMP: // Compensated Temperature
+                obj.comp_temp_c = (S16((data[i + 1] << 8) | (data[i + 2]))) / 10;
+                i += 2;
+                break;
             case ENLINK_RH: // Humidity %rH
                 obj.humidity = (data[i + 1]);
                 i += 1;
                 break;
             case ENLINK_HIRES_RH: // Humidity %rH
                 obj.rh = (U16((data[i + 1] << 8) | (data[i + 2]))) / 100;
+                i += 2;
+                break;
+            case ENLINK_HIRES_RH: // Compensated Humidity %rH
+                obj.comp_rh = (U16((data[i + 1] << 8) | (data[i + 2]))) / 100;
                 i += 2;
                 break;
             case ENLINK_LUX: // Light Level lux

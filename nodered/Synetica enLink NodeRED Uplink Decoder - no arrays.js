@@ -1,5 +1,5 @@
 // Used for decoding enLink Uplink LoRa Messages
-// 12 Dec 2024 (FW Ver:7.04)
+// 10 Apr 2025 (FW Ver:7.10)
 // https://github.com/synetica/enlink-decoder
 
 // --------------------------------------------------------------------------------------
@@ -63,6 +63,8 @@ const ENLINK_MAX_TVOC = 0x38;
 const ENLINK_ETOH = 0x39;
 const ENLINK_TVOC_IAQ = 0x3A;
 const ENLINK_HIRES_RH = 0x3B;
+const ENLINK_COMP_TEMP_C = 0x3C;
+const ENLINK_COMP_RH = 0x3D;
 
 const ENLINK_CO2E = 0x3F;                                  // F32  ppm CO2e Estimate Equivalent
 
@@ -404,6 +406,11 @@ function decodeTelemetry(data) {
                 i += 2;
                 msg_ok = true;
                 break;
+            case ENLINK_COMP_TEMP_C: // Compensated Temperature
+                obj.comp_temp_c = (S16((data[i + 1] << 8) | (data[i + 2]))) / 10;
+                i += 2;
+                msg_ok = true;
+                break;
             case ENLINK_RH: // Humidity %rH
                 obj.humidity = (data[i + 1]);
                 i += 1;
@@ -411,6 +418,11 @@ function decodeTelemetry(data) {
                 break;
             case ENLINK_HIRES_RH: // Humidity %rH
                 obj.rh = (U16((data[i + 1] << 8) | (data[i + 2]))) / 100;
+                i += 2;
+                msg_ok = true;
+                break;
+            case ENLINK_COMP_RH: // Compensated Humidity %rH
+                obj.comp_rh = (U16((data[i + 1] << 8) | (data[i + 2]))) / 100;
                 i += 2;
                 msg_ok = true;
                 break;

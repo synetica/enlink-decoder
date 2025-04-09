@@ -1,8 +1,13 @@
 # Change Log
 
+## 2025 April Updates
+
+- Updated firmware up to 7.10
+- Added new compensated temperature and humidity values for IAQ+ and IAQ-Vape
+
 ## 2025 February Updates
 
-- Updated firmware up to 7.08
+- Updated firmware up to 7.09
 - Improved output from Sunrise CO2 sensor to smooth readings
 - Added new Zone V2 model
 
