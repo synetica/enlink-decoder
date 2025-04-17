@@ -409,7 +409,7 @@ function decodeTelemetry(data) {
                 //obj.temp_f = ((obj.temp_c * 9 / 5) + 32);
                 i += 2;
                 break;
-            case ENLINK_COMP_TEMP: // Compensated Temperature
+            case ENLINK_COMP_TEMP_C: // Compensated Temperature
                 obj.comp_temp_c = (S16((data[i + 1] << 8) | (data[i + 2]))) / 10;
                 i += 2;
                 break;
