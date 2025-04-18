@@ -1075,190 +1075,190 @@ function decodeTelemetry(data) {
             case ENLINK_GAS_PPB:
                 switch (data[i + 1]) {
                     case GAS_HCHO:
-                        obj.HCHO_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.HCHO_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_TVOC:
-                        obj.TVOC_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.TVOC_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_CO:
-                        obj.CO_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.CO_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_Cl2:
-                        obj.Cl2_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.Cl2_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_H2:
-                        obj.H2_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.H2_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_H2S:
-                        obj.H2S_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.H2S_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_HCl:
-                        obj.HCl_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.HCl_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_HCN:
-                        obj.HCN_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.HCN_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_HF:
-                        obj.HF_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.HF_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_NH3:
-                        obj.NH3_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.NH3_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_NO2:
-                        obj.NO2_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.NO2_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_O2:
-                        obj.O2_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.O2_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_O3:
-                        obj.O3_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.O3_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_SO2:
-                        obj.SO2_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.SO2_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_HBr:
-                        obj.HBr_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.HBr_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_Br2:
-                        obj.Br2_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.Br2_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_F2:
-                        obj.F2_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.F2_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_PH3:
-                        obj.PH3_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.PH3_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_AsH3:
-                        obj.AsH3_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.AsH3_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_SiH4:
-                        obj.SiH4_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.SiH4_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_GeH4:
-                        obj.GeH4_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.GeH4_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_B2H6:
-                        obj.B2H6_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.B2H6_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_BF3:
-                        obj.BF3_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.BF3_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_WF6:
-                        obj.WF6_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.WF6_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_SiF4:
-                        obj.SiF4_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.SiF4_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_XeF2:
-                        obj.XeF2_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.XeF2_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_TiF4:
-                        obj.TiF4_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.TiF4_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_Odour:
-                        obj.Odour_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.Odour_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_IAQ:
-                        obj.IAQ_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.IAQ_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_AQI:
-                        obj.AQI_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.AQI_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_NMHC:
-                        obj.NMHC_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.NMHC_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_SOx:
-                        obj.SOx_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.SOx_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_NOx:
-                        obj.NOx_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.NOx_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_NO:
-                        obj.NO_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.NO_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C4H8:
-                        obj.C4H8_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.C4H8_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C3H8O2:
-                        obj.C3H8O2_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.C3H8O2_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_CH4S:
-                        obj.CH4S_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.CH4S_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C8H8:
-                        obj.C8H8_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.C8H8_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C4H10:
-                        obj.C4H10_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.C4H10_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C4H6:
-                        obj.C4H6_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.C4H6_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C6H14:
-                        obj.C6H14_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.C6H14_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C2H4O:
-                        obj.C2H4O_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.C2H4O_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C3H9N:
-                        obj.C2H9N_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.C2H9N_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C2H7N:
-                        obj.C2H7N_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.C2H7N_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C2H6O:
-                        obj.C2H6O_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.C2H6O_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_CS2:
-                        obj.CS2_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.CS2_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C2H6S:
-                        obj.C2H6S_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.C2H6S_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C2H6S2:
-                        obj.C2H6S2_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.C2H6S2_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C2H4:
-                        obj.C2H4_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.C2H4_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_CH3OH:
-                        obj.CH3OH_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.CH3OH_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C6H6:
-                        obj.C6H6_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.C6H6_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C8H10:
-                        obj.C8H10_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.C8H10_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C7H8:
-                        obj.C7H8_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.C7H8_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_CH3COOH:
-                        obj.CH3COOH_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.CH3COOH_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_ClO2:
-                        obj.ClO2_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.ClO2_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_H2O2:
-                        obj.H2O2_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.H2O2_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_N2H4:
-                        obj.N2H4_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.N2H4_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C2H8N2:
-                        obj.C2H8N2_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.C2H8N2_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C2HCl3:
-                        obj.C2HCl3_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.C2HCl3_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_CHCl3:
-                        obj.CHCl3_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.CHCl3_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_C2H3Cl3:
-                        obj.C2H3Cl3_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.C2H3Cl3_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                     case GAS_H2Se:
-                        obj.H2Se_ppm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
+                        obj.H2Se_ppb = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]);
                         break;
                 }
                 i += 5;
