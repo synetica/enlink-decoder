@@ -6,7 +6,7 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
 
 > Latest firmware release is v7.10.
 
-> **Bug Workaround!** </br> There has been a problem introduced from firmware v7.01 to v7.09 inclusive. This affects the newer IAQ/OAQ, ZonePlus, Zone V2, and ZoneView. This is due to the introduction of a high-precision temperature/humidity sensor. The internal data structure changed, and a bug caused the transmitted data packet for temperatures to be wrong for ambient temperatures below 0.0°C or above 32.7°C. This has been fixed in firmware v7.10 and above. If customer's enLink devices are experiencing temperatures above 32.7°C there is a decoder workaround that works for temperatures between 0.0°C and 65.5°C. Temperatures outside these values will be decoded incorrectly. Look for the function **t_fix_v7(t)** in the decoder samples.
+> **Bug Workaround!** </br> There has been a problem introduced from firmware v7.01 to v7.09 inclusive. This affects the newer IAQ/OAQ, ZonePlus, Zone V2, and ZoneView. This is due to the introduction of a high-precision temperature/humidity sensor. The internal data structure changed, and a bug caused the transmitted data packet for temperatures to be wrong for ambient temperatures below 0.0°C or above 32.7°C. This has been fixed in firmware v7.10 and above. If a customer's enLink devices are experiencing temperatures above 32.7°C there is a decoder workaround that works for temperatures between 0.0°C and 65.5°C. Temperatures outside these values will be decoded incorrectly. Look for the function **t_fix_v7(t)** in the decoder samples.
 
 ## Table of Contents
 - [Preamble](#preamble)
