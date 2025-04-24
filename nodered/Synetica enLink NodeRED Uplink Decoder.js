@@ -1,5 +1,6 @@
 // Used for decoding enLink Uplink LoRa Messages
-// 10 Apr 2025 (FW Ver:7.10)
+// 24 Apr 2025 (FW Ver:7.10)
+// 24 Apr 2025 Includes Temperature fix
 // https://github.com/synetica/enlink-decoder
 
 // --------------------------------------------------------------------------------------
@@ -454,6 +455,13 @@ function GetCrnMetal(id_byte) {
     }
     return "Error";
 }
+// Workaround Fix for OAQ/IAQ/ZN2/ZV v7.01~7.09
+function t_fix_v7(t) {
+    var num = t & 0xFFFF;
+    if (0x8000 & num)
+        num = 655 + num;
+    return num & 0xFFFF;
+}
 // --------------------------------------------------------------------------------------
 // Function to decode enLink telemetry (sensor) messages
 function decodeTelemetry(data) {
@@ -468,6 +476,7 @@ function decodeTelemetry(data) {
             // Parse enLink message for telemetry data
             case ENLINK_TEMP: // Temperature
                 obj.temperature_c = (S16((data[i + 1] << 8) | (data[i + 2]))) / 10;
+                obj.temperature_c_fix_v7 = (t_fix_v7((data[i + 1] << 8) | data[i + 2])) / 10;
                 //obj.temperature_f = ((obj.temperature_c * 9/5) + 32).toFixed(2);
                 i += 2;
                 msg_ok = true;

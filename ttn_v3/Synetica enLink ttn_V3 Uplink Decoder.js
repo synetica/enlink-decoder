@@ -1,5 +1,6 @@
 // Synetica Payload Decoder for The Things Stack V3
-// 10 Apr 2025 (FW Ver:7.10)
+// 24 Apr 2025 (FW Ver:7.10)
+// 24 Apr 2025 Includes Temperature fix
 // https://github.com/synetica/enlink-decoder
 
 function decodeUplink(input) {
@@ -248,6 +249,13 @@ function decodeUplink(input) {
   }
   return Error;
  }
+ // Workaround Fix for OAQ/IAQ/ZN2/ZV v7.01~7.09
+ function t_fix_v7(t) {
+  var num = t & 0xFFFF;
+  if (0x8000 & num)
+      num = 655 + num;
+  return num & 0xFFFF;
+}
  // Function to decode enLink Messages
  function DecodePayload(data) {
   var cpn;
@@ -257,6 +265,7 @@ function decodeUplink(input) {
    switch (data[i]) {
     case ENL_TEMP:
      obj.temp_c = (S16((data[i + 1] << 8) | (data[i + 2]))) / 10;
+     obj.temp_c_fix_v7 = (t_fix_v7((data[i + 1] << 8) | data[i + 2])) / 10;
      i += 2;
      break;
     case ENL_COMP_TEMP_C:

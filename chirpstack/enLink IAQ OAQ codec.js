@@ -1,5 +1,6 @@
 // Synetica Indoor and Outdoor Air Quality (IAQ/OAQ) Codec for Chirpstack v3 and v4
-// 10 Apr 2025 (FW Ver:7.10)
+// 24 Apr 2025 (FW Ver:7.10)
+// 24 Apr 2025 Includes Temperature fix
 // https://github.com/synetica/enlink-decoder
 
 // Uplink Data
@@ -267,6 +268,13 @@ function fromF32(byte0, byte1, byte2, byte3) {
     var f = sign * m * Math.pow(2, e - 150);
     return parseFloat(f.toFixed(3));
 }
+// Workaround Fix for OAQ/IAQ/ZN2/ZV v7.01~7.09
+function t_fix_v7(t) {
+    var num = t & 0xFFFF;
+    if (0x8000 & num)
+        num = 655 + num;
+    return num & 0xFFFF;
+}
 // --------------------------------------------------------------------------------------
 // Function to decode enLink Messages
 function decodeTelemetry(data) {
@@ -277,6 +285,7 @@ function decodeTelemetry(data) {
             // Parse Sensor Message Parts
             case ENLINK_TEMP: // Temperature
                 obj.temp_c = (S16((data[i + 1] << 8) | (data[i + 2]))) / 10;
+                obj.temp_c_fix_v7 = (t_fix_v7((data[i + 1] << 8) | data[i + 2])) / 10;
                 //obj.temp_f = ((obj.temp_c * 9 / 5) + 32);
                 i += 2;
                 break;
