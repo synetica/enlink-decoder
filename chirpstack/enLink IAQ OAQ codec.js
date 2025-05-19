@@ -1,5 +1,5 @@
 // Synetica Indoor and Outdoor Air Quality (IAQ/OAQ) Codec for Chirpstack v3 and v4
-// 24 Apr 2025 (FW Ver:7.10)
+// 15 May 2025 (FW Ver:7.11)
 // 24 Apr 2025 Includes Temperature fix
 // https://github.com/synetica/enlink-decoder
 
@@ -209,10 +209,10 @@ var ENLINK_SET_GAS_TRIM_UGM3 = 0x34;
 var ENLINK_BME680_PKT_INC = 0x3C;
 var ENLINK_SPS30_PKT_INC = 0x3D;
 var ENLINK_PIERA_PKT_INC = 0x3E;
-// Enable/Disable the EPA sensor
-var ENLINK_ENABLE_EPA = 0x50;
-
+// Enable/Disable the EPA/Ozone sensor (ZMOD4510)
+var ENLINK_ENABLE_Z45 = 0x50;
 var ENLINK_HUMIDITY_TX_RES = 0x51;
+var ENLINK_Z45_TRIG_CLEAN = 0x52;
 
 var ENLINK_REBOOT = 0xFF;
 
@@ -1038,10 +1038,12 @@ function decodeStdResponse(data) {
                 } else if (data[i + 2] == ENLINK_PIERA_PKT_INC) {
                     obj.command = "Set PIERA/IPS7100 packet includes";
 
-                } else if (data[i + 2] == ENLINK_ENABLE_EPA) {
-                    obj.command = "Enable/Disable EPA Sensor";
+                } else if (data[i + 2] == ENLINK_ENABLE_Z45) {
+                    obj.command = "Enable/Disable EPA/Ozone Sensor";
                 } else if (data[i + 2] == ENLINK_HUMIDITY_TX_RES) {
                     obj.command = "Humidity data resolution changed";
+                } else if (data[i + 2] == ENLINK_Z45_TRIG_CLEAN) {
+                    obj.command = "EPA/Ozone Sensor Cleaning Triggered";
                     
                 } else if (data[i + 2] == ENLINK_REBOOT) {
                     obj.command = "Reboot";

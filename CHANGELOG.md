@@ -1,8 +1,14 @@
 # Change Log
 
+## 2025 May Updates
+
+- Updated firmware up to 7.11
+- Added new Ozone sensor driver with an OTA downlink
+
 ## 2025 April Updates
 
 - Updated firmware up to 7.10
+- Bug Fix: Uplink ambient air temperature packet was malformed if the temperature was below 0.0°C or above 32.7°C
 - Added new compensated temperature and humidity values for IAQ+ and IAQ-Vape
 
 ## 2025 February Updates

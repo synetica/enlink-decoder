@@ -1,5 +1,5 @@
 // Synetica Payload Decoder for Chirpstack v3 and v4
-// 24 Apr 2025 (FW Ver:7.10)
+// 15 May 2025 (FW Ver:7.11)
 // 24 Apr 2025 Includes Temperature fix
 // https://github.com/synetica/enlink-decoder
 
@@ -305,8 +305,9 @@ var ENLINK_ZV_HELP_SCN_ENABLE = 0x4C;
 var ENLINK_ZV_SET_TEXT = 0xD0;
 var ENLINK_ZV_SET_TEXT_TO_DEFAULT = 0xD1;
 
-var ENLINK_ENABLE_EPA = 0x50;
+var ENLINK_ENABLE_Z45 = 0x50;
 var ENLINK_HUMIDITY_TX_RES = 0x51;
+var ENLINK_Z45_TRIG_CLEAN = 0x52;
 
 var ENLINK_REBOOT = 0xFF;
 
@@ -1681,10 +1682,12 @@ function decodeStdResponse(data) {
                 } else if (data[i + 2] == ENLINK_ZV_SET_TEXT_TO_DEFAULT) {
                     obj.command = "Set Zone View text string to factory default";
 
-                } else if (data[i + 2] == ENLINK_ENABLE_EPA) {
-                    obj.command = "Enable/Disable EPA Sensor";
+                } else if (data[i + 2] == ENLINK_ENABLE_Z45) {
+                    obj.command = "Enable/Disable EPA/Ozone Sensor";
                 } else if (data[i + 2] == ENLINK_HUMIDITY_TX_RES) {
                     obj.command = "Humidity data resolution changed";
+                } else if (data[i + 2] == ENLINK_Z45_TRIG_CLEAN) {
+                    obj.command = "EPA/Ozone Sensor Cleaning Triggered";
                     
                 } else if (data[i + 2] == ENLINK_REBOOT) {
                     obj.command = "Reboot";

@@ -4,7 +4,7 @@
 
 Online decoder can be found here: [Live Decoder](https://synetica.github.io/enlink-decoder/)
 
-> Latest firmware release is v7.10.
+> Latest firmware release is v7.11.
 
 > **Bug Workaround!** </br> There has been a problem introduced from firmware v7.01 to v7.09 inclusive. This affects the newer IAQ/OAQ, ZonePlus, Zone V2, and ZoneView. This is due to the introduction of a high-precision temperature/humidity sensor. The internal data structure changed, and a bug caused the transmitted data packet for temperatures to be wrong for ambient temperatures below 0.0°C or above 32.7°C. This has been fixed in firmware v7.10 and above. If a customer's enLink devices are experiencing temperatures above 32.7°C there is a decoder workaround that works for temperatures between 0.0°C and 65.5°C. Temperatures outside these values will be decoded incorrectly. Look for the function **t_fix_v7(t)** in the decoder samples.
 
@@ -43,7 +43,7 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
     - [Light Sensor Downlinks](#light-sensor-downlinks)
     - [VOC Sensor Downlinks](#voc-sensor-downlinks)
     - [TVOC Sensor Downlinks](#tvoc-sensor-downlinks)
-    - [EPA Sensor Downlinks](#epa-sensor-downlinks)
+    - [EPA Sensor Downlinks](#epaozone-sensor-downlinks)
     - [CO<sub>2</sub> Sensor Downlinks](#carbon-dioxide-sensor-downlinks)
     - [Particulate Sensor Downlinks](#particulate-sensor-downlinks)
     - [Gas Sensor Downlinks](#gas-sensor-downlinks)
@@ -102,7 +102,8 @@ The firmware code is a concatenation of the base model plus the options.
 | | X | `0x06` | Oxygen
 | | S | `0x50`, `0x51`, `0x52` | Sound
 | | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`,`0x5F`, `0x60` | Particles - [Particulate Sensor Downlinks](#airair-x-and-iaqoaq-particulate-sensor-downlinks)
-| | O | `0x61` | Ozone
+| | O | `0x61` | Ozone (Discontinued after v7.10)
+| | O3 | `0x61` | Ozone (From v7.11)
 | | G+ | `0x61`, `0x66` | Up to 4 x Gas Sensors
 
 Link to: [Air / Air-X Downlinks](#air--air-x-downlinks)
@@ -123,7 +124,8 @@ Link to: [Air / Air-X Downlinks](#air--air-x-downlinks)
 | | C | `0x08` | NDIR CO<sub>2</sub> ppm - [CO<sub>2</sub> Sensor Downlinks](#carbon-dioxide-sensor-downlinks)
 | | I | `0x36`, `0x37`, `0x38`, `0x39`, `0x3A` | Indoor TVOC Sensor (enLink IAQ) - [TVOC Sensor Downlinks](#tvoc-sensor-downlinks)
 | | D | `0x67`, `0x68` | Outdoor EPA Sensor (enLink OAQ) [EPA Sensor Downlink](#epa-sensor-downlink)
-| | O | `0x61` | Ozone
+| | O | `0x61` | Ozone (Discontinued after v7.10)
+| | O3 | `0x61` | Ozone (From v7.11)
 | | G | `0x61`, `0x66` | Single Gas Sensor - [Gas Sensor Downlinks](#gas-sensor-downlinks)
 | | S | `0x50`, `0x51`, `0x52` | Sound
 | | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`, `0x5F`, `0x60` | Particles ([IAQ](https://synetica.net/enlink-iaq/)/[OAQ](https://synetica.net/enlink-oaq/)) </br> [Particulate Sensor Downlinks](#airair-x-and-iaqoaq-particulate-sensor-downlinks)
@@ -845,20 +847,25 @@ Example:
 > To include the `Maximum TVOC` and the `Latest EtOH reading` data values: </br>
 > Payload Data: `A5 02 42 0C`
 
-### EPA Sensor Downlinks
+### EPA/Ozone Sensor Downlinks
 
-Available from v7.04 onwards.
+Enable/Disable available from v7.04 onwards.</br>
+Cleaning trigger available from v7.11 onwards.
 
-The following is used in OAQ units with the ZMOD4510 outdoor EPA sensor (Firmware option code `D`).
+This sensor is used in IAQ/OAQ and with Air/Air-X units.
+This single sensor can be used as an outdoor EPA sensor (Firmware option code `D`) and/or Ozone sensor (Firmware code `O3`)
 
 | Name | Msg Len | Command | Value |
 | ---- | ------- | ------- | ----- |
 | Disable/Enable Sensor | 2 | `0x50` | `0x00`/`0x01`
+| Trigger Cleaning Cycle | 2 | `0x52` | `0x01`
 
 Example:
 
 > To enable the sensor:</br>
-> Payload Data: `A5 02 50 01`
+> Payload Data: `A5 02 50 01`</br>
+> To trigger a 'one-time-only' cleaning cycle of the sensor (Only works when sensor is enabled):</br>
+> Payload Data: `A5 02 52 01`
 
 ### Carbon Dioxide Sensor Downlinks
 
