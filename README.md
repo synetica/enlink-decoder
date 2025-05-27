@@ -4,7 +4,7 @@
 
 Online decoder can be found here: [Live Decoder](https://synetica.github.io/enlink-decoder/)
 
-> Latest firmware release is v7.11.
+> Latest firmware release is v7.12.
 
 > **Bug Workaround!** </br> There has been a problem introduced from firmware v7.01 to v7.09 inclusive. This affects the newer IAQ/OAQ, ZonePlus, Zone V2, and ZoneView. This is due to the introduction of a high-precision temperature/humidity sensor. The internal data structure changed, and a bug caused the transmitted data packet for temperatures to be wrong for ambient temperatures below 0.0°C or above 32.7°C. This has been fixed in firmware v7.10 and above. If a customer's enLink devices are experiencing temperatures above 32.7°C there is a decoder workaround that works for temperatures between 0.0°C and 65.5°C. Temperatures outside these values will be decoded incorrectly. Look for the function **t_fix_v7(t)** in the decoder samples.
 
@@ -341,7 +341,7 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x37` 055 | TVOC Average |  | mg/m³ | 2 | F32
 | `0x38` 056 | TVOC Maximum |  | mg/m³ | 2 | F32
 | `0x39` 057 | EtOH (Ethanol equivalent) |  | ppm | 4 | F32
-| `0x3A` 058 | IAQ (1.0 to 5.0) Not the `PBAQ` version|  | IAQ | 4 | F32
+| `0x3A` 058 | IAQ (1.0 to 5.0) Included on `PBAQ` version from v7.11 |  | IAQ | 4 | F32
 | `0x3B` 059 | High resolution Relative Humidity   | 0 to 100.00% | %rH | 2 | U16 | / 100
 | `0x3C` 060 | Compensated Temperature | -40 to 85 | °C | 2 | S16 | / 10
 | `0x3D` 061 | Compensated Relative Humidity | 0 to 100.00% | %rH | 2 | U16 | / 100
@@ -758,7 +758,7 @@ The following are used in the enLink Air/Air-X
 | Case Fan Run Time| 3 | `0x22` | `10` to `600` Seconds (`0x000A` to `0x0258`)
 
 > For example, to set the fan run-time to 30 seconds: </br>
-> Payload Data: `A5 03 22 00 1E`
+> -- Payload Data: `A5 03 22 00 1E`
 
 ### Temperature/Humidity Downlinks
 
@@ -773,7 +773,7 @@ The following is used in the Zone Plus, IAQ and OAQ
 The humidity data is, by default, transmitted as a single byte. Type is `0x02`. From v7.06 you can choose to send the data using the type `0x3B` as two bytes. Divide the unsigned 16bit result by 100 to see the humidity value.
 
 > For example, set the radio transmission to use high-resolution data:</br>
-> Payload Data: `A5 02 51 01`
+> -- Payload Data: `A5 02 51 01`
 
 ### Light Sensor Downlinks
 
@@ -793,7 +793,7 @@ Defaults are:
 - Offset = **0** (All devices)
 
 > For example, set Scale to **12.345** (12345 in hexadecimal is `0x3039`):</br>
-> Payload Data: `A5 03 20 30 39`
+> -- Payload Data: `A5 03 20 30 39`
 
 ### VOC Sensor Downlinks
 
@@ -817,17 +817,19 @@ Set the bit value to `1` to include the data value; `0` to exclude it.
 - Bit 7 - Not used
 
 > For example, to include the `bVOC` and `IAQ` data values: </br>
-> Payload Data: `A5 02 3C 0C`
+> -- Payload Data: `A5 02 3C 0C`
 
 ### TVOC Sensor Downlinks
 
-Available from v6.02 onwards.
+Include Parameter available from v6.02 onwards.</br>
+Cleaning trigger available from v7.11 onwards.
 
 The following are used in devices with the ZMOD4410 indoor TVOC sensor (Firmware option code `I`). These options are for setting which data values are included in the transmitted radio packets. Sending smaller radio packets size will reduce battery consumption. There is a standard and a PBAQ option with this sensor.
 
 | Name | Msg Len | Command | Value |
 | ---- | ------- | ------- | ----- |
 | Include Parameter | 2 | `0x42` | `0x00` to `0x1F` as a bit pattern (see below)
+| Trigger Cleaning Cycle | 2 | `0x53` | `0x01`
 
 Set the bit value to `1` to include the data value; `0` to exclude it.
 
@@ -835,17 +837,19 @@ Set the bit value to `1` to include the data value; `0` to exclude it.
 - Bit 1 - `Average TVOC`
 - Bit 2 - `Maximum TVOC`
 - Bit 3 - `Latest EtOH reading` (Ethanol equivalent)
-- Bit 4 - `Latest IAQ reading` (Not the PBAQ version)
+- Bit 4 - `Latest IAQ reading` (Included on `PBAQ` version from v7.11)
 - Bit 5 - Not used
 - Bit 6 - Not used
 - Bit 7 - Not used
 
 > Note: The Minimum, Average and Maximum are calculated between radio transmissions. The `PBAQ` version samples every 5 seconds.
 
-Example:
+Examples:
 
 > To include the `Maximum TVOC` and the `Latest EtOH reading` data values: </br>
-> Payload Data: `A5 02 42 0C`
+> -- Payload Data: `A5 02 42 0C`</br>
+> To trigger a 'one-time-only' cleaning cycle of the sensor:</br>
+> -- Payload Data: `A5 02 53 01`
 
 ### EPA/Ozone Sensor Downlinks
 
@@ -863,9 +867,9 @@ This single sensor can be used as an outdoor EPA sensor (Firmware option code `D
 Example:
 
 > To enable the sensor:</br>
-> Payload Data: `A5 02 50 01`</br>
+> -- Payload Data: `A5 02 50 01`</br>
 > To trigger a 'one-time-only' cleaning cycle of the sensor (Only works when sensor is enabled):</br>
-> Payload Data: `A5 02 52 01`
+> -- Payload Data: `A5 02 52 01`
 
 ### Carbon Dioxide Sensor Downlinks
 
@@ -928,7 +932,7 @@ For the 'Message Include' settings, you should set the bit value to `1` to inclu
 Example:
 
 > To include `PM 10.0`, `PM 2.5` and `Typical Particle Size` data values: </br>
-> Payload Data: `A5 03 3D 0A 02`
+> -- Payload Data: `A5 03 3D 0A 02`
 
 #### IAQ Plus/Vape Particulate Sensor Downlinks
 
@@ -962,7 +966,7 @@ For the 'Message Include' settings, you should set the bit value to `1` to inclu
 | Bit 7 - Not used | | Bit 7 - Not used
 
 > To include `PM 10.0`, `PM 2.5`, `PM 1.0`, `PM 0.5` and `PC 1.0` data values: </br>
-> Payload Data:  `A5 03 3E 59 08`
+> -- Payload Data:  `A5 03 3E 59 08`
 
 ### Gas Sensor Downlinks
 

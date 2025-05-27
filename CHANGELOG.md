@@ -2,7 +2,7 @@
 
 ## 2025 May Updates
 
-- Updated firmware up to 7.11
+- Updated firmware up to 7.11/7.12
 - Added new Ozone sensor driver with an OTA downlink
 
 ## 2025 April Updates
