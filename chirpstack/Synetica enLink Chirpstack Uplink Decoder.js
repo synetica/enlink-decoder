@@ -1,5 +1,5 @@
 // Synetica Payload Decoder for Chirpstack v3 and v4
-// 15 May 2025 (FW Ver:7.11)
+// 29 May 2025 (FW Ver:7.14)
 // 24 Apr 2025 Includes Temperature fix
 // https://github.com/synetica/enlink-decoder
 
@@ -209,6 +209,8 @@ var ENLINK_LOGIN_OK_COUNT = 0x4B;
 var ENLINK_LOGIN_FAIL_COUNT = 0x4C;
 var ENLINK_FAN_RUN_TIME = 0x4D;
 var ENLINK_CPU_TEMP = 0x4E;
+
+var ENLINK_STATUS = 0xFE;
 
 // --------------------------------------------------------------------------------------
 // Downlink reply message Header and ACK/NAK
@@ -1509,7 +1511,14 @@ function decodeTelemetry(data) {
                     U32((data[i + 1] << 24) | (data[i + 2] << 16) | (data[i + 3] << 8) | (data[i + 4]));
                 i += 4;
                 break;
-
+            // < -------------------------------------------------------------------------------->
+            case ENLINK_STATUS:
+                obj.status_sensor_id = (data[i + 1]);
+                obj.status_id = (data[i + 2]);
+                obj.status_val = U16((data[i + 3] << 8) | data[i + 4]);
+                i += 4;
+                break;
+                
             default: // something is wrong with data
                 obj.error = "Error at index " + i + "  Byte value " + data[i];
                 i = data.length;

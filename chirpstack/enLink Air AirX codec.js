@@ -1,5 +1,5 @@
 // Synetica Air/Air-X Codec for Chirpstack v3 and v4
-// 15 May 2025 (FW Ver:7.11)
+// 29 May 2025 (FW Ver:7.14)
 // https://github.com/synetica/enlink-decoder
 
 // Uplink Data
@@ -134,6 +134,8 @@ var ENLINK_LOGIN_OK_COUNT = 0x4B;
 var ENLINK_LOGIN_FAIL_COUNT = 0x4C;
 var ENLINK_FAN_RUN_TIME = 0x4D;
 var ENLINK_CPU_TEMP = 0x4E;
+
+var ENLINK_STATUS = 0xFE;
 
 // --------------------------------------------------------------------------------------
 // Downlink reply message Header and ACK/NAK
@@ -847,6 +849,13 @@ function decodeTelemetry(data) {
             case ENLINK_FAN_RUN_TIME:
                 obj.fan_run_time_s =
                     U32((data[i + 1] << 24) | (data[i + 2] << 16) | (data[i + 3] << 8) | (data[i + 4]));
+                i += 4;
+                break;
+            // < -------------------------------------------------------------------------------->
+            case ENLINK_STATUS:
+                obj.status_sensor_id = (data[i + 1]);
+                obj.status_id = (data[i + 2]);
+                obj.status_val = U16((data[i + 3] << 8) | data[i + 4]);
                 i += 4;
                 break;
 

@@ -63,7 +63,7 @@ function decode_hex_string(hex_string) {
 function js_decoder(msg) {
     // Used for decoding enLink Uplink LoRa Messages
     // --------------------------------------------------------------------------------------
-    // 15 May 2025 (FW Ver:7.11)
+    // 29 May 2025 (FW Ver:7.14)
     // 24 Apr 2025 Includes Temperature fix
     // --------------------------------------------------------------------------------------
     // https://github.com/synetica/enlink-decoder
@@ -204,7 +204,10 @@ function js_decoder(msg) {
     const ENLINK_LOGIN_FAIL_COUNT = 0x4c;
     const ENLINK_FAN_RUN_TIME = 0x4d;
     const ENLINK_CPU_TEMP = 0x4e;
-
+// --------------------------------------------------------------------------------------
+    // Status Message
+    const ENLINK_STATUS = 0xFE;
+    
     // --------------------------------------------------------------------------------------
     // V1 - Downlink reply message Header and ACK/NAK
     const ENLINK_HEADER = 0xa5;
@@ -1408,12 +1411,21 @@ function js_decoder(msg) {
                     i += 2;
                     break;
                 case ENLINK_FAN_RUN_TIME:
-                    obj.fan_run_time_s = U32(
-                        (data[i + 1] << 24) |
-                        (data[i + 2] << 16) |
-                        (data[i + 3] << 8) |
-                        data[i + 4]
-                    );
+                    obj.fan_run_time_s = U32((data[i + 1] << 24) | (data[i + 2] << 16) | (data[i + 3] << 8) | data[i + 4]);
+                    i += 4;
+                    break;
+
+                // < -------------------------------------------------------------------------------->
+                case ENLINK_STATUS:
+                    sensor_id = (data[i + 1]);
+                    status_id = (data[i + 2]);
+                    status_val = U16((data[i + 3] << 8) | data[i + 4]);
+                    // As Array
+                    if (obj.status) {
+                        obj.status.push([sensor_id, status_id, status_val]);
+                    } else {
+                        obj.status = [[sensor_id, status_id, status_val]];
+                    }
                     i += 4;
                     break;
 

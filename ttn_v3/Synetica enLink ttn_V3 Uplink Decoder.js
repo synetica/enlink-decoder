@@ -1,5 +1,5 @@
 // Synetica Payload Decoder for The Things Stack V3
-// 24 Apr 2025 (FW Ver:7.10)
+// 29 May 2025 (FW Ver:7.14)
 // 24 Apr 2025 Includes Temperature fix
 // https://github.com/synetica/enlink-decoder
 
@@ -122,6 +122,8 @@ function decodeUplink(input) {
  const ENL_LOGIN_FAIL_COUNT = 0x4C;
  const ENL_FAN_RUN_TIME = 0x4D;
  const ENL_CPU_TEMP = 0x4E;
+
+ const ENL_STATUS = 0xFE;
 
  function S8(bin) {
   var num = bin & 0xFF;
@@ -1176,10 +1178,22 @@ function decodeUplink(input) {
      i += 2;
      break;
     case ENL_FAN_RUN_TIME:
-     obj.fan_run_time_s =
-      u32_1(data, i);
+     obj.fan_run_time_s = u32_1(data, i);
      i += 4;
      break;
+
+    case ENL_STATUS:
+      sensor_id = (data[i + 1]);
+      status_id = (data[i + 2]);
+      status_val = U16((data[i + 3] << 8) | data[i + 4]);
+      if (obj.status) {
+        obj.status.push([sensor_id, status_id, status_val]);
+      } else {
+        obj.status = [[sensor_id, status_id, status_val]];
+      }
+      i += 4;
+      break;
+      
     default: // something is wrong with data
      obj.error = "Error at" + i + "byte value" + data[i];
      i = data.length;

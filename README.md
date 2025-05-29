@@ -4,7 +4,7 @@
 
 Online decoder can be found here: [Live Decoder](https://synetica.github.io/enlink-decoder/)
 
-> Latest firmware release is v7.12.
+> Latest firmware release is v7.14.
 
 > **Bug Workaround!** </br> There has been a problem introduced from firmware v7.01 to v7.09 inclusive. This affects the newer IAQ/OAQ, ZonePlus, Zone V2, and ZoneView. This is due to the introduction of a high-precision temperature/humidity sensor. The internal data structure changed, and a bug caused the transmitted data packet for temperatures to be wrong for ambient temperatures below 0.0°C or above 32.7°C. This has been fixed in firmware v7.10 and above. If a customer's enLink devices are experiencing temperatures above 32.7°C there is a decoder workaround that works for temperatures between 0.0°C and 65.5°C. Temperatures outside these values will be decoded incorrectly. Look for the function **t_fix_v7(t)** in the decoder samples.
 
@@ -381,7 +381,7 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x70` 112 | Detection: Event Count  | 0 to 65535 | count | 2 | U16
 | `0x71` 113 | Detection: Smoke Count  | 0 to 65535 | count | 2 | U16
 | `0x72` 114 | Detection: Vape Count   | 0 to 65535 | count | 2 | U16
-
+| `0xFE` 254 | Status: [Sensor ID] + [Status ID] + [Status Value] |  |  | 1 + 1 + 2 | U16
 </br>
 
 ## Decoding Complex Messages
@@ -528,6 +528,30 @@ Other Coupon/Metal types are:
 | `0x01` - Copper                | | `0x81` - Copper
 | `0x02` - Silver                | | `0x82` - Silver
 | `0x03` - Chromium              | | `0x83` - Chromium
+
+</br>
+
+### Status Message
+
+---
+
+Available from v7.14 onwards.
+
+Type: `0xFE`
+
+The full message is sent as 5 bytes. The second byte indicates the Sensor-ID, third byte the Status-ID and the next two are the unsigned 16 bit value.
+
+> Example Payload Data: `FE 1C 01 02 27`
+
+The example shows Sensor-ID `0x1C` (28 decimal). This is the SPS30 particulate sensor. Status-ID is `0x01` (1 decimal). This is 'Fan-Speed-Error'. The value is 0x0227 (551 decimal) - this is the number of errors.
+
+| Sensor ID | Sensor Name (FW Code) | Status ID | Status Name | Value Meaning |
+|--|--|--|--|--|
+| `0x1C` 028 | SPS30 Particulates (P+) | `0x01` | Fan Speed Error | *1 Count. Can occur once per sample
+| `0x1C` 028 | SPS30 Particulates (P+) | `0x02` | Laser Fail | *1 Count. Can occur once per sample
+| `0x1C` 028 | SPS30 Particulates (P+) | `0x03` | Fan Failure | *1 Count. Can occur once per sample
+
+Notes: *1 - Only sent if the count is greater than zero.
 
 </br>
 

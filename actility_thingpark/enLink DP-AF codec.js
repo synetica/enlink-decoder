@@ -1,5 +1,5 @@
 // Synetica enLink DP/AF Codec for Actility ThingPark
-// 14 Nov 2024 (FW Ver:7.02)
+// 29 May 2025 (FW Ver:7.14)
 // https://github.com/synetica/enlink-decoder
 
 // Uplink Data
@@ -24,6 +24,8 @@ var ENLINK_USB_IN_COUNT = 0x4A;
 var ENLINK_LOGIN_OK_COUNT = 0x4B;
 var ENLINK_LOGIN_FAIL_COUNT = 0x4C;
 var ENLINK_CPU_TEMP = 0x4E;
+
+var ENLINK_STATUS = 0xFE;
 
 // --------------------------------------------------------------------------------------
 // Downlink reply (it's an uplink) message Header and ACK/NAK
@@ -204,6 +206,13 @@ function decodeTelemetry(input) {
             case ENLINK_LOGIN_FAIL_COUNT:
                 obj.login_fail_count = U16((data[i + 1] << 8) | (data[i + 2]));
                 i += 2;
+                break;
+            // < -------------------------------------------------------------------------------->
+            case ENLINK_STATUS:
+                obj.status_sensor_id = (data[i + 1]);
+                obj.status_id = (data[i + 2]);
+                obj.status_val = U16((data[i + 3] << 8) | data[i + 4]);
+                i += 4;
                 break;
 
             default: // something is wrong with data
