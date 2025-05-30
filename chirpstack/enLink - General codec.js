@@ -1,4 +1,5 @@
 // Synetica Payload Decoder for Chirpstack v3 and v4
+// Will decode all enLink end-device uplinks
 // 29 May 2025 (FW Ver:7.14)
 // 24 Apr 2025 Includes Temperature fix
 // https://github.com/synetica/enlink-decoder

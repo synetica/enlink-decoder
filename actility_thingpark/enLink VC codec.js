@@ -1,4 +1,4 @@
-// Synetica enLink Analog Codec for Actility ThingPark
+// Synetica enLink Voltage/Current (Analog) Codec for Actility ThingPark
 // 29 May 2025 (FW Ver:7.14)
 // https://github.com/synetica/enlink-decoder
 

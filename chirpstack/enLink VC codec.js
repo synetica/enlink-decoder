@@ -1,4 +1,4 @@
-// Synetica enLink Analog (Voltage/Current) Codec for Chirpstack v3 and v4
+// Synetica enLink Voltage/Current (Analogue)) Codec for Chirpstack v3 and v4
 // 29 May 2025 (FW Ver:7.14)
 // https://github.com/synetica/enlink-decoder
 
