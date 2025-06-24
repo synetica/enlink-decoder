@@ -30,7 +30,7 @@ function decodeUplink(input) {
  const ENL_DETECTION_COUNT = 0x13;
  const ENL_OCC_TIME = 0x14;
  const ENL_COS_STATUS = 0x15;
- const ENL_LIQUID_LEVEL_STATUS = 0x16;
+ const ENL_DETECTION_STATUS = 0x16;
  const ENL_TEMP_PROBE1 = 0x17;
  const ENL_TEMP_PROBE2 = 0x18;
  const ENL_TEMP_PROBE3 = 0x19;
@@ -396,8 +396,8 @@ function decodeUplink(input) {
      i += 2;
      break;
 
-    case ENL_LIQUID_LEVEL_STATUS:
-     obj.liquid_detected = (data[i + 1]) ? true : false;
+    case ENL_DETECTION_STATUS:
+     obj.detection = (data[i + 1]) ? true : false;
      i += 1;
      break;
     case ENL_TEMP_PROBE1:

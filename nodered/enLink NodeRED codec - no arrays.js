@@ -25,7 +25,7 @@ const ENLINK_BVOC = 0x12;                                  // F32  ppm Breath VO
 const ENLINK_DETECTION_COUNT = 0x13;                       // U32  Counter. Num of detections for PIR/RangeFinder
 const ENLINK_OCC_TIME = 0x14;                              // U32  Total Occupied Time (seconds)
 const ENLINK_COS_STATUS = 0x15;                            // U16  Change-of-State Trigger/State Value
-const ENLINK_LIQUID_LEVEL_STATUS = 0x16;                   // U8   Level Status. 1=Detected, 0=Not Detected
+const ENLINK_DETECTION_STATUS = 0x16;                      // U8   Status. 1=Detected, 0=Not Detected (Occupancy, Liquid)
 const ENLINK_TEMP_PROBE1 = 0x17;                           // S16  As 0x01
 const ENLINK_TEMP_PROBE2 = 0x18;                           // S16  As 0x01
 const ENLINK_TEMP_PROBE3 = 0x19;                           // S16  As 0x01
@@ -659,7 +659,7 @@ function decodeTelemetry(data) {
                 i += 4;
                 msg_ok = true;
                 break;
-            case ENLINK_OCC_TIME: // Occupied time in seconds
+            case ENLINK_OCC_TIME: // Occupied duration in seconds
                 obj.occ_time_s = U32((data[i + 1] << 24) | (data[i + 2] << 16) | (data[i + 3] << 8) | (data[i + 4]));
                 i += 4;
                 msg_ok = true;
@@ -709,8 +709,8 @@ function decodeTelemetry(data) {
                 msg_ok = true;
                 break;
 
-            case ENLINK_LIQUID_LEVEL_STATUS: // 1 byte U8, 1 or 0, liquid level status
-                obj.liquid_detected = (data[i + 1]) ? true : false;
+            case ENLINK_DETECTION_STATUS:
+                obj.detection = (data[i + 1]) ? true : false;
                 i += 1;
                 msg_ok = true;
                 break;

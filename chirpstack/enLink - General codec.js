@@ -1,6 +1,6 @@
 // Synetica Payload Decoder for Chirpstack v3 and v4
 // Will decode all enLink end-device uplinks
-// 29 May 2025 (FW Ver:7.14)
+// 29 Jun 2025 (FW Ver:7.15)
 // 24 Apr 2025 Includes Temperature fix
 // https://github.com/synetica/enlink-decoder
 
@@ -37,7 +37,7 @@ var ENLINK_OCC_TIME = 0x14;
 
 var ENLINK_COS_STATUS = 0x15;
 
-var ENLINK_LIQUID_LEVEL_STATUS = 0x16;
+var ENLINK_DETECTION_STATUS = 0x16;
 
 var ENLINK_TEMP_PROBE1 = 0x17;
 var ENLINK_TEMP_PROBE2 = 0x18;
@@ -642,7 +642,7 @@ function decodeTelemetry(data) {
                 obj.det_count = U32((data[i + 1] << 24) | (data[i + 2] << 16) | (data[i + 3] << 8) | (data[i + 4]));
                 i += 4;
                 break;
-            case ENLINK_OCC_TIME: // Occupied time in seconds
+            case ENLINK_OCC_TIME: // Occupied duration in seconds
                 obj.occ_time_s = U32((data[i + 1] << 24) | (data[i + 2] << 16) | (data[i + 3] << 8) | (data[i + 4]));
                 i += 4;
                 break;
@@ -689,8 +689,8 @@ function decodeTelemetry(data) {
                 i += 2;
                 break;
 
-            case ENLINK_LIQUID_LEVEL_STATUS: // 1 byte U8, 1 or 0, liquid level status
-                obj.liquid_detected = (data[i + 1]) ? true : false;
+            case ENLINK_DETECTION_STATUS:
+                obj.detection = (data[i + 1]) ? true : false;
                 i += 1;
                 break;
 

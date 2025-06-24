@@ -1,10 +1,15 @@
 # Change Log
 
+## 2025 June Updates
+
+- Updated firmware up to 7.15
+- Re-worded the Liquid Level type byte (0x16) to a more general 'Detection' boolean, now used by the occupancy sensor.
+
 ## 2025 May Updates
 
 - Updated firmware up to 7.14
 - Added new Ozone sensor driver with an OTA downlink
-- Added new Sensor Status uplink
+- Added new Sensor Status uplink (0xFE) for SPS30
 
 ## 2025 April Updates
 
