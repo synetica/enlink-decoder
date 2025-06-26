@@ -4,7 +4,7 @@
 
 Online decoder can be found here: [Live Decoder](https://synetica.github.io/enlink-decoder/)
 
-> Latest firmware release is v7.14.
+> Latest firmware release is v7.15.
 
 > **Bug Workaround!** </br> There has been a problem introduced from firmware v7.01 to v7.09 inclusive. This affects the newer IAQ/OAQ, ZonePlus, Zone V2, and ZoneView. This is due to the introduction of a high-precision temperature/humidity sensor. The internal data structure changed, and a bug caused the transmitted data packet for temperatures to be wrong for ambient temperatures below 0.0°C or above 32.7°C. This has been fixed in firmware v7.10 and above. If a customer's enLink devices are experiencing temperatures above 32.7°C there is a decoder workaround that works for temperatures between 0.0°C and 65.5°C. Temperatures outside these values will be decoded incorrectly. Look for the function **t_fix_v7(t)** in the decoder samples.
 
@@ -45,6 +45,7 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
     - [TVOC Sensor Downlinks](#tvoc-sensor-downlinks)
     - [EPA Sensor Downlinks](#epaozone-sensor-downlinks)
     - [CO<sub>2</sub> Sensor Downlinks](#carbon-dioxide-sensor-downlinks)
+    - [Occupancy Sensor Downlinks](#occupancy-sensor-downlinks)
     - [Particulate Sensor Downlinks](#particulate-sensor-downlinks)
     - [Gas Sensor Downlinks](#gas-sensor-downlinks)
     - [Leak Sensor Downlinks](#leak-sensor-downlinks)
@@ -174,6 +175,10 @@ Available from 2025
 | Firmware Code | Options | Data Type(s) | Description |
 |:-----------|:--------|:-------------|:------------|
 | FW-ZV  | (default) | `0x01`, `0x3B` | Temperature, Hi-Res Humidity
+| | L | `0x03` | Light Level - [Light Sensor Downlinks](#light-sensor-downlinks)
+| | C | `0x08` | NDIR CO<sub>2</sub> ppm - [CO<sub>2</sub> Sensor Downlinks](#carbon-dioxide-sensor-downlinks)
+| | H | `0x13`, `0x14`, `0x16` | Human Presence. Includes [ATI](#ati---adaptive-transmission-interval) feature - [Occupancy Sensor Downlinks](#occupancy-sensor-downlinks)
+| | I | `0x36`, `0x37`, `0x38`, `0x39`, `0x3A` | Indoor TVOC Sensor (enLink IAQ) - [TVOC Sensor Downlinks](#tvoc-sensor-downlinks)
 
 [Zone View e-paper Display Downlinks](#zone-view-e-paper-display-downlinks)
 
@@ -303,9 +308,9 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x11` 017 | MB ID + Modbus Cumulative value | ID: 0 to 31<br />Cumulative&nbsp;Value | | 1 + 4 | F32
 | `0x12` 018 | bVOC – VOC concentration |  | ppm | 4 | F32
 | `0x13` 019 | Detection count (PIR etc.) |  | count | 4 | U32
-| `0x14` 020 | Total occupied time |  | seconds | 4 | U32
+| `0x14` 020 | Total occupied duration |  | seconds | 4 | U32
 | `0x15` 021 | Change of State information | [Change of State](#pulse-counters---change-of-state) |  | 3 | U16
-| `0x16` 022 | Liquid Level Status | 0 = No Liquid<br />1 = Detected | status | 1 | U8
+| `0x16` 022 | Detection Status (Occupancy, Liquid Level)| 0 = Inactive<br />1 = Detected | status | 1 | U8
 | `0x17` 023 | Probe 1 Temperature | -55 to 125 | °C | 2 | S16 | / 10
 | `0x18` 024 | Probe 2 Temperature | -55 to 125 | °C | 2 | S16 | / 10
 | `0x19` 025 | Probe 3 Temperature | -55 to 125 | °C | 2 | S16 | / 10
@@ -904,18 +909,39 @@ The following are used in devices with CO<sub>2</sub> sensor
 | Enable/Disable Auto-Calibration | 2 | `0x24` | `0`/`1` (Disable/Enable)
 | Set Target CO<sub>2</sub> Level | 3 | `0x25` | `100` to `1000` ppm (`0x0064` to `0x03E8`)
 | Set to Known CO<sub>2</sub> Level | 3 | `0x26` | `10` to `2000` ppm (`0x000A` to `0x07D0`)
-| Reset to factory Calibration<br /> **Only Sunrise model**| 1 | `0x27`
+| Reset to factory Calibration<br /> **Only Sunrise model**| 1 | `0x27` |
 | Set Regular Auto-Cal Interval | 3 | `0x28` | `24` to `8760` hours (`0x0018` to `0x2238`)
 | Set the Out-of-Bounds limits<br />**Only GSS model** | 3 | `0x29` | `10` to `5000` ppm (`0x000A` to `0x1388`)
 | Set initial auto-cal interval<br />**Only GSS model** | 3 | `0x2A` | `1` to `8760` hours (`0x0001` to `0x2238`)
 
 | Example Setting | Message |
 | --------------- | ------- |
-| Enable Auto-Calibration | `A5 02 24 01`
-| Set the auto-calibration target to 450ppm | `A5 03 25 01 C2`
-| Set the sensor to known CO<sub>2</sub> concentration of 780ppm (`0x030C`) | `A5 03 26 03 0C`
-| To reset the sensor back to factory calibration (Sunrise Only) | `A5 01 27`
-| Set the auto-calibration interval to 10 days (240 hours, `0x00F0`) | `A5 03 28 00 F0`
+| Enable Auto-Calibration | `A5 02 24 01` |
+| Set the auto-calibration target to 450ppm | `A5 03 25 01 C2` |
+| Set the sensor to known CO<sub>2</sub> concentration of 780ppm (`0x030C`) | `A5 03 26 03 0C` |
+| To reset the sensor back to factory calibration (Sunrise Only) | `A5 01 27` |
+| Set the auto-calibration interval to 10 days (240 hours, `0x00F0`) | `A5 03 28 00 F0` |
+
+### Occupancy Sensor Downlinks
+
+Available from v7.15 onwards.
+The following are used in devices with the STHS34PF80 sensor. Firmware code 'H'.
+
+| Name | Msg Len | Command | Value |
+| ---- | ------- | ------- | ----- |
+| Set presence threshold | 3 | `0x54` | `0` to `32767` (`0x0000` to `0x7FFF`) |
+| Set presence hysteresis | 2 | `0x55` | `0` to `255` (`0x00` to `0xFF`) |
+| Set the inactivity timeout | 3 | `0x56` | `0` to `21600` (`0x0000` to `0x5460`) |
+| Set the detection count and duration time to zero | 1 | `0x57` |
+| Reboot/Reset the sensor  | 1 | `0x58` |
+
+| Example Setting | Message |
+| --------------- | ------- |
+| Set the presence threshold to 200 | `A5 03 54 00 C8` |
+| Set the presence hysteresis to 50 | `A5 02 55 32` |
+| Set the inactivity timeout to 25 minutes (1500 seconds) | `A5 03 56 05 DC` |
+| Zero the count and duration variables | `A5 01 57` |
+| Reset the sensor | `A5 01 58` |
 
 ### Particulate Sensor Downlinks
 

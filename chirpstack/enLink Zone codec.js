@@ -1,5 +1,5 @@
 // Synetica enLink Zone / Zone 2 / Zone View Codec for Chirpstack v3 and v4
-// 29 May 2025 (FW Ver:7.14)
+// 29 Jun 2025 (FW Ver:7.15)
 // 24 Apr 2025 Includes Temperature fix
 // https://github.com/synetica/enlink-decoder
 
@@ -21,9 +21,10 @@ var ENLINK_CO2E = 0x3F;
 // C
 var ENLINK_CO2 = 0x08;
 
-// M
+// M / H
 var ENLINK_DETECTION_COUNT = 0x13;
 var ENLINK_OCC_TIME = 0x14;
+var ENLINK_DETECTION_STATUS = 0x16;
 
 // I (PBAQ)
 var ENLINK_MIN_TVOC = 0x36;
@@ -228,14 +229,20 @@ function decodeTelemetry(data) {
                 i += 2;
                 break;
 
-            // M
+            // M / H
             case ENLINK_DETECTION_COUNT:
                 obj.det_count = U32((data[i + 1] << 24) | (data[i + 2] << 16) | (data[i + 3] << 8) | (data[i + 4]));
                 i += 4;
                 break;
-            case ENLINK_OCC_TIME: // Occupied time in seconds
+            case ENLINK_OCC_TIME: // Occupied duration in seconds
                 obj.occ_time_s = U32((data[i + 1] << 24) | (data[i + 2] << 16) | (data[i + 3] << 8) | (data[i + 4]));
                 i += 4;
+                break;
+            case ENLINK_DETECTION_STATUS:
+                //obj.detection = (data[i + 1]) ? true : false;
+                // Renamed as we know what sensor this is
+                obj.occupied = (data[i + 1]) ? true : false;
+                i += 1;
                 break;
 
             // I

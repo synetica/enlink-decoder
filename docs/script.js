@@ -98,7 +98,7 @@ function js_decoder(msg) {
     const ENLINK_DETECTION_COUNT = 0x13;
     const ENLINK_OCC_TIME = 0x14;
     const ENLINK_COS_STATUS = 0x15;
-    const ENLINK_LIQUID_LEVEL_STATUS = 0x16;
+    const ENLINK_DETECTION_STATUS = 0x16;
     const ENLINK_TEMP_PROBE1 = 0x17;
     const ENLINK_TEMP_PROBE2 = 0x18;
     const ENLINK_TEMP_PROBE3 = 0x19;
@@ -709,7 +709,7 @@ function js_decoder(msg) {
                     );
                     i += 4;
                     break;
-                case ENLINK_OCC_TIME: // Occupied time in seconds
+                case ENLINK_OCC_TIME: // Occupied duration in seconds
                     obj.occ_time_s = U32(
                         (data[i + 1] << 24) |
                         (data[i + 2] << 16) |
@@ -757,8 +757,8 @@ function js_decoder(msg) {
                     i += 2;
                     break;
 
-                case ENLINK_LIQUID_LEVEL_STATUS: // 1 byte U8, 1 or 0, liquid level status
-                    obj.liquid_detected = data[i + 1] ? true : false;
+                case ENLINK_DETECTION_STATUS:
+                    obj.detection = data[i + 1] ? true : false;
                     i += 1;
                     break;
 
