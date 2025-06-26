@@ -1429,6 +1429,7 @@ function js_decoder(msg) {
                     i += 4;
                     break;
 
+                    
                 default:
                     // something is wrong with data
                     obj.error =

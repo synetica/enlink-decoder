@@ -556,7 +556,7 @@ The example shows Sensor-ID `0x1C` (28 decimal). This is the SPS30 particulate s
 | `0x1C` 028 | SPS30 Particulates (P+) | `0x02` | Laser Fail | *1 Count. Can occur once per sample
 | `0x1C` 028 | SPS30 Particulates (P+) | `0x03` | Fan Failure | *1 Count. Can occur once per sample
 
-Notes: *1 - Only sent if the count is greater than zero.
+Notes: *1 - Only sent if the count is greater than zero. 
 
 </br>
 
