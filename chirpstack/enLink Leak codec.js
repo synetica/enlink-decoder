@@ -208,12 +208,17 @@ function decodeTelemetry(data) {
                 break;
             // < -------------------------------------------------------------------------------->
             case ENLINK_STATUS:
-                obj.status_sensor_id = (data[i + 1]);
-                obj.status_id = (data[i + 2]);
-                obj.status_val = U16((data[i + 3] << 8) | data[i + 4]);
+                var sensor_id = (data[i + 1]);
+                var status_id = (data[i + 2]);
+                var status_val = U16((data[i + 3] << 8) | data[i + 4]);
+                if (obj.status) {
+                obj.status.push([sensor_id, status_id, status_val]);
+                } else {
+                obj.status = [[sensor_id, status_id, status_val]];
+                }
                 i += 4;
                 break;
-
+                
             default: // something is wrong with data
                 obj.error = "Error at index " + i + "  Byte value " + data[i];
                 i = data.length;

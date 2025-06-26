@@ -1207,14 +1207,13 @@ function decodeTelemetry(data) {
                 break;
             // < -------------------------------------------------------------------------------->
             case ENLINK_STATUS:
-                sensor_id = (data[i + 1]);
-                status_id = (data[i + 2]);
-                status_val = U16((data[i + 3] << 8) | data[i + 4]);
-                // As Array
+                var sensor_id = (data[i + 1]);
+                var status_id = (data[i + 2]);
+                var status_val = U16((data[i + 3] << 8) | data[i + 4]);
                 if (obj.status) {
-                    obj.status.push([sensor_id, status_id, status_val]);
+                obj.status.push([sensor_id, status_id, status_val]);
                 } else {
-                    obj.status = [[sensor_id, status_id, status_val]];
+                obj.status = [[sensor_id, status_id, status_val]];
                 }
                 i += 4;
                 break;

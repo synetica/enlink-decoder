@@ -1183,9 +1183,9 @@ function decodeUplink(input) {
      break;
 
     case ENL_STATUS:
-      sensor_id = (data[i + 1]);
-      status_id = (data[i + 2]);
-      status_val = U16((data[i + 3] << 8) | data[i + 4]);
+      var sensor_id = (data[i + 1]);
+      var status_id = (data[i + 2]);
+      var status_val = U16((data[i + 3] << 8) | data[i + 4]);
       if (obj.status) {
         obj.status.push([sensor_id, status_id, status_val]);
       } else {
