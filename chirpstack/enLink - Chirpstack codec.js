@@ -7,10 +7,6 @@
 // Show complex data as either an array, a simple data value, or both.
 var show_array = 1;		// zero or 1
 var show_simple = 1;
-var show_optional_warnings = 1;
-
-// Tested with NodeRed v2.2.2 (embedded hardware with Debian) and v4.0.9 on Linux desktop
-// Connected with MQTT node to Chirpstack v4 with a topic of 'application/+/device/+/event/up'
 
 // --------------------------------------------------------------------------------------
 // Telemetry data from all enLink Models
@@ -2165,64 +2161,59 @@ function decodeModbusResponse(data) {
     }
 }
 // --------------------------------------------------------------------------------------
-/*
-// Ignore Port 0 Possible MAC Command
-if (msg.port === 0) {
-    return null;
-}
-*/
 // --------------------------------------------------------------------------------------
-
-// ** Start of Main Function **
-
-// (1) Ignore any non-enLink devEui and add eui with dashes for compatibility
-if (msg.payload.deviceInfo.devEui.slice(0, 8) != "0004a30b") return null;
-var eui_array = msg.payload.deviceInfo.devEui.match(/.{1,2}/g);
-msg.eui = eui_array.join('-');
-
-// (2) Strip device payload 'bytes' from message for decoder
-// -- Create byte buffer from B64 message
-var buf = new Buffer(msg.payload.data, 'base64');
-var obj = JSON.parse(JSON.stringify(buf));
-// -- Helps with debugging any problems
-//msg.hex = bytesToHex(obj.data);
-
-// (3) Ignore empty payloads or single byte join check data
-if (obj.data) {
-    if ((obj.data.length == 0) || (obj.data.length == 1)) {
-        if (show_optional_warnings == 1) {
-            node.warn("Data array length warning. Length is: " + obj.data.length);
+// Function to switch between Telemetry or downlink reply
+function enlinkDecode(bytes) {
+    // Ignore empty payloads
+    if (bytes) {
+        if (bytes.length === 0) {
+            return { message: "Is zero length" };
         }
-        return null;
+        // Ignore single byte Join-Check payloads (Nov 2022)
+        if (bytes.length === 1) {
+            return { message: "Is single byte (Join Check possibly)" };
+        }
+    } else {
+        return { message: "Is Empty" };
     }
-} else {
-    if (show_optional_warnings == 1) {
-        node.warn("No data in message");
+
+    if (bytes[0] == ENLINK_HEADER) {
+        // This is a reply to a downlink command
+        return decodeStdResponse(bytes);
     }
-    return null;
+    if (bytes[0] == ENLINK_MB_SYS) {
+        // This is a Modbus Setting response
+        return decodeModbusResponse(bytes);
+    }
+    return decodeTelemetry(bytes);
 }
 
-// (4) Create result variable, and decode
-var res = {};
-// -- Check message type for the right decoder
-if (obj.data[0] == ENLINK_HEADER) {
-    // -- This is a response to a downlink command
-    res = decodeStdResponse(obj.data);
-} else if (obj.data[0] == ENLINK_MB_SYS) {
-    // -- This is a Modbus Setting response
-    res = decodeModbusResponse(obj.data);
-} else {
-    res = decodeTelemetry(obj.data);
+// --------------------------------------------------------------------------------------
+// Chirpstack Version 3
+// Decode decodes an array of bytes into an object.
+//  - fPort contains the LoRaWAN fPort number
+//  - bytes is an array of bytes, e.g. [225, 230, 255, 0]
+//  - variables contains the device variables e.g. {"calibration": "3.5"} (both the key / value are of type string)
+// The function must return an object, e.g. {"temperature": 22.5}
+function Decode(fPort, bytes, variables) {
+    return {
+        data: enlinkDecode(bytes)
+    };
 }
 
-// (5) If result is OK, create message for next stage
-if (res !== null) {
-    msg.data = res;  // use 'data' for further function processing
-    //msg.human_readable = JSON.stringify(res, null, 4);
-    return msg;
+// --------------------------------------------------------------------------------------
+// Chirpstack Version 4
+// Decode uplink function.
+//
+// Input is an object with the following fields:
+// - bytes = Byte array containing the uplink payload, e.g. [255, 230, 255, 0]
+// - fPort = Uplink fPort.
+// - variables = Object containing the configured device variables.
+//
+// Output must be an object with the following fields:
+// - data = Object representing the decoded payload.
+function decodeUplink(input) {
+    return {
+        data: enlinkDecode(input.bytes)
+    };
 }
-if (show_optional_warnings == 1) {
-    node.warn("Decoder returned no data");
-}
-return null;
-

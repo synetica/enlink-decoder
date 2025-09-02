@@ -1,5 +1,5 @@
 // Synetica Payload Decoder for The Things Stack V3
-// 29 May 2025 (FW Ver:7.14)
+// 20 Aug 2025 (FW Ver:7.16)
 // 24 Apr 2025 Includes Temperature fix
 // https://github.com/synetica/enlink-decoder
 
@@ -106,6 +106,8 @@ function decodeUplink(input) {
  const ENL_DE_EVENT = 0x70;
  const ENL_DE_SMOKE = 0x71;
  const ENL_DE_VAPE = 0x72;
+ const ENL_MPS_COUNT = 0x73;
+ const ENL_MPS_FLAM_GAS = 0x74;
 
  const ENL_CPU_TEMP_DEP = 0x40;
  const ENL_BATT_STATUS = 0x41;
@@ -123,7 +125,7 @@ function decodeUplink(input) {
  const ENL_FAN_RUN_TIME = 0x4D;
  const ENL_CPU_TEMP = 0x4E;
 
- const ENL_STATUS = 0xFE;
+ const ENL_FAULT = 0xFE;
 
  function S8(bin) {
   var num = bin & 0xFF;
@@ -153,6 +155,14 @@ function decodeUplink(input) {
   }
   return ival;
  }
+ function S32(ival) {
+  if (isNaN(ival) === false) {
+   if (ival > 2147483647) {
+    ival = ival - 4294967296;
+   }
+  }
+  return ival;
+ }
  function fromF32(byte0, byte1, byte2, byte3) {
   var bits = (byte0 << 24) | (byte1 << 16) | (byte2 << 8) | (byte3);
   var sign = ((bits >>> 31) === 0) ? 1.0 : -1.0;
@@ -172,6 +182,9 @@ function decodeUplink(input) {
  }
  function u32_1(bytes, index) {
   return U32((bytes[index + 1] << 24) | (bytes[index + 2] << 16) | (bytes[index + 3] << 8) | (bytes[index + 4]));
+ }
+ function s32_1(bytes, index) {
+  return S32((bytes[index + 1] << 24) | (bytes[index + 2] << 16) | (bytes[index + 3] << 8) | (bytes[index + 4]));
  }
 
  var GAS_HCHO = 0x17;
@@ -241,15 +254,40 @@ function decodeUplink(input) {
   var id = (id_byte & 0x7F);
   switch (id) {
    case 0x00:
-    return Unknown;
+    return "Unknown";
    case 0x01:
-    return Copper;
+    return "Copper";
    case 0x02:
-    return Silver;
+    return "Silver";
    case 0x03:
-    return Chromium;
+    return "Chromium";
   }
-  return Error;
+  return "Error";
+ }
+ function GetFlamGas(id) {
+  switch (id) {
+   case 0x00:
+    return "No Gas";
+   case 0x01:
+    return "Hydrogen";
+   case 0x02:
+    return "Hydrogen Mixture";
+   case 0x03:
+    return "Methane";
+   case 0x04:
+    return "Light Gas";
+   case 0x05:
+    return "Medium";
+   case 0x06:
+    return "Chromium";
+   case 0xFD:
+    return "Err: Unknown Gas";
+   case 0xFE:
+    return "Err: Under Range";
+   case 0xFF:
+    return "Err: Over Range";
+  }
+  return "Error";
  }
  // Workaround Fix for OAQ/IAQ/ZN2/ZV v7.01~7.09
  function t_fix_v7(t) {
@@ -413,18 +451,15 @@ function decodeUplink(input) {
      i += 2;
      break;
     case ENL_TEMP_PROBE_IN_BAND_DURATION_S_1:
-     obj.temp_probe_in_band_duration_s_1 =
-      u32_1(data, i);
+     obj.temp_probe_in_band_duration_s_1 = u32_1(data, i);
      i += 4;
      break;
     case ENL_TEMP_PROBE_IN_BAND_DURATION_S_2:
-     obj.temp_probe_in_band_duration_s_2 =
-      u32_1(data, i);
+     obj.temp_probe_in_band_duration_s_2 = u32_1(data, i);
      i += 4;
      break;
     case ENL_TEMP_PROBE_IN_BAND_DURATION_S_3:
-     obj.temp_probe_in_band_duration_s_3 =
-      u32_1(data, i);
+     obj.temp_probe_in_band_duration_s_3 = u32_1(data, i);
      i += 4;
      break;
     case ENL_TEMP_PROBE_IN_BAND_ALARM_COUNT_1:
@@ -440,18 +475,15 @@ function decodeUplink(input) {
      i += 2;
      break;
     case ENL_TEMP_PROBE_LOW_DURATION_S_1:
-     obj.temp_probe_low_duration_s_1 =
-      u32_1(data, i);
+     obj.temp_probe_low_duration_s_1 = u32_1(data, i);
      i += 4;
      break;
     case ENL_TEMP_PROBE_LOW_DURATION_S_2:
-     obj.temp_probe_low_duration_s_2 =
-      u32_1(data, i);
+     obj.temp_probe_low_duration_s_2 = u32_1(data, i);
      i += 4;
      break;
     case ENL_TEMP_PROBE_LOW_DURATION_S_3:
-     obj.temp_probe_low_duration_s_3 =
-      u32_1(data, i);
+     obj.temp_probe_low_duration_s_3 = u32_1(data, i);
      i += 4;
      break;
     case ENL_TEMP_PROBE_LOW_ALARM_COUNT_1:
@@ -467,18 +499,15 @@ function decodeUplink(input) {
      i += 2;
      break;
     case ENL_TEMP_PROBE_HIGH_DURATION_S_1:
-     obj.temp_probe_high_duration_s_1 =
-      u32_1(data, i);
+     obj.temp_probe_high_duration_s_1 = u32_1(data, i);
      i += 4;
      break;
     case ENL_TEMP_PROBE_HIGH_DURATION_S_2:
-     obj.temp_probe_high_duration_s_2 =
-      u32_1(data, i);
+     obj.temp_probe_high_duration_s_2 = u32_1(data, i);
      i += 4;
      break;
     case ENL_TEMP_PROBE_HIGH_DURATION_S_3:
-     obj.temp_probe_high_duration_s_3 =
-      u32_1(data, i);
+     obj.temp_probe_high_duration_s_3 = u32_1(data, i);
      i += 4;
      break;
     case ENL_TEMP_PROBE_HIGH_ALARM_COUNT_1:
@@ -676,7 +705,6 @@ function decodeUplink(input) {
      obj.de_vape = u16_1(data, i);
      i += 2;
      break;
-
     case ENL_GAS_PPB:
      switch (data[i + 1]) {
       case GAS_HCHO:
@@ -1119,6 +1147,21 @@ function decodeUplink(input) {
      i += 2;
      break;
 
+    case ENL_MPS_COUNT:
+     obj.mps_count = s32_1(data, i);
+     i += 4;
+     break;
+    case ENL_MPS_FLAM_GAS:
+     var gas = GetFlamGas(data[i + 1]);
+     var conc = f32_2(data, i);
+     if (obj.flam) {
+      obj.flam.push([gas, conc]);
+     } else {
+      obj.flam = [[gas, conc]];
+     }
+     i += 5;
+     break;
+
     // Optional KPIs
     case ENL_CPU_TEMP_DEP:
      obj.cpu_temp_dep = data[i + 1] + (Math.round(data[i + 2] * 100 / 256) / 100);
@@ -1182,14 +1225,14 @@ function decodeUplink(input) {
      i += 4;
      break;
 
-    case ENL_STATUS:
+    case ENL_FAULT:
       var sensor_id = (data[i + 1]);
-      var status_id = (data[i + 2]);
-      var status_val = U16((data[i + 3] << 8) | data[i + 4]);
-      if (obj.status) {
-        obj.status.push([sensor_id, status_id, status_val]);
+      var fault_code = (data[i + 2]);
+      var count_val = U16((data[i + 3] << 8) | data[i + 4]);
+      if (obj.fault) {
+        obj.fault.push([sensor_id, fault_code, count_val]);
       } else {
-        obj.status = [[sensor_id, status_id, status_val]];
+        obj.fault = [[sensor_id, fault_code, count_val]];
       }
       i += 4;
       break;

@@ -1,8 +1,15 @@
 # Change Log
 
+## 2025 August Updates
+
+- Updated firmware up to 7.16
+- New MPS Sensor option added.
+- Re-named the new 'Status' message to 'Fault' to avoid confusion with the Status device.
+
 ## 2025 June Updates
 
 - Updated firmware up to 7.15
+- New added human presence sensor to ZoneView model.
 - Re-worded the Liquid Level type byte (0x16) to a more general 'Detection' boolean, now used by the occupancy sensor.
 
 ## 2025 May Updates

@@ -4,7 +4,7 @@
 
 Online decoder can be found here: [Live Decoder](https://synetica.github.io/enlink-decoder/)
 
-> Latest firmware release is v7.15.
+> Latest firmware release is v7.16.
 
 > **Bug Workaround!** </br> There has been a problem introduced from firmware v7.01 to v7.09 inclusive. This affects the newer IAQ/OAQ, ZonePlus, Zone V2, and ZoneView. This is due to the introduction of a high-precision temperature/humidity sensor. The internal data structure changed, and a bug caused the transmitted data packet for temperatures to be wrong for ambient temperatures below 0.0°C or above 32.7°C. This has been fixed in firmware v7.10 and above. If a customer's enLink devices are experiencing temperatures above 32.7°C there is a decoder workaround that works for temperatures between 0.0°C and 65.5°C. Temperatures outside these values will be decoded incorrectly. Look for the function **t_fix_v7(t)** in the decoder samples.
 
@@ -27,8 +27,16 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
 - [Uplink Payload](#uplink-payload)
   - [Uplink Payload Structure](#uplink-payload-structure)
   - [Uplink Transmission Port](#uplink-transmission-port)
-  - [Sensor Details](#sensor-details)
-  - [Decoding Complex Messages](#decoding-complex-messages)
+  - [Uplink Payload Type](#uplink-payload-type)
+  - [Decoding Complex Uplinks](#decoding-complex-uplinks)
+    - [Modbus](#modbus)
+    - [Pulse Counters - Change of State](#pulse-counters---change-of-state)
+    - [Gas Readings](#gas-readings)
+    - [Corrosion](#corrosion)
+    - [MPS Flammable Gas Readings](#mps-flammable-gas-readings)
+    - [Sensor Fault Code Messages](#sensor-fault-code-message)
+      - [SPS30 Particulates](#sps30-particulates---sensor-id-28-0x1c)
+      - [MPS Flammable Gas](#mps-flammable-gas---sensor-id-36-0x24)
   - [enLink KPI Payload Data](#enlink-kpi-payload-data)
 - [Downlink Payload](#downlink-payload)
   - [Downlink Payload Structure](#downlink-payload-structure)
@@ -51,6 +59,7 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
     - [Leak Sensor Downlinks](#leak-sensor-downlinks)
     - [Differential Pressure / Air Flow Downlinks](#differential-pressure--air-flow-downlinks)
     - [Zone View e-paper Display Downlinks](#zone-view-e-paper-display-downlinks)
+    - [MPS Sensor Downlink](#mps-sensor-downlink)
 - [Sample CODECs for Decoding Messages](#sample-codecs-for-decoding-messages)
 
 </br>
@@ -129,6 +138,7 @@ Link to: [Air / Air-X Downlinks](#air--air-x-downlinks)
 | | O3 | `0x61` | Ozone (From v7.11)
 | | G | `0x61`, `0x66` | Single Gas Sensor - [Gas Sensor Downlinks](#gas-sensor-downlinks)
 | | S | `0x50`, `0x51`, `0x52` | Sound
+| | N | `0x73`, `0x74` | MPS (Molecular Property Spectrometer)
 | | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`, `0x5F`, `0x60` | Particles ([IAQ](https://synetica.net/enlink-iaq/)/[OAQ](https://synetica.net/enlink-oaq/)) </br> [Particulate Sensor Downlinks](#airair-x-and-iaqoaq-particulate-sensor-downlinks)
 | | PP | `0x69`, `0x6A`, `0x6B`, `0x57`, `0x58`, `0x6C`, <br/>`0x5A`, `0x6D`, `0x6E`, `0x5B`, `0x5C`, `0x5D`, <br/>`0x6F`, `0x5F`, <br/>`0x3C`, `0x3D` | Particles ([IAQ Plus](https://synetica.net/enlink-iaq-plus/)) </br> [Particulate Sensor Downlinks](#iaq-plusvape-particulate-sensor-downlinks) </br> **Unit must be externally powered** </br></br> Compensated Temp/Humidity
 | | PV | `0x69`, `0x6A`, `0x6B`, `0x57`, `0x58`, `0x6C`, <br/>`0x5A`, `0x6D`, `0x6E`, `0x5B`, `0x5C`, `0x5D`, <br/>`0x6F`, `0x5F`, `0x70`, `0x71`, `0x72`, <br/>`0x3C`, `0x3D` | Particles, Smoke/Vape ([IAQ Vape](https://synetica.net/enlink-iaq-vape/)) - Includes [ATI](#ati---adaptive-transmission-interval) feature </br> [Particulate Sensor Downlinks](#iaq-plusvape-particulate-sensor-downlinks) </br> **Unit must be externally powered** </br></br> Compensated Temp/Humidity
@@ -287,7 +297,7 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 
 </br>
 
-## Sensor Details
+## Uplink Payload 'Type'
 
 | Type Hex&nbsp;Dec| Sensor | Sensor Range | Units | Num Bytes | Format | Scaling |
 |:---------:| ------ | ------------ | ----- |:---------:|:-----------:| ------- |
@@ -386,10 +396,12 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x70` 112 | Detection: Event Count  | 0 to 65535 | count | 2 | U16
 | `0x71` 113 | Detection: Smoke Count  | 0 to 65535 | count | 2 | U16
 | `0x72` 114 | Detection: Vape Count   | 0 to 65535 | count | 2 | U16
-| `0xFE` 254 | Status: [Sensor ID] + [Status ID] + [Status Value] |  |  | 1 + 1 + 2 | U16
+| `0x73` 115 | MPS Flammable Gas Sensor Cycle Count (internal counter increments every 4 seconds)  |  | count | 4 | I32
+| `0x74` 116 | MPS Flammable Gas ID + %LEL(Lower Explosive Level) concentration   | < -15%  to > +110% | %LEL(ISO) | 1 + 4 | F32
+| `0xFE` 254 | Condition: [Sensor ID] + [Item ID] + [Item Value] |  |  | 1 + 1 + 2 | U16
 </br>
 
-## Decoding Complex Messages
+## Decoding Complex Uplinks
 
 Most sensor data values are self-explanatory, additional information for decoding more complex sensor data is given in the sections below.
 
@@ -403,7 +415,7 @@ The enLink Modbus data types for Interval and Cumulative values use 5 bytes to e
 - Modbus Interval Value – for Modbus data types which do not accumulate, e.g. Voltage, Current, Temperature etc.
 - Modbus Cumulative Value – for Modbus data types which are linked to a value which accumulates, e.g. kWh, Volume etc.
 
-The first byte indicates which of the 32 available Modbus items is being accessed (0 to 31), followed by the Modbus Value represented as a 32 bit floating point value ([IEEE754](https://en.wikipedia.org/wiki/IEEE_754) format). Interval Value types are used for instantaneous values, such as Voltage, Current, Temperature, Pressure etc. Cumulative Values are used for items such as energy consumption and total volume.
+The first byte indicates which of the 32 available Modbus items is being accessed (0 to 31), followed by the Modbus Value represented as a 32 bit floating point value ([IEEE 754](https://en.wikipedia.org/wiki/IEEE_754) format). Interval Value types are used for instantaneous values, such as Voltage, Current, Temperature, Pressure etc. Cumulative Values are used for items such as energy consumption and total volume.
 
 > Example Payload Data: `10 04 41 BC 7A E1`
 
@@ -411,7 +423,6 @@ This is an interval data value, from configured item number 5. The value is 23.5
 
 For an online converter, see [Hex to Float Converter](https://gregstoll.com/~gregstoll/floattohex/)
 
-</br>
 
 ### Pulse Counters - Change of State
 
@@ -453,15 +464,11 @@ You may receive a *trigger status* byte value where multiple bits are set. This 
 
 > Example Payload Data: `15 01 05`
 
-</br>
-
 The example shows the transmission was triggered when Input #1 changed from *Closed* to *Open*, and the state of the inputs are:
 
 - Input 1: Closed
 - Input 2: Open
 - Input 3: Closed
-
-</br>
 
 ### Gas Readings
 
@@ -472,8 +479,6 @@ Types: `0x61`, `0x66`
 The full message is sent as 6 bytes. For example:
 
 > Example Payload Data: `61 19 41 BC 7A E1`
-
-</br>
 
 Ths translates to Gas Type `0x19` or 25 which is **Carbon Monoxide**. The value is 23.56 ppb.
 
@@ -534,9 +539,32 @@ Other Coupon/Metal types are:
 | `0x02` - Silver                | | `0x82` - Silver
 | `0x03` - Chromium              | | `0x83` - Chromium
 
+### MPS Flammable Gas Readings
+
+---
+
+Type: `0x74`
+
+The full message is sent as 6 bytes. For example:
+
+> Example Payload Data: `74 03 41 BC 7A E1`
+
+Ths translates to Gas Type `0x03` which is **Methane**. The value is **23.56 %LEL(ISO)**.
+
+The Gas types are listed here:
+
+|  |  |  |  |  |
+|--|--|--|--|--|
+| 0 - `0x00`   | No Gas             | | 1 - `0x01`   | Hydrogen
+| 2 - `0x02`   | Hydrogen Mixture   | | 3 - `0x03`   | Methane
+| 4 - `0x04`   | Light Gas          | | 5 - `0x05`   | Medium Gas
+| 6 - `0x06`   | Heavy Gas          | |
+| 253 - `0xFD` | Unknown Gas        | | 254 - `0xFE` | Under Range: < -5%LEL
+| 255 - `0xFF` | Over Range: >= 110%LEL
+
 </br>
 
-### Status Message
+### Sensor Fault Code Message
 
 ---
 
@@ -544,19 +572,61 @@ Available from v7.14 onwards.
 
 Type: `0xFE`
 
-The full message is sent as 5 bytes. The second byte indicates the Sensor-ID, third byte the Status-ID and the next two are the unsigned 16 bit value.
+The fault code messages are used to report a sensor state. Communication or transducer faults may be reported by the sensor. The full message is sent as 5 bytes. The second byte indicates the Sensor-ID, third byte the Fault-Code and the next two are the unsigned 16 bit value.
+
+#### SPS30 Particulates - Sensor ID: 28 `0x1C`
+
+Available from v7.14 onwards.
 
 > Example Payload Data: `FE 1C 01 02 27`
 
-The example shows Sensor-ID `0x1C` (28 decimal). This is the SPS30 particulate sensor. Status-ID is `0x01` (1 decimal). This is 'Fan-Speed-Error'. The value is 0x0227 (551 decimal) - this is the number of errors.
+The example shows Sensor-ID `0x1C` (28 decimal). This is the SPS30 particulate sensor. Fault-Code is `0x01` (1 decimal). This is 'Fan-Speed-Error'. The value is 0x0227 (551 decimal) - this is the number of errors occured since last power-up.
 
-| Sensor ID | Sensor Name (FW Code) | Status ID | Status Name | Value Meaning |
-|--|--|--|--|--|
-| `0x1C` 028 | SPS30 Particulates (P+) | `0x01` | Fan Speed Error | *1 Count. Can occur once per sample
-| `0x1C` 028 | SPS30 Particulates (P+) | `0x02` | Laser Fail | *1 Count. Can occur once per sample
-| `0x1C` 028 | SPS30 Particulates (P+) | `0x03` | Fan Failure | *1 Count. Can occur once per sample
+| Fault Code | Name | Value Description |
+|--|--|--|
+| `0x01` | Fan Speed Error | Count. Can occur once per sample
+| `0x02` | Laser Fail | Count. Can occur once per sample
+| `0x03` | Fan Failure | Count. Can occur once per sample
 
-Notes: *1 - Only sent if the count is greater than zero. 
+> Note: These packets are only sent if the count is greater than zero.
+
+#### MPS Flammable Gas - Sensor ID: 36 `0x24`
+
+Available from v7.16 onwards.
+
+'Molecular Property Spectrometer' sensor messages.
+
+> Example Payload Data: `FE 24 35 00 27`
+
+The example shows Sensor-ID `0x24` (36 decimal). Fault-Code is `0x35` (53 decimal). This is 'Breath/Humidity Surge'. The value is 0x0027 (39 decimal) - this is the number of errors occured since last  powered up.
+
+All the values are a count of the occurence of each condition.
+
+| Fault Code | Name | Value Description |
+|--|--|--|
+| `0x01` | CRC Failed                     | Transmitted data failed checksum. The message will be retried up to 20 times before the sensor is restarted.
+| `0x02` | Bad Parameter                  | Transmitted parameter failed to be understood. The message will be retried up to 20 times before the sensor is restarted.
+| `0x05` | Unknown Cmd                    | Transmitted command failed to be understood. The message will be retried up to 20 times before the sensor is restarted.
+| `0x07` | Incomplete Cmd                 | Transmitted command failed to be understood. The message will be retried up to 20 times before the sensor is restarted.
+| `0x21` | VDD Out of Range               | -100%LEL - Power cycle the device. If this error persists, contact support.
+| `0x22` | VREF Out of Range              | -100%LEL - Contact support.
+| `0x23` | Env. Sensor Out of Range       | Environment sensor (temp, humidity, pressure) out of range. Return the device to specified operating conditions.
+| `0x24` | Env. Sensor Failed             | -100%LEL - The sensor was exposed to an extreme environmental condition that can permanently damage it, rendering it unsuitable for accurate readings. As a fail-safe, this error permanently latches the sensor and disables further operation.
+| `0x25` | Microcontroller Error          | -100%LEL - Contact support.
+| `0x30` | Sensor read Negative           | -15%LEL - Wait for sensor to return to zero. If message persists >10 minutes, contact support.
+| `0x31` | Condensation                   | Condensation condition exists at sensor (out of specification). Raise temperature and/or lower humidity.
+| `0x32` | Sensor Error                   | -100%LEL - Transducer malfunction. Contact support.
+| `0x33` | Gas detected during startup    | Sensor has detected flammable gas during start-up period. Re-start sensor in clean air.
+| `0x34` | Slow Gas accumulation detected | Sensor has detected a slow accumulation of gas. Re-start sensor in clean air.
+| `0x35` | Breath/Humidity Surge          | Sensor has detected condition indicative of human breath or humidity surge. Exposure to breath or humidity surges may result in false positive readings.
+| `0xF9` | Reply Timeout                  | Received data time out. The message will be retried up to 20 times before the sensor is restarted.
+| `0xFA` | Incomplete reply               | Received data failed to be understood. The message will be retried up to 20 times before the sensor is restarted.
+| `0xFB` | CRC error on reply             | Received data failed checksum. The message will be retried up to 20 times before the sensor is restarted.
+| `0xFC` | Sensor restart                 | Transmit/Receive failed too many times and the sensor was restarted.
+| `0xFF` | Unknown Status                 | Unknown status ID received from sensor.
+
+> Note: These packets are only sent if the count is greater than zero. </br> You can reset these counters with a downlink.
+
 
 </br>
 
@@ -946,30 +1016,31 @@ The following are used in devices with the STHS34PF80 sensor. Firmware code 'H'.
 ### Particulate Sensor Downlinks
 
 Available from v5.03 onwards.  
-The following are used in devices with particulate sensors
+The following are used in devices with SPS30 particulate sensors.
 
 #### Air/Air-X and IAQ/OAQ Particulate Sensor Downlinks
 
 | Name | Msg Len | Command | Value |
 | ---- | ------- | ------- | ----- |
-| Set fan run period (Sample time) | 2 | `0x2B` | `3` to `180` Seconds (`0x03` to `0xB4`)
-| Set cleaning interval | 3 | `0x2C` | `6` to `1440` hours (`0x0006` to `0x05A0`)
-| Message Include Parameter (from v5.12) | 3 | `0x3D` | `0x0000` to `0xFFFF` as a bit pattern (see below)
+| Enable and set fan run period (Sample time) | 2 | `0x2B` | `3` to `180` Seconds (`0x03` to `0xB4`) </br> `0` disables the sensor. (from v7.16) |
+| Set cleaning interval | 3 | `0x2C` | `6` to `1440` hours (`0x0006` to `0x05A0`) |
+| Message Include Parameter (from v5.12) | 3 | `0x3D` | `0x0000` to `0xFFFF` as a bit pattern (see below) |
 
 'Message Include' is for setting which data values are included in the transmitted radio packets. Sending smaller radio packets size will reduce battery consumption.
 
 | Example Setting | Message |
 | --------------- | ------- |
-| Set the fan run period to 35 seconds | `A5 02 2B 23`
-| Set the cleaning interval to 8 days (192 hours, `0x00C0`) | `A5 03 2C 00 C0`
+| Set the fan run period to 35 seconds | `A5 02 2B 23` |
+| Disable the SPS30 sensor (save power) | `A5 02 2B 00` |
+| Set the cleaning interval to 8 days (192 hours, `0x00C0`) | `A5 03 2C 00 C0` |
 
 For the 'Message Include' settings, you should set the bit value to `1` to include the data value; `0` to exclude it.
 
  PM = Particle Mass  
  PC = Particle Count
 
-| Byte 1 | | Byte 2 |
-| ---- | -- | ------- |
+| Byte 1 |    | Byte 2 |
+| ------ | -- | ------ |
 | Bit 0 - `PM 1.0`  | | Bit 0 - `PC 10.0`
 | Bit 1 - `PM 2.5`  | | Bit 1 - `Typical Particle Size`
 | Bit 2 - `PM 4.0`  | | Bit 2 - Not used
@@ -1004,8 +1075,8 @@ For the 'Message Include' settings, you should set the bit value to `1` to inclu
  PM = Particle Mass  
  PC = Particle Count
 
-| Byte 1 | | Byte 2 |
-| ---- | -- | ------- |
+| Byte 1 |    | Byte 2 |
+| ------ | -- | ------ |
 | Bit 0 - `PM 0.1`  | | Bit 0 - `PC 0.1`
 | Bit 1 - `PM 0.3`  | | Bit 1 - `PC 0.3`
 | Bit 2 - `PM 0.5`  | | Bit 2 - `PC 0.5`
@@ -1116,6 +1187,20 @@ The following are used in the Zone View product that includes an e-paper display
 > Be aware of the maximum message size for the 'Set Text' feature. You can send a downlink up to 242 bytes at SF7 for EU868. Look out for downlink failures for your Region and Data Rates.
 
 See the device configuration screens via the USB connection for more information on formatting screen messages.
+
+### MPS Sensor Downlink
+
+Available from v7.16 onwards.
+
+The following is used in products that includes an MPS (Molecular Property Spectrometer) flammable gas sensor.
+
+| Name | Msg Len | Command | Value |
+| ---- | ------- | ------- | ----- |
+| Set condition counters to zero | 1 | `0x59` | 
+
+| Example Setting | Message |
+| --------------- | ------- |
+| To set all the counters to zero | `A5 01 59` |
 
 </br>
 

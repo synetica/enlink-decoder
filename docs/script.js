@@ -63,7 +63,7 @@ function decode_hex_string(hex_string) {
 function js_decoder(msg) {
     // Used for decoding enLink Uplink LoRa Messages
     // --------------------------------------------------------------------------------------
-    // 29 May 2025 (FW Ver:7.14)
+    // 20 Aug 2025 (FW Ver:7.16)
     // 24 Apr 2025 Includes Temperature fix
     // --------------------------------------------------------------------------------------
     // https://github.com/synetica/enlink-decoder
@@ -187,6 +187,9 @@ function js_decoder(msg) {
     const ENLINK_DE_SMOKE = 0x71;
     const ENLINK_DE_VAPE = 0x72;
 
+    const ENLINK_MPS_CYCLECOUNT = 0x73;
+    const ENLINK_MPS_FLAM_GAS = 0x74;
+
     // --------------------------------------------------------------------------------------
     // Optional KPI values that can be included in the message
     const ENLINK_CPU_TEMP_DEP = 0x40;
@@ -206,7 +209,7 @@ function js_decoder(msg) {
     const ENLINK_CPU_TEMP = 0x4e;
 // --------------------------------------------------------------------------------------
     // Status Message
-    const ENLINK_STATUS = 0xFE;
+    const ENLINK_SENS_CONDITION = 0xFE;
     
     // --------------------------------------------------------------------------------------
     // V1 - Downlink reply message Header and ACK/NAK
@@ -307,12 +310,17 @@ function js_decoder(msg) {
     const ENLINK_ENABLE_Z45 = 0x50;
     const ENLINK_HUMIDITY_TX_RES = 0x51;
     const ENLINK_Z45_TRIG_CLEAN = 0x52;
+    const ENLINK_Z44_TRIG_CLEAN = 0x53;
+    
+    const ENLINK_HS_SET_THRESH_P = 0x54;
+    const ENLINK_HS_SET_HYST_P = 0x55;
+    const ENLINK_HS_SET_INACTIVITY = 0x56;
+    const ENLINK_HS_ZERO_C_AND_D = 0x57;
+    const ENLINK_HS_RESET = 0x58;
+    
+    const ENLINK_MPS_RESET_COUNTERS = 0x59;
 
     const ENLINK_REBOOT = 0xff;
-
-    // --------------------------------------------------------------------------------------
-    // OTA Modbus configuration Only
-    const ENLINK_MB_SYS = 0xff; // Config reply from a MB unit
 
     // --------------------------------------------------------------------------------------
 
@@ -500,6 +508,32 @@ function js_decoder(msg) {
                 return "1,1,1-Trichloroethane";     //C2H3C13
             case 0x54:
                 return "Hydrogen Selenide";     //H2Se
+        }
+        return "Unknown";
+    }
+    // Return flammable gas name from gas type byte
+    function GetFlamGasName(gas_type) {
+        switch (gas_type) {
+            case 0x00:
+                return "No Gas";
+            case 0x01:
+                return "Hydrogen";
+            case 0x02:
+                return "Hydrogen Mixture";
+            case 0x03:
+                return "Methane";
+            case 0x04:
+                return "Light Gas";
+            case 0x05:
+                return "Medium Gas";
+            case 0x06:
+                return "Heavy Gas";
+            case 0xFD:
+                return "Err: Unknown Gas";
+            case 0xFE:
+                return "Err: Under Range";
+            case 0xFF:
+                return "Err: Over Range";
         }
         return "Unknown";
     }
@@ -1350,6 +1384,22 @@ function js_decoder(msg) {
                     i += 2;
                     break;
 
+                case ENLINK_MPS_CYCLECOUNT:
+                    obj.mps_count = S32((data[i + 1] << 24) | (data[i + 2] << 16) | (data[i + 3] << 8) | (data[i + 4]));
+                    i += 4;
+                    break;
+
+                case ENLINK_MPS_FLAM_GAS:
+                    var gas_lel_iso_val = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]).toFixed(2);
+                    // As Array
+                    if (obj.flam_gas) {
+                        obj.flam_gas.push([data[i + 1], GetFlamGasName(data[i + 1]), gas_lel_iso_val]);
+                    } else {
+                        obj.flam_gas = [[data[i + 1], GetFlamGasName(data[i + 1]), gas_lel_iso_val]];
+                    }
+                    i += 5;
+                    break;
+
                 // < -------------------------------------------------------------------------------->
                 // Optional KPIs
                 case ENLINK_CPU_TEMP_DEP: // Optional from April 2020
@@ -1416,15 +1466,14 @@ function js_decoder(msg) {
                     break;
 
                 // < -------------------------------------------------------------------------------->
-                case ENLINK_STATUS:
+                case ENLINK_SENS_CONDITION:
                     var sensor_id = (data[i + 1]);
-                    var status_id = (data[i + 2]);
-                    var status_val = U16((data[i + 3] << 8) | data[i + 4]);
-                    // As Array
-                    if (obj.status) {
-                        obj.status.push([sensor_id, status_id, status_val]);
+                    var item_id = (data[i + 2]);
+                    var item_val = U16((data[i + 3] << 8) | data[i + 4]);
+                    if (obj.condition) {
+                        obj.condition.push([sensor_id, item_id, item_val]);
                     } else {
-                        obj.status = [[sensor_id, status_id, status_val]];
+                        obj.condition = [[sensor_id, item_id, item_val]];
                     }
                     i += 4;
                     break;
@@ -1432,11 +1481,7 @@ function js_decoder(msg) {
                     
                 default:
                     // something is wrong with data
-                    obj.error =
-                        "Telemetry: Data Error at byte index " +
-                        (i + 1) +
-                        "   Data: " +
-                        bytesToHex(data);
+                    obj.error = "Telemetry: Data Error at byte index " + (i + 1) + "   Data: " + bytesToHex(data);
                     i = data.length;
                     return obj;
             }
@@ -1612,6 +1657,20 @@ function js_decoder(msg) {
                         obj.command = "Humidity data resolution changed";
                     } else if (data[i + 2] == ENLINK_Z45_TRIG_CLEAN) {
                         obj.command = "EPA/Ozone Sensor Cleaning Triggered";
+                    } else if (data[i + 2] == ENLINK_Z44_TRIG_CLEAN) {
+                        obj.command = "Cleaning triggered on TVOC Sensor";    
+                    } else if (data[i + 2] == ENLINK_HS_SET_THRESH_P) {
+                        obj.command = "Set threshold on human presence sensor";
+                    } else if (data[i + 2] == ENLINK_HS_SET_HYST_P) {
+                        obj.command = "Set hysteresis on human presence sensor";
+                    } else if (data[i + 2] == ENLINK_HS_SET_INACTIVITY) {
+                        obj.command = "Set inactivity on human presence sensor";
+                    } else if (data[i + 2] == ENLINK_HS_ZERO_C_AND_D) {
+                        obj.command = "Counters and detection time set to zero on human presence sensor";
+                    } else if (data[i + 2] == ENLINK_HS_RESET) {
+                        obj.command = "Human presence sensor reset";
+                    } else if (data[i + 2] == ENLINK_MPS_RESET_COUNTERS) {
+                        obj.command = "MPS Sensor fault counters reset to zero";
 
                     } else if (data[i + 2] == ENLINK_REBOOT) {
                         obj.command = "Reboot";

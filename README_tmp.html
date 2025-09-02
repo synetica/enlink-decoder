@@ -369,7 +369,7 @@ code {
 <p><a href="https://github.com/synetica/enlink-decoder/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="GitHub"></a></p>
 <p>Online decoder can be found here: <a href="https://synetica.github.io/enlink-decoder/">Live Decoder</a></p>
 <blockquote>
-<p>Latest firmware release is v7.11.</p>
+<p>Latest firmware release is v7.16.</p>
 </blockquote>
 <blockquote>
 <p><strong>Bug Workaround!</strong> </br> There has been a problem introduced from firmware v7.01 to v7.09 inclusive. This affects the newer IAQ/OAQ, ZonePlus, Zone V2, and ZoneView. This is due to the introduction of a high-precision temperature/humidity sensor. The internal data structure changed, and a bug caused the transmitted data packet for temperatures to be wrong for ambient temperatures below 0.0°C or above 32.7°C. This has been fixed in firmware v7.10 and above. If a customer's enLink devices are experiencing temperatures above 32.7°C there is a decoder workaround that works for temperatures between 0.0°C and 65.5°C. Temperatures outside these values will be decoded incorrectly. Look for the function <strong>t_fix_v7(t)</strong> in the decoder samples.</p>
@@ -398,8 +398,22 @@ code {
 <ul>
 <li><a href="#uplink-payload-structure">Uplink Payload Structure</a></li>
 <li><a href="#uplink-transmission-port">Uplink Transmission Port</a></li>
-<li><a href="#sensor-details">Sensor Details</a></li>
-<li><a href="#decoding-complex-messages">Decoding Complex Messages</a></li>
+<li><a href="#uplink-payload-type">Uplink Payload Type</a></li>
+<li><a href="#decoding-complex-uplinks">Decoding Complex Uplinks</a>
+<ul>
+<li><a href="#modbus">Modbus</a></li>
+<li><a href="#pulse-counters---change-of-state">Pulse Counters - Change of State</a></li>
+<li><a href="#gas-readings">Gas Readings</a></li>
+<li><a href="#corrosion">Corrosion</a></li>
+<li><a href="#mps-flammable-gas-readings">MPS Flammable Gas Readings</a></li>
+<li><a href="#sensor-fault-code-message">Sensor Fault Code Messages</a>
+<ul>
+<li><a href="#sps30-particulates---sensor-id-28-0x1c">SPS30 Particulates</a></li>
+<li><a href="#mps-flammable-gas---sensor-id-36-0x24">MPS Flammable Gas</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li><a href="#enlink-kpi-payload-data">enLink KPI Payload Data</a></li>
 </ul>
 </li>
@@ -420,18 +434,20 @@ code {
 <li><a href="#tvoc-sensor-downlinks">TVOC Sensor Downlinks</a></li>
 <li><a href="#epaozone-sensor-downlinks">EPA Sensor Downlinks</a></li>
 <li><a href="#carbon-dioxide-sensor-downlinks">CO<sub>2</sub> Sensor Downlinks</a></li>
+<li><a href="#occupancy-sensor-downlinks">Occupancy Sensor Downlinks</a></li>
 <li><a href="#particulate-sensor-downlinks">Particulate Sensor Downlinks</a></li>
 <li><a href="#gas-sensor-downlinks">Gas Sensor Downlinks</a></li>
 <li><a href="#leak-sensor-downlinks">Leak Sensor Downlinks</a></li>
 <li><a href="#differential-pressure--air-flow-downlinks">Differential Pressure / Air Flow Downlinks</a></li>
 <li><a href="#zone-view-e-paper-display-downlinks">Zone View e-paper Display Downlinks</a></li>
+<li><a href="#mps-sensor-downlink">MPS Sensor Downlink</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li><a href="#sample-codecs-for-decoding-messages">Sample CODECs for Decoding Messages</a></li>
 </ul>
-</br>
+<br>
 <h1 id="preamble">Preamble</h1>
 <p><strong><a href="https://www.synetica.net">Synetica</a></strong> is a UK based company that designs and develops energy and environmental sensors. We specialise in highly accurate and reliable air quality monitoring using LoRaWAN long range wireless.</p>
 <p>The <strong>enLink</strong> range of LoRaWAN devices are categorised into the following:</p>
@@ -450,7 +466,7 @@ code {
 <p>This repository contains various decoders for the LoRaWAN data packets. The uplink data is telemetry data containing values like temperature, particulates and gas concentrations.</p>
 <p>This enLink firmware implements LoRa Mac 4.4.0 release from Semtech/StackForce <a href="https://github.com/Lora-net/LoRaMac-node/tree/f42be67be402a40b3586724800771bfe13fb18e6">LoRaMac-Node</a>.</p>
 <p>We implement EU868, US915 and AU915 as defined in <a href="https://lora-alliance.org/resource_hub/lorawan-regional-parameters-v1-0-2rb/">LoRaWAN Regional Parameters v1.0.2rB</a> document. Class A endpoint implementation is fully compatible with &quot;LoRaWAN specification 1.0.2&quot;.</p>
-</br>
+<br>
 <h1 id="payload-contents-of-each-enlink-product">Payload Contents of each enLink Product</h1>
 <p>Each enLink device has specific sensors. Each sensor exposes one or more data values. The <strong>firmware code</strong> is used to determine the sensors in the device. Note: the product code is similar to, but not the same as the firmware code. The following table can be used to determine the expected values in a uplink message. The <a href="#enlink-kpi-payload-data">KPI</a> values are optional.</p>
 <p>The firmware code is a concatenation of the base model plus the options.</p>
@@ -607,6 +623,12 @@ code {
 <td style="text-align:left">S</td>
 <td style="text-align:left"><code>0x50</code>, <code>0x51</code>, <code>0x52</code></td>
 <td style="text-align:left">Sound</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">N</td>
+<td style="text-align:left"><code>0x73</code>, <code>0x74</code></td>
+<td style="text-align:left">MPS (Molecular Property Spectrometer)</td>
 </tr>
 <tr>
 <td style="text-align:left"></td>
@@ -772,6 +794,30 @@ code {
 <td style="text-align:left">(default)</td>
 <td style="text-align:left"><code>0x01</code>, <code>0x3B</code></td>
 <td style="text-align:left">Temperature, Hi-Res Humidity</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">L</td>
+<td style="text-align:left"><code>0x03</code></td>
+<td style="text-align:left">Light Level - <a href="#light-sensor-downlinks">Light Sensor Downlinks</a></td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">C</td>
+<td style="text-align:left"><code>0x08</code></td>
+<td style="text-align:left">NDIR CO<sub>2</sub> ppm - <a href="#carbon-dioxide-sensor-downlinks">CO<sub>2</sub> Sensor Downlinks</a></td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">H</td>
+<td style="text-align:left"><code>0x13</code>, <code>0x14</code>, <code>0x16</code></td>
+<td style="text-align:left">Human Presence. Includes <a href="#ati---adaptive-transmission-interval">ATI</a> feature - <a href="#occupancy-sensor-downlinks">Occupancy Sensor Downlinks</a></td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">I</td>
+<td style="text-align:left"><code>0x36</code>, <code>0x37</code>, <code>0x38</code>, <code>0x39</code>, <code>0x3A</code></td>
+<td style="text-align:left">Indoor TVOC Sensor (enLink IAQ) - <a href="#tvoc-sensor-downlinks">TVOC Sensor Downlinks</a></td>
 </tr>
 </tbody>
 </table>
@@ -949,10 +995,10 @@ code {
 </tr>
 </tbody>
 </table>
-</br>
+<br>
 <h2 id="ati---adaptive-transmission-interval">ATI - Adaptive Transmission Interval</h2>
 <p>This is included on enLink devices where an alarm or status feature requires immediate transfer of a radio message. When a change of alarm state occurs a wireless message is sent immediately, however messages will not be sent more frequently than the <strong>Adaptive Min interval</strong>. The <strong>Adaptive Max interval</strong> acts like a heartbeat, so if no change of alarm state occurs then a message is sent at the Adaptive Max interval.</p>
-</br>
+<br>
 <h1 id="uplink-payload">Uplink Payload</h1>
 <p>The enLink payload structure is designed to be as efficient as possible. Data for multiple sensor values can be concatenated into a single payload which can be easily decoded. If the payload length is restricted due to channel time limits, the whole message will be split into multiple payloads. Each payload will always be split on a <strong>Sensor Data</strong> boundary. This is done so each payload can be easily decoded. A payload will always have the first byte as a <strong>Data Type Identifier</strong>.</p>
 <h2 id="uplink-transmission-port">Uplink Transmission Port</h2>
@@ -962,7 +1008,7 @@ code {
 <blockquote>
 <p><code>[Sensor-1 Data]  [Sensor-2 Data] ... [Sensor-n Data]</code></p>
 </blockquote>
-</br>
+<br>
 <p>Sensor data consists of a <code>Data Type Identifier</code> byte followed by the <code>Data Value</code> as one or more bytes. The number of bytes in the data value is determined by the Data Type Identifier and is fixed. Details are here: <a href="#sensor-details">Sensor Details</a>.</p>
 <blockquote>
 <p>Example Payload (hexadecimal): <code>01 01 23 02 56 03 01 A4</code></p>
@@ -999,8 +1045,8 @@ code {
 </tbody>
 </table>
 <p>Each <strong>Data Type</strong> can use 1 or more bytes to send the value according to the following table:</p>
-</br>
-<h2 id="sensor-details">Sensor Details</h2>
+<br>
+<h2 id="uplink-payload-type">Uplink Payload 'Type'</h2>
 <table>
 <thead>
 <tr>
@@ -1169,7 +1215,7 @@ code {
 </tr>
 <tr>
 <td style="text-align:center"><code>0x14</code> 020</td>
-<td>Total occupied time</td>
+<td>Total occupied duration</td>
 <td></td>
 <td>seconds</td>
 <td style="text-align:center">4</td>
@@ -1187,8 +1233,8 @@ code {
 </tr>
 <tr>
 <td style="text-align:center"><code>0x16</code> 022</td>
-<td>Liquid Level Status</td>
-<td>0 = No Liquid<br />1 = Detected</td>
+<td>Detection Status (Occupancy, Liquid Level)</td>
+<td>0 = Inactive<br />1 = Detected</td>
 <td>status</td>
 <td style="text-align:center">1</td>
 <td style="text-align:center">U8</td>
@@ -1511,7 +1557,7 @@ code {
 </tr>
 <tr>
 <td style="text-align:center"><code>0x3A</code> 058</td>
-<td>IAQ (1.0 to 5.0) Not the <code>PBAQ</code> version</td>
+<td>IAQ (1.0 to 5.0) Included on <code>PBAQ</code> version from v7.11</td>
 <td></td>
 <td>IAQ</td>
 <td style="text-align:center">4</td>
@@ -1869,10 +1915,37 @@ code {
 <td style="text-align:center">U16</td>
 <td></td>
 </tr>
+<tr>
+<td style="text-align:center"><code>0x73</code> 115</td>
+<td>MPS Flammable Gas Sensor Cycle Count (internal counter increments every 4 seconds)</td>
+<td></td>
+<td>count</td>
+<td style="text-align:center">4</td>
+<td style="text-align:center">I32</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center"><code>0x74</code> 116</td>
+<td>MPS Flammable Gas ID + %LEL(Lower Explosive Level) concentration</td>
+<td>&lt; -15%  to &gt; +110%</td>
+<td>%LEL(ISO)</td>
+<td style="text-align:center">1 + 4</td>
+<td style="text-align:center">F32</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center"><code>0xFE</code> 254</td>
+<td>Condition: [Sensor ID] + [Item ID] + [Item Value]</td>
+<td></td>
+<td></td>
+<td style="text-align:center">1 + 1 + 2</td>
+<td style="text-align:center">U16</td>
+<td></td>
+</tr>
 </tbody>
 </table>
-</br>
-<h2 id="decoding-complex-messages">Decoding Complex Messages</h2>
+<br>
+<h2 id="decoding-complex-uplinks">Decoding Complex Uplinks</h2>
 <p>Most sensor data values are self-explanatory, additional information for decoding more complex sensor data is given in the sections below.</p>
 <h3 id="modbus">Modbus</h3>
 <p>Types: <code>0x0F</code>, <code>0x10</code>, <code>0x11</code></p>
@@ -1882,13 +1955,12 @@ code {
 <li>Modbus Interval Value – for Modbus data types which do not accumulate, e.g. Voltage, Current, Temperature etc.</li>
 <li>Modbus Cumulative Value – for Modbus data types which are linked to a value which accumulates, e.g. kWh, Volume etc.</li>
 </ul>
-<p>The first byte indicates which of the 32 available Modbus items is being accessed (0 to 31), followed by the Modbus Value represented as a 32 bit floating point value (<a href="https://en.wikipedia.org/wiki/IEEE_754">IEEE754</a> format). Interval Value types are used for instantaneous values, such as Voltage, Current, Temperature, Pressure etc. Cumulative Values are used for items such as energy consumption and total volume.</p>
+<p>The first byte indicates which of the 32 available Modbus items is being accessed (0 to 31), followed by the Modbus Value represented as a 32 bit floating point value (<a href="https://en.wikipedia.org/wiki/IEEE_754">IEEE 754</a> format). Interval Value types are used for instantaneous values, such as Voltage, Current, Temperature, Pressure etc. Cumulative Values are used for items such as energy consumption and total volume.</p>
 <blockquote>
 <p>Example Payload Data: <code>10 04 41 BC 7A E1</code></p>
 </blockquote>
 <p>This is an interval data value, from configured item number 5. The value is 23.56.</p>
 <p>For an online converter, see <a href="https://gregstoll.com/~gregstoll/floattohex/">Hex to Float Converter</a></p>
-</br>
 <h3 id="pulse-counters---change-of-state">Pulse Counters - Change of State</h3>
 <hr>
 <p>Type: <code>0x15</code></p>
@@ -1924,14 +1996,12 @@ code {
 <blockquote>
 <p>Example Payload Data: <code>15 01 05</code></p>
 </blockquote>
-</br>
 <p>The example shows the transmission was triggered when Input #1 changed from <em>Closed</em> to <em>Open</em>, and the state of the inputs are:</p>
 <ul>
 <li>Input 1: Closed</li>
 <li>Input 2: Open</li>
 <li>Input 3: Closed</li>
 </ul>
-</br>
 <h3 id="gas-readings">Gas Readings</h3>
 <hr>
 <p>Types: <code>0x61</code>, <code>0x66</code></p>
@@ -1939,7 +2009,6 @@ code {
 <blockquote>
 <p>Example Payload Data: <code>61 19 41 BC 7A E1</code></p>
 </blockquote>
-</br>
 <p>Ths translates to Gas Type <code>0x19</code> or 25 which is <strong>Carbon Monoxide</strong>. The value is 23.56 ppb.</p>
 <p>The Gas types are listed here:</p>
 <table>
@@ -2148,7 +2217,234 @@ code {
 </tr>
 </tbody>
 </table>
-</br>
+<h3 id="mps-flammable-gas-readings">MPS Flammable Gas Readings</h3>
+<hr>
+<p>Type: <code>0x74</code></p>
+<p>The full message is sent as 6 bytes. For example:</p>
+<blockquote>
+<p>Example Payload Data: <code>74 03 41 BC 7A E1</code></p>
+</blockquote>
+<p>Ths translates to Gas Type <code>0x03</code> which is <strong>Methane</strong>. The value is <strong>23.56 %LEL(ISO)</strong>.</p>
+<p>The Gas types are listed here:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0 - <code>0x00</code></td>
+<td>No Gas</td>
+<td></td>
+<td>1 - <code>0x01</code></td>
+<td>Hydrogen</td>
+</tr>
+<tr>
+<td>2 - <code>0x02</code></td>
+<td>Hydrogen Mixture</td>
+<td></td>
+<td>3 - <code>0x03</code></td>
+<td>Methane</td>
+</tr>
+<tr>
+<td>4 - <code>0x04</code></td>
+<td>Light Gas</td>
+<td></td>
+<td>5 - <code>0x05</code></td>
+<td>Medium Gas</td>
+</tr>
+<tr>
+<td>6 - <code>0x06</code></td>
+<td>Heavy Gas</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>253 - <code>0xFD</code></td>
+<td>Unknown Gas</td>
+<td></td>
+<td>254 - <code>0xFE</code></td>
+<td>Under Range: &lt; -5%LEL</td>
+</tr>
+<tr>
+<td>255 - <code>0xFF</code></td>
+<td>Over Range: &gt;= 110%LEL</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<br>
+<h3 id="sensor-fault-code-message">Sensor Fault Code Message</h3>
+<hr>
+<p>Available from v7.14 onwards.</p>
+<p>Type: <code>0xFE</code></p>
+<p>The fault code messages are used to report a sensor state. Communication or transducer faults may be reported by the sensor. The full message is sent as 5 bytes. The second byte indicates the Sensor-ID, third byte the Fault-Code and the next two are the unsigned 16 bit value.</p>
+<h4 id="sps30-particulates---sensor-id-28-0x1c">SPS30 Particulates - Sensor ID: 28 <code>0x1C</code></h4>
+<p>Available from v7.14 onwards.</p>
+<blockquote>
+<p>Example Payload Data: <code>FE 1C 01 02 27</code></p>
+</blockquote>
+<p>The example shows Sensor-ID <code>0x1C</code> (28 decimal). This is the SPS30 particulate sensor. Fault-Code is <code>0x01</code> (1 decimal). This is 'Fan-Speed-Error'. The value is 0x0227 (551 decimal) - this is the number of errors occured since last power-up.</p>
+<table>
+<thead>
+<tr>
+<th>Fault Code</th>
+<th>Name</th>
+<th>Value Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x01</code></td>
+<td>Fan Speed Error</td>
+<td>Count. Can occur once per sample</td>
+</tr>
+<tr>
+<td><code>0x02</code></td>
+<td>Laser Fail</td>
+<td>Count. Can occur once per sample</td>
+</tr>
+<tr>
+<td><code>0x03</code></td>
+<td>Fan Failure</td>
+<td>Count. Can occur once per sample</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Note: These packets are only sent if the count is greater than zero.</p>
+</blockquote>
+<h4 id="mps-flammable-gas---sensor-id-36-0x24">MPS Flammable Gas - Sensor ID: 36 <code>0x24</code></h4>
+<p>Available from v7.16 onwards.</p>
+<p>'Molecular Property Spectrometer' sensor messages.</p>
+<blockquote>
+<p>Example Payload Data: <code>FE 24 35 00 27</code></p>
+</blockquote>
+<p>The example shows Sensor-ID <code>0x24</code> (36 decimal). Fault-Code is <code>0x35</code> (53 decimal). This is 'Breath/Humidity Surge'. The value is 0x0027 (39 decimal) - this is the number of errors occured since last  powered up.</p>
+<p>All the values are a count of the occurence of each condition.</p>
+<table>
+<thead>
+<tr>
+<th>Fault Code</th>
+<th>Name</th>
+<th>Value Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x01</code></td>
+<td>CRC Failed</td>
+<td>Transmitted data failed checksum. The message will be retried up to 20 times before the sensor is restarted.</td>
+</tr>
+<tr>
+<td><code>0x02</code></td>
+<td>Bad Parameter</td>
+<td>Transmitted parameter failed to be understood. The message will be retried up to 20 times before the sensor is restarted.</td>
+</tr>
+<tr>
+<td><code>0x05</code></td>
+<td>Unknown Cmd</td>
+<td>Transmitted command failed to be understood. The message will be retried up to 20 times before the sensor is restarted.</td>
+</tr>
+<tr>
+<td><code>0x07</code></td>
+<td>Incomplete Cmd</td>
+<td>Transmitted command failed to be understood. The message will be retried up to 20 times before the sensor is restarted.</td>
+</tr>
+<tr>
+<td><code>0x21</code></td>
+<td>VDD Out of Range</td>
+<td>-100%LEL - Power cycle the device. If this error persists, contact support.</td>
+</tr>
+<tr>
+<td><code>0x22</code></td>
+<td>VREF Out of Range</td>
+<td>-100%LEL - Contact support.</td>
+</tr>
+<tr>
+<td><code>0x23</code></td>
+<td>Env. Sensor Out of Range</td>
+<td>Environment sensor (temp, humidity, pressure) out of range. Return the device to specified operating conditions.</td>
+</tr>
+<tr>
+<td><code>0x24</code></td>
+<td>Env. Sensor Failed</td>
+<td>-100%LEL - The sensor was exposed to an extreme environmental condition that can permanently damage it, rendering it unsuitable for accurate readings. As a fail-safe, this error permanently latches the sensor and disables further operation.</td>
+</tr>
+<tr>
+<td><code>0x25</code></td>
+<td>Microcontroller Error</td>
+<td>-100%LEL - Contact support.</td>
+</tr>
+<tr>
+<td><code>0x30</code></td>
+<td>Sensor read Negative</td>
+<td>-15%LEL - Wait for sensor to return to zero. If message persists &gt;10 minutes, contact support.</td>
+</tr>
+<tr>
+<td><code>0x31</code></td>
+<td>Condensation</td>
+<td>Condensation condition exists at sensor (out of specification). Raise temperature and/or lower humidity.</td>
+</tr>
+<tr>
+<td><code>0x32</code></td>
+<td>Sensor Error</td>
+<td>-100%LEL - Transducer malfunction. Contact support.</td>
+</tr>
+<tr>
+<td><code>0x33</code></td>
+<td>Gas detected during startup</td>
+<td>Sensor has detected flammable gas during start-up period. Re-start sensor in clean air.</td>
+</tr>
+<tr>
+<td><code>0x34</code></td>
+<td>Slow Gas accumulation detected</td>
+<td>Sensor has detected a slow accumulation of gas. Re-start sensor in clean air.</td>
+</tr>
+<tr>
+<td><code>0x35</code></td>
+<td>Breath/Humidity Surge</td>
+<td>Sensor has detected condition indicative of human breath or humidity surge. Exposure to breath or humidity surges may result in false positive readings.</td>
+</tr>
+<tr>
+<td><code>0xF9</code></td>
+<td>Reply Timeout</td>
+<td>Received data time out. The message will be retried up to 20 times before the sensor is restarted.</td>
+</tr>
+<tr>
+<td><code>0xFA</code></td>
+<td>Incomplete reply</td>
+<td>Received data failed to be understood. The message will be retried up to 20 times before the sensor is restarted.</td>
+</tr>
+<tr>
+<td><code>0xFB</code></td>
+<td>CRC error on reply</td>
+<td>Received data failed checksum. The message will be retried up to 20 times before the sensor is restarted.</td>
+</tr>
+<tr>
+<td><code>0xFC</code></td>
+<td>Sensor restart</td>
+<td>Transmit/Receive failed too many times and the sensor was restarted.</td>
+</tr>
+<tr>
+<td><code>0xFF</code></td>
+<td>Unknown Status</td>
+<td>Unknown status ID received from sensor.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Note: These packets are only sent if the count is greater than zero. </br> You can reset these counters with a downlink.</p>
+</blockquote>
+<br>
 <h2 id="enlink-kpi-payload-data">enLink KPI Payload Data</h2>
 <p>Each enLink end-node device can have optional Key Performance Indicators (KPI) added to the payload message. Each KPI can use 1 or more bytes to send the value according to the following table.</p>
 <table>
@@ -2286,10 +2582,10 @@ code {
 </tbody>
 </table>
 <p>Example code for different LoRaWAN Network Servers (LNS) is included in the folders on this site.</p>
-<p><img src="_img/nr-01.png" alt="pic01">
+<p><img src="file:///c:/Users/david.SYNETICA/Documents/SynologyDrive/enLink/github/enlink-decoder/_img/nr-01.png" alt="pic01">
 <em>Screenshot of example using NodeRED</em></p>
-</br>
-</br>
+<br>
+<br>
 <h1 id="downlink-payload">Downlink Payload</h1>
 <p>Downlink payloads are sent to re-configure the device. When the device processes the payload, it acknowledges the message by transmitting an ACK/NACK and the identifier code. This is to notify the user that the message has been received. An example to decode the ACK/NACK messages that are sent from the end-node to the LNS is included in the NodeRED source.</p>
 <h2 id="downlink-payload-structure">Downlink Payload Structure</h2>
@@ -2315,7 +2611,7 @@ code {
 <p><strong>Msg Len</strong> is the number of bytes in the settings data. The settings data starts with a <strong>Command</strong> byte and then the command <strong>Value</strong>. The Value can be empty.</p>
 <h2 id="downlink-receive-port">Downlink Receive Port</h2>
 <p>When the enLink device receives a downlink message, it first checks the port byte value. If this value matches the expected value, it then attempts to decode the message and process the result. By default the expected value is set to <strong>All</strong>, so it will, in effect, ignore the port value and simple decode and process the message. Only valid port values are allowed, as per the LoRaWAN Specification. These values are 1 to 223.</p>
-</br>
+<br>
 <h2 id="general-settings-details">General Settings Details</h2>
 <table>
 <thead>
@@ -2505,7 +2801,7 @@ Particulates included data packets: PM 2.5 and PM 10.0 only</p>
 <blockquote></blockquote>
 <p>This feature is enabled in firmware for <code>ENL-IAQ-C</code> for WELL standard, on request.</p>
 </blockquote>
-</br>
+<br>
 <h2 id="downlink-message-examples">Downlink Message Examples</h2>
 <h3 id="reboot">Reboot</h3>
 <blockquote>
@@ -2667,7 +2963,7 @@ Particulates included data packets: PM 2.5 and PM 10.0 only</p>
 </tr>
 </tbody>
 </table>
-</br>
+<br>
 <h2 id="example-uplink-replies-to-downlink-messages">Example Uplink Replies to Downlink Messages</h2>
 <p><strong>ACK</strong> <code>0x06</code> - Successfully changed the Message Confirmation Option (<code>0x09</code>)</p>
 <blockquote>
@@ -2677,7 +2973,7 @@ Particulates included data packets: PM 2.5 and PM 10.0 only</p>
 <blockquote>
 <p>Return Data: <code>A5 15 0A</code></p>
 </blockquote>
-</br>
+<br>
 <h2 id="downlink-message-index-tables">Downlink Message Index Tables</h2>
 <p>The Indexes for some settings depend on the region the unit is programmed for.</p>
 <p><code>0x0B</code> - Data Rate Index</p>
@@ -2931,7 +3227,7 @@ Particulates included data packets: PM 2.5 and PM 10.0 only</p>
 </tr>
 </tbody>
 </table>
-</br>
+<br>
 <h2 id="product-and-sensor-specific-downlinks">Product and Sensor Specific Downlinks</h2>
 <h3 id="fan-run-time-airair-x-downlinks">Fan Run-Time (Air/Air-X) Downlinks</h3>
 <p>The following are used in the enLink Air/Air-X</p>
@@ -2955,7 +3251,7 @@ Particulates included data packets: PM 2.5 and PM 10.0 only</p>
 </table>
 <blockquote>
 <p>For example, to set the fan run-time to 30 seconds: </br>
-Payload Data: <code>A5 03 22 00 1E</code></p>
+-- Payload Data: <code>A5 03 22 00 1E</code></p>
 </blockquote>
 <h3 id="temperaturehumidity-downlinks">Temperature/Humidity Downlinks</h3>
 <p>Available from v7.06 onwards.</p>
@@ -2983,7 +3279,7 @@ Payload Data: <code>A5 03 22 00 1E</code></p>
 <p>The humidity data is, by default, transmitted as a single byte. Type is <code>0x02</code>. From v7.06 you can choose to send the data using the type <code>0x3B</code> as two bytes. Divide the unsigned 16bit result by 100 to see the humidity value.</p>
 <blockquote>
 <p>For example, set the radio transmission to use high-resolution data:</br>
-Payload Data: <code>A5 02 51 01</code></p>
+-- Payload Data: <code>A5 02 51 01</code></p>
 </blockquote>
 <h3 id="light-sensor-downlinks">Light Sensor Downlinks</h3>
 <p>The following are used in the Air, Zone and Zone Plus (with Light Sensor)</p>
@@ -3025,7 +3321,7 @@ Payload Data: <code>A5 02 51 01</code></p>
 </ul>
 <blockquote>
 <p>For example, set Scale to <strong>12.345</strong> (12345 in hexadecimal is <code>0x3039</code>):</br>
-Payload Data: <code>A5 03 20 30 39</code></p>
+-- Payload Data: <code>A5 03 20 30 39</code></p>
 </blockquote>
 <h3 id="voc-sensor-downlinks">VOC Sensor Downlinks</h3>
 <p>Available from v5.12 onwards.</p>
@@ -3061,10 +3357,11 @@ Payload Data: <code>A5 03 20 30 39</code></p>
 </ul>
 <blockquote>
 <p>For example, to include the <code>bVOC</code> and <code>IAQ</code> data values: </br>
-Payload Data: <code>A5 02 3C 0C</code></p>
+-- Payload Data: <code>A5 02 3C 0C</code></p>
 </blockquote>
 <h3 id="tvoc-sensor-downlinks">TVOC Sensor Downlinks</h3>
-<p>Available from v6.02 onwards.</p>
+<p>Include Parameter available from v6.02 onwards.</br>
+Cleaning trigger available from v7.11 onwards.</p>
 <p>The following are used in devices with the ZMOD4410 indoor TVOC sensor (Firmware option code <code>I</code>). These options are for setting which data values are included in the transmitted radio packets. Sending smaller radio packets size will reduce battery consumption. There is a standard and a PBAQ option with this sensor.</p>
 <table>
 <thead>
@@ -3082,6 +3379,12 @@ Payload Data: <code>A5 02 3C 0C</code></p>
 <td><code>0x42</code></td>
 <td><code>0x00</code> to <code>0x1F</code> as a bit pattern (see below)</td>
 </tr>
+<tr>
+<td>Trigger Cleaning Cycle</td>
+<td>2</td>
+<td><code>0x53</code></td>
+<td><code>0x01</code></td>
+</tr>
 </tbody>
 </table>
 <p>Set the bit value to <code>1</code> to include the data value; <code>0</code> to exclude it.</p>
@@ -3090,7 +3393,7 @@ Payload Data: <code>A5 02 3C 0C</code></p>
 <li>Bit 1 - <code>Average TVOC</code></li>
 <li>Bit 2 - <code>Maximum TVOC</code></li>
 <li>Bit 3 - <code>Latest EtOH reading</code> (Ethanol equivalent)</li>
-<li>Bit 4 - <code>Latest IAQ reading</code> (Not the PBAQ version)</li>
+<li>Bit 4 - <code>Latest IAQ reading</code> (Included on <code>PBAQ</code> version from v7.11)</li>
 <li>Bit 5 - Not used</li>
 <li>Bit 6 - Not used</li>
 <li>Bit 7 - Not used</li>
@@ -3098,10 +3401,12 @@ Payload Data: <code>A5 02 3C 0C</code></p>
 <blockquote>
 <p>Note: The Minimum, Average and Maximum are calculated between radio transmissions. The <code>PBAQ</code> version samples every 5 seconds.</p>
 </blockquote>
-<p>Example:</p>
+<p>Examples:</p>
 <blockquote>
 <p>To include the <code>Maximum TVOC</code> and the <code>Latest EtOH reading</code> data values: </br>
-Payload Data: <code>A5 02 42 0C</code></p>
+-- Payload Data: <code>A5 02 42 0C</code></br>
+To trigger a 'one-time-only' cleaning cycle of the sensor:</br>
+-- Payload Data: <code>A5 02 53 01</code></p>
 </blockquote>
 <h3 id="epaozone-sensor-downlinks">EPA/Ozone Sensor Downlinks</h3>
 <p>Enable/Disable available from v7.04 onwards.</br>
@@ -3135,9 +3440,9 @@ This single sensor can be used as an outdoor EPA sensor (Firmware option code <c
 <p>Example:</p>
 <blockquote>
 <p>To enable the sensor:</br>
-Payload Data: <code>A5 02 50 01</code></br>
+-- Payload Data: <code>A5 02 50 01</code></br>
 To trigger a 'one-time-only' cleaning cycle of the sensor (Only works when sensor is enabled):</br>
-Payload Data: <code>A5 02 52 01</code></p>
+-- Payload Data: <code>A5 02 52 01</code></p>
 </blockquote>
 <h3 id="carbon-dioxide-sensor-downlinks">Carbon Dioxide Sensor Downlinks</h3>
 <p>The following are used in devices with CO<sub>2</sub> sensor</p>
@@ -3225,9 +3530,84 @@ Payload Data: <code>A5 02 52 01</code></p>
 </tr>
 </tbody>
 </table>
+<h3 id="occupancy-sensor-downlinks">Occupancy Sensor Downlinks</h3>
+<p>Available from v7.15 onwards.
+The following are used in devices with the STHS34PF80 sensor. Firmware code 'H'.</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Msg Len</th>
+<th>Command</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Set presence threshold</td>
+<td>3</td>
+<td><code>0x54</code></td>
+<td><code>0</code> to <code>32767</code> (<code>0x0000</code> to <code>0x7FFF</code>)</td>
+</tr>
+<tr>
+<td>Set presence hysteresis</td>
+<td>2</td>
+<td><code>0x55</code></td>
+<td><code>0</code> to <code>255</code> (<code>0x00</code> to <code>0xFF</code>)</td>
+</tr>
+<tr>
+<td>Set the inactivity timeout</td>
+<td>3</td>
+<td><code>0x56</code></td>
+<td><code>0</code> to <code>21600</code> (<code>0x0000</code> to <code>0x5460</code>)</td>
+</tr>
+<tr>
+<td>Set the detection count and duration time to zero</td>
+<td>1</td>
+<td><code>0x57</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Reboot/Reset the sensor</td>
+<td>1</td>
+<td><code>0x58</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Example Setting</th>
+<th>Message</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Set the presence threshold to 200</td>
+<td><code>A5 03 54 00 C8</code></td>
+</tr>
+<tr>
+<td>Set the presence hysteresis to 50</td>
+<td><code>A5 02 55 32</code></td>
+</tr>
+<tr>
+<td>Set the inactivity timeout to 25 minutes (1500 seconds)</td>
+<td><code>A5 03 56 05 DC</code></td>
+</tr>
+<tr>
+<td>Zero the count and duration variables</td>
+<td><code>A5 01 57</code></td>
+</tr>
+<tr>
+<td>Reset the sensor</td>
+<td><code>A5 01 58</code></td>
+</tr>
+</tbody>
+</table>
 <h3 id="particulate-sensor-downlinks">Particulate Sensor Downlinks</h3>
 <p>Available from v5.03 onwards.<br>
-The following are used in devices with particulate sensors</p>
+The following are used in devices with SPS30 particulate sensors.</p>
 <h4 id="airair-x-and-iaqoaq-particulate-sensor-downlinks">Air/Air-X and IAQ/OAQ Particulate Sensor Downlinks</h4>
 <table>
 <thead>
@@ -3240,10 +3620,10 @@ The following are used in devices with particulate sensors</p>
 </thead>
 <tbody>
 <tr>
-<td>Set fan run period (Sample time)</td>
+<td>Enable and set fan run period (Sample time)</td>
 <td>2</td>
 <td><code>0x2B</code></td>
-<td><code>3</code> to <code>180</code> Seconds (<code>0x03</code> to <code>0xB4</code>)</td>
+<td><code>3</code> to <code>180</code> Seconds (<code>0x03</code> to <code>0xB4</code>) </br> <code>0</code> disables the sensor. (from v7.16)</td>
 </tr>
 <tr>
 <td>Set cleaning interval</td>
@@ -3271,6 +3651,10 @@ The following are used in devices with particulate sensors</p>
 <tr>
 <td>Set the fan run period to 35 seconds</td>
 <td><code>A5 02 2B 23</code></td>
+</tr>
+<tr>
+<td>Disable the SPS30 sensor (save power)</td>
+<td><code>A5 02 2B 00</code></td>
 </tr>
 <tr>
 <td>Set the cleaning interval to 8 days (192 hours, <code>0x00C0</code>)</td>
@@ -3335,7 +3719,7 @@ PC = Particle Count</p>
 <p>Example:</p>
 <blockquote>
 <p>To include <code>PM 10.0</code>, <code>PM 2.5</code> and <code>Typical Particle Size</code> data values: </br>
-Payload Data: <code>A5 03 3D 0A 02</code></p>
+-- Payload Data: <code>A5 03 3D 0A 02</code></p>
 </blockquote>
 <h4 id="iaq-plusvape-particulate-sensor-downlinks">IAQ Plus/Vape Particulate Sensor Downlinks</h4>
 <table>
@@ -3443,7 +3827,7 @@ PC = Particle Count</p>
 </table>
 <blockquote>
 <p>To include <code>PM 10.0</code>, <code>PM 2.5</code>, <code>PM 1.0</code>, <code>PM 0.5</code> and <code>PC 1.0</code> data values: </br>
-Payload Data:  <code>A5 03 3E 59 08</code></p>
+-- Payload Data:  <code>A5 03 3E 59 08</code></p>
 </blockquote>
 <h3 id="gas-sensor-downlinks">Gas Sensor Downlinks</h3>
 <p>Available from v5.07 onwards.</p>
@@ -3780,7 +4164,42 @@ Payload Data:  <code>A5 03 3E 59 08</code></p>
 <p>Be aware of the maximum message size for the 'Set Text' feature. You can send a downlink up to 242 bytes at SF7 for EU868. Look out for downlink failures for your Region and Data Rates.</p>
 </blockquote>
 <p>See the device configuration screens via the USB connection for more information on formatting screen messages.</p>
-</br>
+<h3 id="mps-sensor-downlink">MPS Sensor Downlink</h3>
+<p>Available from v7.16 onwards.</p>
+<p>The following is used in products that includes an MPS (Molecular Property Spectrometer) flammable gas sensor.</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Msg Len</th>
+<th>Command</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Set condition counters to zero</td>
+<td>1</td>
+<td><code>0x59</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Example Setting</th>
+<th>Message</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>To set all the counters to zero</td>
+<td><code>A5 01 59</code></td>
+</tr>
+</tbody>
+</table>
+<br>
 <h1 id="sample-codecs-for-decoding-messages">Sample CODECs for Decoding Messages</h1>
 <p>Examples for decoding these messages are included in the folders on this site. These include all the sensor options to give basic decoding to enable feedback during evaluation and commissioning. If you require these messages in your system, please modify the code to suit your platform.</p>
 
