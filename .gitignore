@@ -1,3 +1,4 @@
+.gitignore
 .vscode/settings.json
 /chirpstack/README.pdf
 /CHANGELOG.pdf
