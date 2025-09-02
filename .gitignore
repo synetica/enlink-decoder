@@ -1,7 +1,5 @@
-/.gitignore
 .vscode/settings.json
 /chirpstack/README.pdf
 /CHANGELOG.pdf
 /README.pdf
-multitech-bacnet/readme.pdf
 
