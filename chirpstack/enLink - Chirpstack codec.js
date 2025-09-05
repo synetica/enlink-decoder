@@ -366,7 +366,17 @@ function bytesToHex(bytes) {
     }
     return result.trim();
 }
-
+function bytesToHexError(bytes, err) {
+    var result = "";
+    for (var i = 0; i < bytes.length; i += 1) {
+        if (i == err) {
+            result += '[' + ('0' + (bytes[i]).toString(16).toUpperCase()).slice(-2) + '] ';
+        } else {
+            result += ('0' + (bytes[i]).toString(16).toUpperCase() + ' ').slice(-3);
+        }
+    }
+    return result.trim();
+}
 // --------------------------------------------------------------------------------------
 // Function to decode enLink telemetry (sensor) messages
 function decodeTelemetry(data) {
@@ -1830,7 +1840,7 @@ function decodeTelemetry(data) {
                 break;
 
             default: // something is wrong with data
-                obj.error = "Data Error at byte index " + i + "  Data: " + bytesToHex(data);
+                obj.error = "Data Error at byte index " + i + "  Data: " + bytesToHexError(data, i);
                 i = data.length;
                 break;
         }

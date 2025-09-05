@@ -372,6 +372,17 @@ function js_decoder(msg) {
         }
         return result.trim();
     }
+    function bytesToHexError(bytes, err) {
+        var result = "";
+        for (var i = 0; i < bytes.length; i += 1) {
+            if (i == err) {
+                result += '[' + ('0' + (bytes[i]).toString(16).toUpperCase()).slice(-2) + '] ';
+            } else {
+                result += ('0' + (bytes[i]).toString(16).toUpperCase() + ' ').slice(-3);
+            }
+        }
+        return result.trim();
+    }
     // Convert 4 IEEE754 bytes
     function fromF32(byte0, byte1, byte2, byte3) {
         var bits = (byte0 << 24) | (byte1 << 16) | (byte2 << 8) | byte3;
@@ -1481,7 +1492,7 @@ function js_decoder(msg) {
                     
                 default:
                     // something is wrong with data
-                    obj.error = "Telemetry: Data Error at byte index " + (i + 1) + "   Data: " + bytesToHex(data);
+                    obj.error = "Telemetry: Data Error at byte index " + i + "   Data: " + bytesToHexError(data, i);
                     i = data.length;
                     return obj;
             }
@@ -1684,10 +1695,7 @@ function js_decoder(msg) {
                 default:
                     // Ignore this message
                     obj.error =
-                        "Std Response: Data Error at byte index " +
-                        (i + 1) +
-                        "   Data: " +
-                        bytesToHex(data);
+                        "Std Response: Data Error at byte index " + i + "   Data: " + bytesToHexError(data, i);
                     i = data.length;
                     return obj;
             }
