@@ -1492,7 +1492,7 @@ function js_decoder(msg) {
                     
                 default:
                     // something is wrong with data
-                    obj.error = "Telemetry: Data Error at byte index " + i + "   Data: " + bytesToHexError(data, i);
+                    obj.error = "Telemetry: Error at byte index " + i + "  Data: " + bytesToHexError(data, i);
                     i = data.length;
                     return obj;
             }
@@ -1695,7 +1695,7 @@ function js_decoder(msg) {
                 default:
                     // Ignore this message
                     obj.error =
-                        "Std Response: Data Error at byte index " + i + "   Data: " + bytesToHexError(data, i);
+                        "Std Response: Error at byte index " + i + "  Data: " + bytesToHexError(data, i);
                     i = data.length;
                     return obj;
             }
