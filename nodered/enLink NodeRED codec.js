@@ -696,9 +696,7 @@ function decodeTelemetry(data) {
                     if (obj.counter) {
                         obj.counter.push([data[i + 1], pulseCount]);
                     } else {
-                        obj.counter = [
-                            [data[i + 1], pulseCount]
-                        ];
+                        obj.counter = [[data[i + 1], pulseCount]];
                     }
                 }
                 if (show_simple == 1) {
@@ -1638,7 +1636,7 @@ function decodeTelemetry(data) {
                 cpn = (data[i + 1] & 0x80) === 0 ? 1 : 2;
                 metal = GetCrnMetal(data[i + 1]);
                 // Thickness in nanometres
-                var thk_nm = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]).toFixed(2);
+                var thk_nm = f32_2(data, i);
                 // As Array
                 if (obj.crn_thk_nm) {
                     obj.crn_thk_nm.push([cpn, metal, thk_nm]);

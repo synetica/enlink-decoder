@@ -219,10 +219,10 @@ function js_decoder(msg) {
     const ENLINK_LOGIN_FAIL_COUNT = 0x4c;
     const ENLINK_FAN_RUN_TIME = 0x4d;
     const ENLINK_CPU_TEMP = 0x4e;
-// --------------------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------------
     // Status Message
     const ENLINK_FAULT = 0xFE;
-    
+
     // --------------------------------------------------------------------------------------
     // V1 - Downlink reply message Header and ACK/NAK
     const ENLINK_HEADER = 0xa5;
@@ -247,16 +247,16 @@ function js_decoder(msg) {
     const ENLINK_SET_ATI_MAX = 0x12;
     const ENLINK_SET_FULL_PKT_MUL = 0x13;
     const ENLINK_SET_WELL_DEFAULT = 0x14;
-    
+
     const ENLINK_SET_KPI_INCLUDES_DIRECT = 0x15;
     const ENLINK_SET_KPI_INCLUDES_INDEX = 0x16;
-    
+
     const ENLINK_SET_LUX_SCALE = 0x20;
     const ENLINK_SET_LUX_OFFSET = 0x21;
-    
+
     const ENLINK_SET_CASE_FAN_RUN_TIME = 0x22;
     const ENLINK_SET_HPM_FAN_RUN_TIME = 0x23;
-    
+
     // CO2 Sensors
     const ENLINK_SET_CO2_CALIB_ENABLE = 0x24;
     const ENLINK_SET_CO2_TARGET_PPM = 0x25;
@@ -267,11 +267,11 @@ function js_decoder(msg) {
     // 0x29,0x30 GSS CO2 Only
     const ENLINK_SET_GSS_CO2_OOB_LIMITS = 0x29;
     const ENLINK_SET_GSS_CO2_INIT_INTERVAL = 0x2a;
-    
+
     // Set PM options
     const ENLINK_SET_PM_RUN_PERIOD = 0x2b;
     const ENLINK_SET_PM_CLEANING_PERIOD = 0x2c;
-    
+
     // Set Gas Sensor options
     const ENLINK_SET_GAS_IDLE_STATE = 0x2d;
     const ENLINK_SET_GAS_PRE_DELAY = 0x2e;
@@ -281,7 +281,7 @@ function js_decoder(msg) {
     const ENLINK_SET_GAS_EMA_FACTOR = 0x32;
     const ENLINK_SET_GAS_TRIM_PPB = 0x33;
     const ENLINK_SET_GAS_TRIM_UGM3 = 0x34;
-    
+
     // Leak Sensor options
     const ENLINK_LEAK_ALARM_MODE = 0x35;
     const ENLINK_LEAK_UPPER_ALARM = 0x36;
@@ -290,20 +290,20 @@ function js_decoder(msg) {
     const ENLINK_LEAK_LOWER_HYST = 0x39;
     const ENLINK_LEAK_SAMPLE_TIME_S = 0x3a;
     const ENLINK_LEAK_TEST_DURATION = 0x3b;
-    
+
     // Radio packet includes for VOC and Particulate sensors
     const ENLINK_BME680_PKT_INC = 0x3c;
     const ENLINK_SPS30_PKT_INC = 0x3d;
     const ENLINK_PIERA_PKT_INC = 0x3e;
-    
+
     // Diff Press/ Air Flow Settings
     const ENLINK_DP_PKT_INC = 0x3f;
     const ENLINK_DP_AUTO_ZERO = 0x40;
     const ENLINK_DP_SET_DELTA = 0x41;
-    
+
     // Radio packet includes for TVOC sensor
     const ENLINK_ZMOD4410_PKT_INC = 0x42;
-    
+
     // Options for the Zone View e-paper
     const ENLINK_ZV_SCN_REFRESH_INT = 0x43;
     const ENLINK_ZV_DISPLAY_TOPLINE = 0x44;
@@ -315,21 +315,21 @@ function js_decoder(msg) {
     const ENLINK_ZV_INT_LOGIC_LOW_THRESH = 0x4a;
     const ENLINK_ZV_INT_LOGIC_HIGH_THRESH = 0x4b;
     const ENLINK_ZV_HELP_SCN_ENABLE = 0x4c;
-    
+
     const ENLINK_ZV_SET_TEXT = 0xd0;
     const ENLINK_ZV_SET_TEXT_TO_DEFAULT = 0xd1;
-   
+
     const ENLINK_ENABLE_Z45 = 0x50;
     const ENLINK_HUMIDITY_TX_RES = 0x51;
     const ENLINK_Z45_TRIG_CLEAN = 0x52;
     const ENLINK_Z44_TRIG_CLEAN = 0x53;
-    
+
     const ENLINK_HS_SET_THRESH_P = 0x54;
     const ENLINK_HS_SET_HYST_P = 0x55;
     const ENLINK_HS_SET_INACTIVITY = 0x56;
     const ENLINK_HS_ZERO_C_AND_D = 0x57;
     const ENLINK_HS_RESET = 0x58;
-    
+
     const ENLINK_MPS_RESET_COUNTERS = 0x59;
 
     const ENLINK_REBOOT = 0xff;
@@ -403,6 +403,25 @@ function js_decoder(msg) {
         var m = e === 0 ? (bits & 0x7fffff) << 1 : (bits & 0x7fffff) | 0x800000;
         var f = sign * m * Math.pow(2, e - 150);
         return f;
+    }
+    // Simplify use of data conversions
+    function f32_1(bytes, index) {
+        return fromF32(bytes[index + 1], bytes[index + 2], bytes[index + 3], bytes[index + 4]);
+    }
+    function f32_2(bytes, index) {
+        return fromF32(bytes[index + 2], bytes[index + 3], bytes[index + 4], bytes[index + 5]);
+    }
+    function u16_1(bytes, index) {
+        return U16((bytes[index + 1] << 8) | (bytes[index + 2]));
+    }
+    function u32_1(bytes, index) {
+        return U32((bytes[index + 1] << 24) | (bytes[index + 2] << 16) | (bytes[index + 3] << 8) | (bytes[index + 4]));
+    }
+    function u32_2(bytes, index) {
+        return U32((bytes[index + 2] << 24) | (bytes[index + 3] << 16) | (bytes[index + 4] << 8) | (bytes[index + 5]));
+    }
+    function s32_1(bytes, index) {
+        return S32((bytes[index + 1] << 24) | (bytes[index + 2] << 16) | (bytes[index + 3] << 8) | (bytes[index + 4]));
     }
     // Return gas name from gas type byte
     function GetGasName(gas_type) {
@@ -535,6 +554,7 @@ function js_decoder(msg) {
         return "Unknown";
     }
     // Return flammable gas name from gas type byte
+    /*
     function GetFlamGasName(gas_type) {
         switch (gas_type) {
             case 0x00:
@@ -560,6 +580,7 @@ function js_decoder(msg) {
         }
         return "Unknown";
     }
+    */
     // Corrosion: Return metal name from id byte
     function GetCrnMetal(id_byte) {
         var id = id_byte & 0x7f;
@@ -607,23 +628,23 @@ function js_decoder(msg) {
                     i += 1;
                     break;
                 case ENLINK_HIRES_RH: // Humidity %rH
-                    obj.rh = (U16((data[i + 1] << 8) | (data[i + 2]))) / 100;
+                    obj.rh = u16_1(data, i) / 100;
                     i += 2;
                     break;
                 case ENLINK_COMP_RH: // Compensated Humidity %rH
-                    obj.comp_rh = (U16((data[i + 1] << 8) | (data[i + 2]))) / 100;
+                    obj.comp_rh = u16_1(data, i) / 100;
                     i += 2;
                     break;
                 case ENLINK_LUX: // Light Level lux
-                    obj.lux = U16((data[i + 1] << 8) | data[i + 2]);
+                    obj.lux = u16_1(data, i);
                     i += 2;
                     break;
                 case ENLINK_PRESSURE: // Barometric Pressure
-                    obj.pressure_mbar = U16((data[i + 1] << 8) | data[i + 2]);
+                    obj.pressure_mbar = u16_1(data, i);
                     i += 2;
                     break;
                 case ENLINK_VOC_IAQ: // Indoor Air Quality (0-500)
-                    obj.iaq = U16((data[i + 1] << 8) | data[i + 2]);
+                    obj.iaq = u16_1(data, i);
                     i += 2;
                     break;
                 case ENLINK_O2PERC: // O2 percentage
@@ -631,59 +652,48 @@ function js_decoder(msg) {
                     i += 1;
                     break;
                 case ENLINK_CO: // Carbon Monoxide
-                    obj.co_ppm = U16((data[i + 1] << 8) | data[i + 2]) / 100;
+                    obj.co_ppm = u16_1(data, i) / 100;
                     i += 2;
                     break;
                 case ENLINK_CO2: // Carbon Dioxide
-                    obj.co2_ppm = U16((data[i + 1] << 8) | data[i + 2]);
+                    obj.co2_ppm = u16_1(data, i);
                     i += 2;
                     break;
                 case ENLINK_OZONE: // Ozone ppm and ppb
-                    obj.ozone_ppm = U16((data[i + 1] << 8) | data[i + 2]) / 10000;
-                    obj.ozone_ppb = U16((data[i + 1] << 8) | data[i + 2]) / 10;
+                    obj.ozone_ppm = u16_1(data, i) / 10000;
+                    obj.ozone_ppb = u16_1(data, i) / 10;
                     i += 2;
                     break;
                 case ENLINK_POLLUTANTS: // Pollutants kOhm
-                    obj.pollutants_kohm = U16((data[i + 1] << 8) | data[i + 2]) / 10;
+                    obj.pollutants_kohm = u16_1(data, i) / 10;
                     i += 2;
                     break;
                 case ENLINK_PM25: // Particulates @2.5
-                    obj.pm25 = U16((data[i + 1] << 8) | data[i + 2]);
+                    obj.pm25 = u16_1(data, i);
                     i += 2;
                     break;
                 case ENLINK_PM10: // Particulates @10
-                    obj.pm10 = U16((data[i + 1] << 8) | data[i + 2]);
+                    obj.pm10 = u16_1(data, i);
                     i += 2;
                     break;
                 case ENLINK_H2S: // Hydrogen Sulphide
-                    obj.h2s_ppm = U16((data[i + 1] << 8) | data[i + 2]) / 100;
+                    obj.h2s_ppm = u16_1(data, i) / 100;
                     i += 2;
                     break;
 
                 case ENLINK_COUNTER:
+                    var pulseCount = u32_2(data, i);
+                    // Add array of counters
                     if (obj.counter) {
-                        obj.counter.push([
-                            data[i + 1],
-                            U32(
-                                (data[i + 2] << 24) |
-                                (data[i + 3] << 16) |
-                                (data[i + 4] << 8) |
-                                data[i + 5]
-                            ),
-                        ]);
+                        obj.counter.push([data[i + 1], pulseCount]);
                     } else {
-                        obj.counter = [
-                            [
-                                data[i + 1],
-                                U32(
-                                    (data[i + 2] << 24) |
-                                    (data[i + 3] << 16) |
-                                    (data[i + 4] << 8) |
-                                    data[i + 5]
-                                ),
-                            ],
-                        ];
+                        obj.counter = [[data[i + 1], pulseCount]];
                     }
+                    // Add direct values for inputs 1, 2 and 3
+                    var input_no = data[i + 1];
+                    if (input_no === 0x00) { obj.pulse_ip1 = pulseCount; }
+                    if (input_no === 0x01) { obj.pulse_ip2 = pulseCount; }
+                    if (input_no === 0x02) { obj.pulse_ip3 = pulseCount; }
                     i += 5;
                     break;
                 case ENLINK_MB_EXCEPTION: // Modbus Error Code
@@ -695,84 +705,35 @@ function js_decoder(msg) {
                     i += 2;
                     break;
                 case ENLINK_MB_INTERVAL: // Modbus Interval Read
+                    var int_value = Number(f32_2(data, i).toFixed(2));
                     if (obj.mb_int_val) {
-                        obj.mb_int_val.push([
-                            data[i + 1],
-                            fromF32(
-                                data[i + 2],
-                                data[i + 3],
-                                data[i + 4],
-                                data[i + 5]
-                            ).toFixed(2),
-                        ]);
+                        obj.mb_int_val.push([data[i + 1], int_value]);
                     } else {
-                        obj.mb_int_val = [
-                            [
-                                data[i + 1],
-                                fromF32(
-                                    data[i + 2],
-                                    data[i + 3],
-                                    data[i + 4],
-                                    data[i + 5]
-                                ).toFixed(2),
-                            ],
-                        ];
+                        obj.mb_int_val = [[data[i + 1], int_value]];
                     }
                     i += 5;
                     break;
                 case ENLINK_MB_CUMULATIVE: // Modbus Cumulative Read
+                    var cum_value = Number(f32_2(data, i).toFixed(2));
                     if (obj.mb_cum_val) {
-                        obj.mb_cum_val.push([
-                            data[i + 1],
-                            fromF32(
-                                data[i + 2],
-                                data[i + 3],
-                                data[i + 4],
-                                data[i + 5]
-                            ).toFixed(2),
-                        ]);
+                        obj.mb_cum_val.push([data[i + 1], cum_value]);
                     } else {
-                        obj.mb_cum_val = [
-                            [
-                                data[i + 1],
-                                fromF32(
-                                    data[i + 2],
-                                    data[i + 3],
-                                    data[i + 4],
-                                    data[i + 5]
-                                ).toFixed(2),
-                            ],
-                        ];
+                        obj.mb_cum_val = [[data[i + 1], cum_value]];
                     }
                     i += 5;
                     break;
 
                 case ENLINK_BVOC: // Breath VOC Estimate equivalent
-                    obj.bvoc = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(3);
+                    obj.bvoc = Number(f32_1(data, i).toFixed(3));
                     i += 4;
                     break;
 
                 case ENLINK_DETECTION_COUNT:
-                    obj.det_count = U32(
-                        (data[i + 1] << 24) |
-                        (data[i + 2] << 16) |
-                        (data[i + 3] << 8) |
-                        data[i + 4]
-                    );
+                    obj.det_count = u32_1(data, i);
                     i += 4;
                     break;
                 case ENLINK_OCC_TIME: // Occupied duration in seconds
-                    obj.occ_time_s = U32(
-                        (data[i + 1] << 24) |
-                        (data[i + 2] << 16) |
-                        (data[i + 3] << 8) |
-                        data[i + 4]
-                    );
+                    obj.occ_time_s = u32_1(data, i);
                     i += 4;
                     break;
 
@@ -833,187 +794,115 @@ function js_decoder(msg) {
                     break;
                 case ENLINK_TEMP_PROBE_IN_BAND_DURATION_S_1:
                     /* Cumulative detection time u32 */
-                    obj.temp_probe_in_band_duration_s_1 = U32(
-                        (data[i + 1] << 24) |
-                        (data[i + 2] << 16) |
-                        (data[i + 3] << 8) |
-                        data[i + 4]
-                    );
+                    obj.temp_probe_in_band_duration_s_1 = u32_1(data, i);
                     i += 4;
                     break;
                 case ENLINK_TEMP_PROBE_IN_BAND_DURATION_S_2:
                     /* Cumulative detection time u32 */
-                    obj.temp_probe_in_band_duration_s_2 = U32(
-                        (data[i + 1] << 24) |
-                        (data[i + 2] << 16) |
-                        (data[i + 3] << 8) |
-                        data[i + 4]
-                    );
+                    obj.temp_probe_in_band_duration_s_2 = u32_1(data, i);
                     i += 4;
                     break;
                 case ENLINK_TEMP_PROBE_IN_BAND_DURATION_S_3:
                     /* Cumulative detection time u32 */
-                    obj.temp_probe_in_band_duration_s_3 = U32(
-                        (data[i + 1] << 24) |
-                        (data[i + 2] << 16) |
-                        (data[i + 3] << 8) |
-                        data[i + 4]
-                    );
+                    obj.temp_probe_in_band_duration_s_3 = u32_1(data, i);
                     i += 4;
                     break;
                 case ENLINK_TEMP_PROBE_IN_BAND_ALARM_COUNT_1:
                     /* In band alarm events u16 */
-                    obj.temp_probe_in_band_alarm_count_1 = U16(
-                        (data[i + 1] << 8) | data[i + 2]
-                    );
+                    obj.temp_probe_in_band_alarm_count_1 = u32_1(data, i);
                     i += 2;
                     break;
                 case ENLINK_TEMP_PROBE_IN_BAND_ALARM_COUNT_2:
                     /* In band alarm events u16 */
-                    obj.temp_probe_in_band_alarm_count_2 = U16(
-                        (data[i + 1] << 8) | data[i + 2]
-                    );
+                    obj.temp_probe_in_band_alarm_count_2 = u16_1(data, i);
                     i += 2;
                     break;
                 case ENLINK_TEMP_PROBE_IN_BAND_ALARM_COUNT_3:
                     /* In band alarm events u16 */
-                    obj.temp_probe_in_band_alarm_count_3 = U16(
-                        (data[i + 1] << 8) | data[i + 2]
-                    );
+                    obj.temp_probe_in_band_alarm_count_3 = u16_1(data, i);
                     i += 2;
                     break;
                 case ENLINK_TEMP_PROBE_LOW_DURATION_S_1:
                     /* Cumulative detection time u32 */
-                    obj.temp_probe_low_duration_s_1 = U32(
-                        (data[i + 1] << 24) |
-                        (data[i + 2] << 16) |
-                        (data[i + 3] << 8) |
-                        data[i + 4]
-                    );
+                    obj.temp_probe_low_duration_s_1 = u32_1(data, i);
                     i += 4;
                     break;
                 case ENLINK_TEMP_PROBE_LOW_DURATION_S_2:
                     /* Cumulative detection time u32 */
-                    obj.temp_probe_low_duration_s_2 = U32(
-                        (data[i + 1] << 24) |
-                        (data[i + 2] << 16) |
-                        (data[i + 3] << 8) |
-                        data[i + 4]
-                    );
+                    obj.temp_probe_low_duration_s_2 = u32_1(data, i);
                     i += 4;
                     break;
                 case ENLINK_TEMP_PROBE_LOW_DURATION_S_3:
                     /* Cumulative detection time u32 */
-                    obj.temp_probe_low_duration_s_3 = U32(
-                        (data[i + 1] << 24) |
-                        (data[i + 2] << 16) |
-                        (data[i + 3] << 8) |
-                        data[i + 4]
-                    );
+                    obj.temp_probe_low_duration_s_3 = u32_1(data, i);
                     i += 4;
                     break;
                 case ENLINK_TEMP_PROBE_LOW_ALARM_COUNT_1:
                     /* Low alarm events u16 */
-                    obj.temp_probe_low_alarm_count_1 = U16(
-                        (data[i + 1] << 8) | data[i + 2]
-                    );
+                    obj.temp_probe_low_alarm_count_1 = u16_1(data, i);
                     i += 2;
                     break;
                 case ENLINK_TEMP_PROBE_LOW_ALARM_COUNT_2:
                     /* Low alarm events u16 */
-                    obj.temp_probe_low_alarm_count_2 = U16(
-                        (data[i + 1] << 8) | data[i + 2]
-                    );
+                    obj.temp_probe_low_alarm_count_2 = u16_1(data, i);
                     i += 2;
                     break;
                 case ENLINK_TEMP_PROBE_LOW_ALARM_COUNT_3:
                     /* Low alarm events u16 */
-                    obj.temp_probe_low_alarm_count_3 = U16(
-                        (data[i + 1] << 8) | data[i + 2]
-                    );
+                    obj.temp_probe_low_alarm_count_3 = u16_1(data, i);
                     i += 2;
                     break;
                 case ENLINK_TEMP_PROBE_HIGH_DURATION_S_1:
                     /* Cumulative detection time u32 */
-                    obj.temp_probe_high_duration_s_1 = U32(
-                        (data[i + 1] << 24) |
-                        (data[i + 2] << 16) |
-                        (data[i + 3] << 8) |
-                        data[i + 4]
-                    );
+                    obj.temp_probe_high_duration_s_1 = u32_1(data, i);
                     i += 4;
                     break;
                 case ENLINK_TEMP_PROBE_HIGH_DURATION_S_2:
                     /* Cumulative detection time u32 */
-                    obj.temp_probe_high_duration_s_2 = U32(
-                        (data[i + 1] << 24) |
-                        (data[i + 2] << 16) |
-                        (data[i + 3] << 8) |
-                        data[i + 4]
-                    );
+                    obj.temp_probe_high_duration_s_2 = u32_1(data, i);
                     i += 4;
                     break;
                 case ENLINK_TEMP_PROBE_HIGH_DURATION_S_3:
                     /* Cumulative detection time u32 */
-                    obj.temp_probe_high_duration_s_3 = U32(
-                        (data[i + 1] << 24) |
-                        (data[i + 2] << 16) |
-                        (data[i + 3] << 8) |
-                        data[i + 4]
-                    );
+                    obj.temp_probe_high_duration_s_3 = u32_1(data, i);
                     i += 4;
                     break;
                 case ENLINK_TEMP_PROBE_HIGH_ALARM_COUNT_1:
                     /* High alarm events u16 */
-                    obj.temp_probe_high_alarm_count_1 = U16(
-                        (data[i + 1] << 8) | data[i + 2]
-                    );
+                    obj.temp_probe_high_alarm_count_1 = u16_1(data, i);
                     i += 2;
                     break;
                 case ENLINK_TEMP_PROBE_HIGH_ALARM_COUNT_2:
                     /* High alarm events u16 */
-                    obj.temp_probe_high_alarm_count_2 = U16(
-                        (data[i + 1] << 8) | data[i + 2]
-                    );
+                    obj.temp_probe_high_alarm_count_2 = u16_1(data, i);
                     i += 2;
                     break;
                 case ENLINK_TEMP_PROBE_HIGH_ALARM_COUNT_3:
                     /* High alarm events u16 */
-                    obj.temp_probe_high_alarm_count_3 = U16(
-                        (data[i + 1] << 8) | data[i + 2]
-                    );
+                    obj.temp_probe_high_alarm_count_3 = u16_1(data, i);
                     i += 2;
                     break;
 
                 case ENLINK_DIFF_PRESSURE: // 4 bytes F32, +/- 5000 Pa
-                    obj.dp_pa = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(3);
+                    obj.dp_pa = Number(f32_1(data, i).toFixed(3));
                     i += 4;
                     break;
                 case ENLINK_AIR_FLOW: // 4 bytes F32, 0 -> 100m/s
-                    obj.af_mps = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(3);
+                    obj.af_mps = Number(f32_1(data, i).toFixed(3));
                     i += 4;
                     break;
                 case ENLINK_VOLTAGE: // 2 bytes U16, 0 to 10.000 V
-                    obj.adc_v = U16((data[i + 1] << 8) | data[i + 2]) / 1000;
+                    obj.adc_v = u16_1(data, i) / 1000;
                     i += 2;
                     break;
                 case ENLINK_CURRENT: // 2 bytes U16, 0 to 20.000 mA
-                    obj.adc_ma = U16((data[i + 1] << 8) | data[i + 2]) / 1000;
+                    obj.adc_ma = u16_1(data, i) / 1000;
                     i += 2;
                     break;
                 case ENLINK_RESISTANCE: // 2 bytes U16, 0 to 6553.5 kOhm
-                    obj.pre_5_09_adc_kohm = U16((data[i + 1] << 8) | data[i + 2]) / 1000;
-                    obj.post_5_09_adc_kohm = U16((data[i + 1] << 8) | data[i + 2]) / 10;
+                    //obj.pre_5_09_adc_kohm = U16((data[i + 1] << 8) | data[i + 2]) / 1000;
+                    //obj.post_5_09_adc_kohm = U16((data[i + 1] << 8) | data[i + 2]) / 10;
+                    obj.adc_kohm = u16_1(data, i) / 10;
                     i += 2;
                     break;
                 case ENLINK_LEAK_DETECT_EVT: // 1 byte U8, Leak status changed
@@ -1021,7 +910,7 @@ function js_decoder(msg) {
                     i += 1;
                     break;
                 case ENLINK_GP_PRESSURE_PA: // 4 bytes F32, in Pascals. Typically up to 1MPa (10,000 mbar)
-                    obj.gp_pa = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
+                    obj.gp_pa = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
                 case ENLINK_GP_TEMPERATURE:
@@ -1030,7 +919,7 @@ function js_decoder(msg) {
                     break;
 
                 case ENLINK_LL_DEPTH_MM: // 4 bytes F32, in mm
-                    obj.ll_depth_mm = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]);
+                    obj.ll_depth_mm = f32_1(data, i);
                     i += 4;
                     break;
                 case ENLINK_LL_TEMPERATURE: // Sensor temperature
@@ -1038,269 +927,154 @@ function js_decoder(msg) {
                     i += 2;
                     break;
                 case ENLINK_MIN_TVOC:
-                    obj.tvoc_min_mg_m3 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
+                    obj.tvoc_min_mg_m3 = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
                 case ENLINK_AVG_TVOC:
-                    obj.tvoc_avg_mg_m3 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
+                    obj.tvoc_avg_mg_m3 = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
                 case ENLINK_MAX_TVOC:
-                    obj.tvoc_max_mg_m3 = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
+                    obj.tvoc_max_mg_m3 = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
                 case ENLINK_ETOH: // Ethanol equivalent
-                    obj.etoh_ppm = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
+                    obj.etoh_ppm = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
                 case ENLINK_TVOC_IAQ:
-                    obj.tvoc_iaq = fromF32(data[i + 1], data[i + 2], data[i + 3], data[i + 4]).toFixed(2);
+                    obj.tvoc_iaq = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
 
                 case ENLINK_CO2E: // CO2e Estimate Equivalent
-                    obj.co2e_ppm = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(2);
+                    obj.co2e_ppm = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
 
                 case ENLINK_SOUND_MIN:
-                    obj.sound_min_dba = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(2);
+                    obj.sound_min_dba = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
 
                 case ENLINK_SOUND_AVG:
-                    obj.sound_avg_dba = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(2);
+                    obj.sound_avg_dba = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
 
                 case ENLINK_SOUND_MAX:
-                    obj.sound_max_dba = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(2);
+                    obj.sound_max_dba = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
 
                 case ENLINK_NO: // Nitric Oxide
-                    obj.no_ppm = U16((data[i + 1] << 8) | data[i + 2]) / 100;
+                    obj.no_ppm = u16_1(data, i) / 100;
                     i += 2;
                     break;
                 case ENLINK_NO2: // Nitrogen Dioxide scaled at 0-5ppm
-                    obj.no2_ppm = U16((data[i + 1] << 8) | data[i + 2]) / 10000;
+                    obj.no2_ppm = u16_1(data, i) / 10000;
                     i += 2;
                     break;
                 case ENLINK_NO2_20: // Nitrogen Dioxide scaled at 0-20ppm
-                    obj.no2_20_ppm = U16((data[i + 1] << 8) | data[i + 2]) / 1000;
+                    obj.no2_20_ppm = u16_1(data, i) / 1000;
                     i += 2;
                     break;
                 case ENLINK_SO2: // Sulphur Dioxide 0-20ppm
-                    obj.so2_ppm = U16((data[i + 1] << 8) | data[i + 2]) / 1000;
+                    obj.so2_ppm = u16_1(data, i) / 1000;
                     i += 2;
                     break;
 
                 case ENLINK_MC_PM0_1:
-                    obj.mc_pm0_1 = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(2);
+                    obj.mc_pm0_1 = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
                 case ENLINK_MC_PM0_3:
-                    obj.mc_pm0_3 = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(2);
+                    obj.mc_pm0_3 = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
                 case ENLINK_MC_PM0_5:
-                    obj.mc_pm0_5 = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(2);
+                    obj.mc_pm0_5 = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
                 case ENLINK_MC_PM1_0:
-                    obj.mc_pm1_0 = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(2);
+                    obj.mc_pm1_0 = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
                 case ENLINK_MC_PM2_5:
-                    obj.mc_pm2_5 = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(2);
+                    obj.mc_pm2_5 = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
                 case ENLINK_MC_PM4_0:
-                    obj.mc_pm4_0 = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(2);
+                    obj.mc_pm4_0 = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
                 case ENLINK_MC_PM5_0:
-                    obj.mc_pm5_0 = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(2);
+                    obj.mc_pm5_0 = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
                 case ENLINK_MC_PM10_0:
-                    obj.mc_pm10_0 = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(2);
+                    obj.mc_pm10_0 = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
 
                 case ENLINK_NC_PM0_1:
-                    obj.nc_pm0_1 = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(2);
+                    obj.nc_pm0_1 = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
                 case ENLINK_NC_PM0_3:
-                    obj.nc_pm0_3 = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(2);
+                    obj.nc_pm0_3 = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
                 case ENLINK_NC_PM0_5:
-                    obj.nc_pm0_5 = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(2);
+                    obj.nc_pm0_5 = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
                 case ENLINK_NC_PM1_0:
-                    obj.nc_pm1_0 = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(2);
+                    obj.nc_pm1_0 = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
                 case ENLINK_NC_PM2_5:
-                    obj.nc_pm2_5 = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(2);
+                    obj.nc_pm2_5 = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
                 case ENLINK_NC_PM4_0:
-                    obj.nc_pm4_0 = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(2);
+                    obj.nc_pm4_0 = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
                 case ENLINK_NC_PM5_0:
-                    obj.nc_pm5_0 = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(2);
+                    obj.nc_pm5_0 = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
                 case ENLINK_NC_PM10_0:
-                    obj.nc_pm10_0 = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(2);
+                    obj.nc_pm10_0 = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
 
                 case ENLINK_PM_TPS:
-                    obj.pm_tps = fromF32(
-                        data[i + 1],
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4]
-                    ).toFixed(2);
+                    obj.pm_tps = Number(f32_1(data, i).toFixed(2));
                     i += 4;
                     break;
 
                 case ENLINK_DE_EVENT:
-                    obj.de_event = U16((data[i + 1] << 8) | data[i + 2]);
+                    obj.de_event = u16_1(data, i);
                     i += 2;
                     break;
 
                 case ENLINK_DE_SMOKE:
-                    obj.de_smoke = U16((data[i + 1] << 8) | data[i + 2]);
+                    obj.de_smoke = u16_1(data, i);
                     i += 2;
                     break;
 
                 case ENLINK_DE_VAPE:
-                    obj.de_vape = U16((data[i + 1] << 8) | data[i + 2]);
+                    obj.de_vape = u16_1(data, i);
                     i += 2;
                     break;
 
                 case ENLINK_GAS_PPB:
-                    // Need to create array as might have multiple sensors
-                    var gas_ppb_val = fromF32(
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4],
-                        data[i + 5]
-                    ).toFixed(2);
+                    var gas_ppb_val = Number(f32_2(data, i).toFixed(2));
                     // Values as array triplet
                     if (obj.gas_ppb) {
-                        obj.gas_ppb.push([
-                            data[i + 1],
-                            GetGasName(data[i + 1]),
-                            gas_ppb_val,
-                        ]);
+                        obj.gas_ppb.push([data[i + 1], GetGasName(data[i + 1]), gas_ppb_val]);
                     } else {
                         obj.gas_ppb = [[data[i + 1], GetGasName(data[i + 1]), gas_ppb_val]];
                     }
@@ -1309,23 +1083,12 @@ function js_decoder(msg) {
 
                 case ENLINK_GAS_UGM3:
                     // Need to create array as might have multiple sensors
-                    var gas_ugm3_val = fromF32(
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4],
-                        data[i + 5]
-                    ).toFixed(2);
+                    var gas_ugm3_val = Number(f32_2(data, i).toFixed(2));
                     // As Array
                     if (obj.gas_ugm3) {
-                        obj.gas_ugm3.push([
-                            data[i + 1],
-                            GetGasName(data[i + 1]),
-                            gas_ugm3_val,
-                        ]);
+                        obj.gas_ugm3.push([data[i + 1], GetGasName(data[i + 1]), gas_ugm3_val]);
                     } else {
-                        obj.gas_ugm3 = [
-                            [data[i + 1], GetGasName(data[i + 1]), gas_ugm3_val],
-                        ];
+                        obj.gas_ugm3 = [[data[i + 1], GetGasName(data[i + 1]), gas_ugm3_val]];
                     }
                     i += 5;
                     break;
@@ -1335,12 +1098,7 @@ function js_decoder(msg) {
                     cpn = (data[i + 1] & 0x80) === 0 ? 1 : 2;
                     metal = GetCrnMetal(data[i + 1]);
                     // Thickness in nanometres
-                    var thk_nm = fromF32(
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4],
-                        data[i + 5]
-                    ).toFixed(2);
+                    var thk_nm = Number(f32_2(data, i).toFixed(3));
                     // As Array
                     if (obj.crn_thk_nm) {
                         obj.crn_thk_nm.push([cpn, metal, thk_nm]);
@@ -1382,12 +1140,7 @@ function js_decoder(msg) {
                     cpn = (data[i + 1] & 0x80) === 0 ? 1 : 2;
                     metal = GetCrnMetal(data[i + 1]);
                     // Corrosion of coupon in percentage from Max(0%) to Min(100%)
-                    var perc = fromF32(
-                        data[i + 2],
-                        data[i + 3],
-                        data[i + 4],
-                        data[i + 5]
-                    ).toFixed(3);
+                    var perc = Number(f32_2(data, i).toFixed(3));
                     // As Array
                     if (obj.crn_perc) {
                         obj.crn_perc.push([cpn, metal, perc]);
@@ -1398,35 +1151,26 @@ function js_decoder(msg) {
                     break;
 
                 case ENLINK_FAST_AQI:
-                    obj.fast_aqi = U16((data[i + 1] << 8) | data[i + 2]);
+                    obj.fast_aqi = u16_1(data, i);
                     i += 2;
                     break;
 
                 case ENLINK_EPA_AQI:
-                    obj.epa_aqi = U16((data[i + 1] << 8) | data[i + 2]);
+                    obj.epa_aqi = u16_1(data, i);
                     i += 2;
                     break;
 
                 case ENLINK_MPS_CYCLECOUNT:
-                    obj.mps_count = S32((data[i + 1] << 24) | (data[i + 2] << 16) | (data[i + 3] << 8) | (data[i + 4]));
+                    obj.mps_count = s32_1(data, i);
                     i += 4;
                     break;
 
                 case ENLINK_MPS_FLAM_GAS:
-                    var gas_lel_iso_val = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]).toFixed(2);
+                    var gas_lel_iso_val = Number(f32_2(data, i).toFixed(2));
 
                     // Use this to give just a %LEL(ISO) reading independant of gas class
                     // 'General' flammable gas concentration
                     obj.flam_gen_conc_lel_iso = gas_lel_iso_val;
-
-                    // As Array
-                    /*
-                    if (obj.flam_gas) {
-                        obj.flam_gas.push([data[i + 1], GetFlamGasName(data[i + 1]), gas_lel_iso_val]);
-                    } else {
-                        obj.flam_gas = [[data[i + 1], GetFlamGasName(data[i + 1]), gas_lel_iso_val]];
-                    }
-                    */
 
                     // Create 'zero' values for history logging, then populate the relevant gas class
                     obj.flam_none = 0;
@@ -1436,46 +1180,46 @@ function js_decoder(msg) {
                     obj.flam_light = 0;
                     obj.flam_medium = 0;
                     obj.flam_heavy = 0;
-                    
-                    // Add actual reading to gas class
-	                switch (data[i + 1]) {
-	                    case FLAM_NONE:
-	                        obj.flam_none = gas_lel_iso_val;
-	                        break;
-	                    case FLAM_HYDROGEN:
-	                        obj.flam_hydrogen = gas_lel_iso_val;
-	                        break;
-	                    case FLAM_HYD_MIX:
-	                        obj.flam_hydrogen_mix = gas_lel_iso_val;
-	                        break;
-	                    case FLAM_METHANE:
-	                        obj.flam_methane = gas_lel_iso_val;
-	                        break;
-	                    case FLAM_LIGHT:
-	                        obj.flam_light = gas_lel_iso_val;
-	                        break;
-	                    case FLAM_MEDIUM:
-	                        obj.flam_medium = gas_lel_iso_val;
-	                        break;
-	                    case FLAM_HEAVY:
-	                        obj.flam_heavy = gas_lel_iso_val;
-	                        break;
 
-	                    // Errors
-	                    case FLAM_UNKNOWN:
-	                        obj.flam_err_unknown = gas_lel_iso_val;
-	                        break;
-	                    case FLAM_UNDER_RNG:
-	                        obj.flam_err_under_range = gas_lel_iso_val;
-	                        break;
-	                    case FLAM_OVER_RNG:
-	                        obj.flam_err_over_range = gas_lel_iso_val;
-	                        break;
-	
-	                    default:
-	                        obj.flam_unknown = gas_lel_iso_val;
-	                        break;
-	                }
+                    // Add actual reading to gas class
+                    switch (data[i + 1]) {
+                        case FLAM_NONE:
+                            obj.flam_none = gas_lel_iso_val;
+                            break;
+                        case FLAM_HYDROGEN:
+                            obj.flam_hydrogen = gas_lel_iso_val;
+                            break;
+                        case FLAM_HYD_MIX:
+                            obj.flam_hydrogen_mix = gas_lel_iso_val;
+                            break;
+                        case FLAM_METHANE:
+                            obj.flam_methane = gas_lel_iso_val;
+                            break;
+                        case FLAM_LIGHT:
+                            obj.flam_light = gas_lel_iso_val;
+                            break;
+                        case FLAM_MEDIUM:
+                            obj.flam_medium = gas_lel_iso_val;
+                            break;
+                        case FLAM_HEAVY:
+                            obj.flam_heavy = gas_lel_iso_val;
+                            break;
+
+                        // Errors
+                        case FLAM_UNKNOWN:
+                            obj.flam_err_unknown = gas_lel_iso_val;
+                            break;
+                        case FLAM_UNDER_RNG:
+                            obj.flam_err_under_range = gas_lel_iso_val;
+                            break;
+                        case FLAM_OVER_RNG:
+                            obj.flam_err_over_range = gas_lel_iso_val;
+                            break;
+
+                        default:
+                            obj.flam_unknown = gas_lel_iso_val;
+                            break;
+                    }
                     i += 5;
                     break;
 
@@ -1496,7 +1240,7 @@ function js_decoder(msg) {
                     break;
                 case ENLINK_BATT_VOLT:
                     //obj.batt_volt = U16((data[i + 1] << 8) | data[i + 2]) / 1000;
-                    obj.batt_mv = U16((data[i + 1] << 8) | data[i + 2]);
+                    obj.batt_mv = u16_1(data, i);
                     i += 2;
                     break;
                 case ENLINK_RX_RSSI:
@@ -1508,11 +1252,11 @@ function js_decoder(msg) {
                     i += 1;
                     break;
                 case ENLINK_RX_COUNT:
-                    obj.rx_count = U16((data[i + 1] << 8) | data[i + 2]);
+                    obj.rx_count = u16_1(data, i);
                     i += 2;
                     break;
                 case ENLINK_TX_TIME:
-                    obj.tx_time_ms = U16((data[i + 1] << 8) | data[i + 2]);
+                    obj.tx_time_ms = u16_1(data, i);
                     i += 2;
                     break;
                 case ENLINK_TX_POWER:
@@ -1520,27 +1264,27 @@ function js_decoder(msg) {
                     i += 1;
                     break;
                 case ENLINK_TX_COUNT:
-                    obj.tx_count = U16((data[i + 1] << 8) | data[i + 2]);
+                    obj.tx_count = u16_1(data, i);
                     i += 2;
                     break;
                 case ENLINK_POWER_UP_COUNT:
-                    obj.power_up_count = U16((data[i + 1] << 8) | data[i + 2]);
+                    obj.power_up_count = u16_1(data, i);
                     i += 2;
                     break;
                 case ENLINK_USB_IN_COUNT:
-                    obj.usb_in_count = U16((data[i + 1] << 8) | data[i + 2]);
+                    obj.usb_in_count = u16_1(data, i);
                     i += 2;
                     break;
                 case ENLINK_LOGIN_OK_COUNT:
-                    obj.login_ok_count = U16((data[i + 1] << 8) | data[i + 2]);
+                    obj.login_ok_count = u16_1(data, i);
                     i += 2;
                     break;
                 case ENLINK_LOGIN_FAIL_COUNT:
-                    obj.login_fail_count = U16((data[i + 1] << 8) | data[i + 2]);
+                    obj.login_fail_count = u16_1(data, i);
                     i += 2;
                     break;
                 case ENLINK_FAN_RUN_TIME:
-                    obj.fan_run_time_s = U32((data[i + 1] << 24) | (data[i + 2] << 16) | (data[i + 3] << 8) | data[i + 4]);
+                    obj.fan_run_time_s = u32_1(data, i);
                     i += 4;
                     break;
 
@@ -1557,7 +1301,7 @@ function js_decoder(msg) {
                     i += 4;
                     break;
 
-                    
+
                 default:
                     // something is wrong with data
                     obj.error = "Telemetry: Error at byte index " + i + "  Data: " + bytesToHexError(data, i);
@@ -1650,7 +1394,7 @@ function js_decoder(msg) {
                         obj.command = "Set GSS CO2 Sensor OOB Limits";
                     } else if (data[i + 2] == ENLINK_SET_GSS_CO2_INIT_INTERVAL) {
                         obj.command = "Set GSS CO2 Sensor Initial Auto-Calib Interval";
-                       // PM Sensors
+                        // PM Sensors
                     } else if (data[i + 2] == ENLINK_SET_PM_RUN_PERIOD) {
                         obj.command = "Set PM Sensor Run Period";
                     } else if (data[i + 2] == ENLINK_SET_PM_CLEANING_PERIOD) {
@@ -1729,7 +1473,7 @@ function js_decoder(msg) {
                         obj.command = "Set Zone View text string";
                     } else if (data[i + 2] == ENLINK_ZV_SET_TEXT_TO_DEFAULT) {
                         obj.command = "Set Zone View text string to factory default";
-                    
+
                     } else if (data[i + 2] == ENLINK_ENABLE_Z45) {
                         obj.command = "Enable/Disable EPA/Ozone Sensor";
                     } else if (data[i + 2] == ENLINK_HUMIDITY_TX_RES) {
@@ -1737,7 +1481,7 @@ function js_decoder(msg) {
                     } else if (data[i + 2] == ENLINK_Z45_TRIG_CLEAN) {
                         obj.command = "EPA/Ozone Sensor Cleaning Triggered";
                     } else if (data[i + 2] == ENLINK_Z44_TRIG_CLEAN) {
-                        obj.command = "Cleaning triggered on TVOC Sensor";    
+                        obj.command = "Cleaning triggered on TVOC Sensor";
                     } else if (data[i + 2] == ENLINK_HS_SET_THRESH_P) {
                         obj.command = "Set threshold on human presence sensor";
                     } else if (data[i + 2] == ENLINK_HS_SET_HYST_P) {
