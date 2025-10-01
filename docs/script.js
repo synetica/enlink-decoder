@@ -190,6 +190,18 @@ function js_decoder(msg) {
     const ENLINK_MPS_CYCLECOUNT = 0x73;
     const ENLINK_MPS_FLAM_GAS = 0x74;
 
+    // Flam Gas Type Byte
+    const FLAM_NONE = 0x00;
+    const FLAM_HYDROGEN = 0x01;
+    const FLAM_HYD_MIX = 0x02;
+    const FLAM_METHANE = 0x03;
+    const FLAM_LIGHT = 0x04;
+    const FLAM_MEDIUM = 0x05;
+    const FLAM_HEAVY = 0x06;
+    const FLAM_UNKNOWN = 0xFD;
+    const FLAM_UNDER_RNG = 0xFE;
+    const FLAM_OVER_RNG = 0xFF;
+
     // --------------------------------------------------------------------------------------
     // Optional KPI values that can be included in the message
     const ENLINK_CPU_TEMP_DEP = 0x40;
