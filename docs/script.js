@@ -1298,9 +1298,68 @@ function js_decoder(msg) {
                     } else {
                         obj.fault = [[sensor_id, item_id, item_val]];
                     }
+                    // Check for known values
+                    if (sensor_id == 28) {
+                        // SPS30 0x1C/28
+                        if (item_id == 1) {
+                            obj.fault_0x1C_01 = "SPS30 Fan Speed Error: " + item_val;
+                        } else if (item_id == 2) {
+                            obj.fault_0x1C_02 = "SPS30 Laser Failure: " + item_val;
+                        } else if (item_id_id == 3) {
+                            obj.fault_0x1C_03 = "SPS30 Fan Failure: " + item_val;
+                        } else {
+                            obj.fault_0x1C_x = "SPS30 General Error. Fault ID: " + item_id + " Value: " + item_val;
+                        }
+                    } else if (sensor_id == 36) {
+                        // Flammable Gas - MPS 0x24/36
+                        if (item_id == 0x01) {
+                            obj.fault_0x24_01 = "MPS CRC Error: " + item_val;
+                        } else if (item_id == 0x02) {
+                            obj.fault_0x24_02 = "MPS Bad Parameter: " + item_val;
+                        } else if (item_id == 0x05) {
+                            obj.fault_0x24_05 = "MPS Unknown Cmd: " + item_val;
+                        } else if (item_id == 0x07) {
+                            obj.fault_0x24_07 = "MPS Incomplete Cmd: " + item_val;
+                        } else if (item_id == 0x21) {
+                            obj.fault_0x24_21 = "MPS VDD Out of Range: " + item_val;
+                        } else if (item_id == 0x22) {
+                            obj.fault_0x24_22 = "MPS VREF Out of Range: " + item_val;
+                        } else if (item_id == 0x23) {
+                            obj.fault_0x24_23 = "MPS Env. Sensor Out of Range: " + item_val;
+                        } else if (item_id == 0x24) {
+                            obj.fault_0x24_24 = "MPS Env. Sensor Failed: " + item_val;
+                        } else if (item_id == 0x25) {
+                            obj.fault_0x24_25 = "MPS Microcontroller Error: " + item_val;
+                        } else if (item_id == 0x30) {
+                            obj.fault_0x24_30 = "MPS Sensor Read Negative: " + item_val;
+                        } else if (item_id == 0x31) {
+                            obj.fault_0x24_31 = "MPS Condensation Detected: " + item_val;
+                        } else if (item_id == 0x32) {
+                            obj.fault_0x24_32 = "MPS Sensor Error: " + item_val;
+                        } else if (item_id == 0x33) {
+                            obj.fault_0x24_33 = "MPS Gas detected during startup: " + item_val;
+                        } else if (item_id == 0x34) {
+                            obj.fault_0x24_34 = "MPS Slow Gas accumulation detected: " + item_val;
+                        } else if (item_id == 0x35) {
+                            obj.fault_0x24_35 = "MPS Breath/Humidity Surge: " + item_val;
+                        } else if (item_id == 0xF9) {
+                            obj.fault_0x24_F9 = "MPS Reply Timeout: " + item_val;
+                        } else if (item_id == 0xFA) {
+                            obj.fault_0x24_FA = "MPS Incomplete reply: " + item_val;
+                        } else if (item_id == 0xFB) {
+                            obj.fault_0x24_FB = "MPS CRC Error on reply: " + item_val;
+                        } else if (item_id == 0xFC) {
+                            obj.fault_0x24_FC = "MPS Sensor restart: " + item_val;
+                        } else if (item_id == 0xFF) {
+                            obj.fault_0x24_FF = "MPS Unknown Status: " + item_val;
+                        } else {
+                            obj.fault_0x24_x = "MPS General Error. Fault ID: " + item_id + " Value: " + item_val;
+                        }
+                    } else {
+                        obj.fault_x = "Unknown Sensor ID: " + sensor_id + " Fault ID: " + item_id + " Value: " + item_val;
+                    }
                     i += 4;
                     break;
-
 
                 default:
                     // something is wrong with data
