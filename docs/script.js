@@ -1293,11 +1293,13 @@ function js_decoder(msg) {
                     var sensor_id = (data[i + 1]);
                     var item_id = (data[i + 2]);
                     var item_val = U16((data[i + 3] << 8) | data[i + 4]);
+                    /*
                     if (obj.fault) {
                         obj.fault.push([sensor_id, item_id, item_val]);
                     } else {
                         obj.fault = [[sensor_id, item_id, item_val]];
                     }
+                    */
                     // Check for known values
                     if (sensor_id == 28) {
                         // SPS30 0x1C/28
