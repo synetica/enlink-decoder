@@ -209,7 +209,7 @@ function js_decoder(msg) {
     const ENLINK_CPU_TEMP = 0x4e;
 // --------------------------------------------------------------------------------------
     // Status Message
-    const ENLINK_SENS_CONDITION = 0xFE;
+    const ENLINK_FAULT = 0xFE;
     
     // --------------------------------------------------------------------------------------
     // V1 - Downlink reply message Header and ACK/NAK
@@ -1402,12 +1402,68 @@ function js_decoder(msg) {
 
                 case ENLINK_MPS_FLAM_GAS:
                     var gas_lel_iso_val = fromF32(data[i + 2], data[i + 3], data[i + 4], data[i + 5]).toFixed(2);
+
+                    // Use this to give just a %LEL(ISO) reading independant of gas class
+                    // 'General' flammable gas concentration
+                    obj.flam_gen_conc_lel_iso = gas_lel_iso_val;
+
                     // As Array
+                    /*
                     if (obj.flam_gas) {
                         obj.flam_gas.push([data[i + 1], GetFlamGasName(data[i + 1]), gas_lel_iso_val]);
                     } else {
                         obj.flam_gas = [[data[i + 1], GetFlamGasName(data[i + 1]), gas_lel_iso_val]];
                     }
+                    */
+
+                    // Create 'zero' values for history logging, then populate the relevant gas class
+                    obj.flam_none = 0;
+                    obj.flam_hydrogen = 0;
+                    obj.flam_hydrogen_mix = 0;
+                    obj.flam_methane = 0;
+                    obj.flam_light = 0;
+                    obj.flam_medium = 0;
+                    obj.flam_heavy = 0;
+                    
+                    // Add actual reading to gas class
+	                switch (data[i + 1]) {
+	                    case FLAM_NONE:
+	                        obj.flam_none = gas_lel_iso_val;
+	                        break;
+	                    case FLAM_HYDROGEN:
+	                        obj.flam_hydrogen = gas_lel_iso_val;
+	                        break;
+	                    case FLAM_HYD_MIX:
+	                        obj.flam_hydrogen_mix = gas_lel_iso_val;
+	                        break;
+	                    case FLAM_METHANE:
+	                        obj.flam_methane = gas_lel_iso_val;
+	                        break;
+	                    case FLAM_LIGHT:
+	                        obj.flam_light = gas_lel_iso_val;
+	                        break;
+	                    case FLAM_MEDIUM:
+	                        obj.flam_medium = gas_lel_iso_val;
+	                        break;
+	                    case FLAM_HEAVY:
+	                        obj.flam_heavy = gas_lel_iso_val;
+	                        break;
+
+	                    // Errors
+	                    case FLAM_UNKNOWN:
+	                        obj.flam_err_unknown = gas_lel_iso_val;
+	                        break;
+	                    case FLAM_UNDER_RNG:
+	                        obj.flam_err_under_range = gas_lel_iso_val;
+	                        break;
+	                    case FLAM_OVER_RNG:
+	                        obj.flam_err_over_range = gas_lel_iso_val;
+	                        break;
+	
+	                    default:
+	                        obj.flam_unknown = gas_lel_iso_val;
+	                        break;
+	                }
                     i += 5;
                     break;
 
@@ -1477,14 +1533,14 @@ function js_decoder(msg) {
                     break;
 
                 // < -------------------------------------------------------------------------------->
-                case ENLINK_SENS_CONDITION:
+                case ENLINK_FAULT:
                     var sensor_id = (data[i + 1]);
                     var item_id = (data[i + 2]);
                     var item_val = U16((data[i + 3] << 8) | data[i + 4]);
-                    if (obj.condition) {
-                        obj.condition.push([sensor_id, item_id, item_val]);
+                    if (obj.fault) {
+                        obj.fault.push([sensor_id, item_id, item_val]);
                     } else {
-                        obj.condition = [[sensor_id, item_id, item_val]];
+                        obj.fault = [[sensor_id, item_id, item_val]];
                     }
                     i += 4;
                     break;
