@@ -1,11 +1,11 @@
 "use strict";
 function decode_base64() {
     const tb = document.getElementById("encoded-base64");
-    var base64_string = tb.value;
-    var hex_string = base64ToHex(base64_string);
+    let base64_string = tb.value;
+    let hex_string = base64ToHex(base64_string);
     if (hex_string !== null) {
         console.log(hex_string);
-        var obj = decode_hex_string(hex_string);
+        let obj = decode_hex_string(hex_string);
         const out = document.getElementById("output-base64");
         if (obj !== null) {
             out.value = obj;
@@ -31,8 +31,8 @@ function base64ToHex(str) {
 
 function decode_bytes() {
     const tb = document.getElementById("encoded-bytes");
-    var hex_string = tb.value;
-    var obj = decode_hex_string(hex_string);
+    let hex_string = tb.value;
+    let obj = decode_hex_string(hex_string);
     const out = document.getElementById("output-bytes");
     if (obj !== null) {
         out.value = obj;
@@ -42,17 +42,17 @@ function decode_bytes() {
 }
 function decode_hex_string(hex_string) {
     function hexStringToByte(hexString) {
-        var result = [];
+        let result = [];
         for (let i = 0; i < hexString.length; i += 2) {
             result.push(parseInt(hexString.substr(i, 2), 16));
         }
         return result;
     }
-    var no_gaps = hex_string.replace(/\s+/g, "");
-    var p = hexStringToByte(no_gaps);
-    var msg = {};
+    let no_gaps = hex_string.replace(/\s+/g, "");
+    let p = hexStringToByte(no_gaps);
+    let msg = {};
     msg.payload = p;
-    var reply = js_decoder(msg);
+    let reply = js_decoder(msg);
     if (!reply.human_readable) {
         return reply;
     } else {
@@ -63,7 +63,7 @@ function decode_hex_string(hex_string) {
 function js_decoder(msg) {
     // Used for decoding enLink Uplink LoRa Messages
     // --------------------------------------------------------------------------------------
-    // 20 Aug 2025 (FW Ver:7.16)
+    // 02 Oct 2025 (FW Ver:7.16)
     // 24 Apr 2025 Includes Temperature fix
     // --------------------------------------------------------------------------------------
     // https://github.com/synetica/enlink-decoder
@@ -191,14 +191,14 @@ function js_decoder(msg) {
     const ENLINK_MPS_FLAM_GAS = 0x74;
 
     // Flam Gas Type Byte
-    const FLAM_NONE = 0x00;
+    const FLAM_NO_GAS = 0x00;
     const FLAM_HYDROGEN = 0x01;
     const FLAM_HYD_MIX = 0x02;
     const FLAM_METHANE = 0x03;
     const FLAM_LIGHT = 0x04;
     const FLAM_MEDIUM = 0x05;
     const FLAM_HEAVY = 0x06;
-    const FLAM_UNKNOWN = 0xFD;
+    const FLAM_UNKNOWN_GAS = 0xFD;
     const FLAM_UNDER_RNG = 0xFE;
     const FLAM_OVER_RNG = 0xFF;
 
@@ -338,13 +338,13 @@ function js_decoder(msg) {
 
     // Convert binary value bit to Signed 16 bit
     function S16(bin) {
-        var num = bin & 0xffff;
+        let num = bin & 0xffff;
         if (0x8000 & num) num = -(0x010000 - num);
         return num;
     }
     // Convert binary value bit to Signed 8 bit
     function S8(bin) {
-        var num = bin & 0xff;
+        let num = bin & 0xff;
         if (0x80 & num) num = -(0x0100 - num);
         return num;
     }
@@ -376,17 +376,18 @@ function js_decoder(msg) {
         }
         return ival;
     }
-    // Utility function
+    // Convert byte array to HEX string
     function bytesToHex(bytes) {
-        var result = "";
+        let result = "";
         for (let i = 0; i < bytes.length; i += 1) {
             result += ("0" + bytes[i].toString(16).toUpperCase() + " ").slice(-3);
         }
         return result.trim();
     }
+    // Convert byte array to HEX string highlighting the byte in error
     function bytesToHexError(bytes, err) {
-        var result = "";
-        for (var i = 0; i < bytes.length; i += 1) {
+        let result = "";
+        for (let i = 0; i < bytes.length; i += 1) {
             if (i == err) {
                 result += '[' + ('0' + (bytes[i]).toString(16).toUpperCase()).slice(-2) + '] ';
             } else {
@@ -397,11 +398,11 @@ function js_decoder(msg) {
     }
     // Convert 4 IEEE754 bytes
     function fromF32(byte0, byte1, byte2, byte3) {
-        var bits = (byte0 << 24) | (byte1 << 16) | (byte2 << 8) | byte3;
-        var sign = bits >>> 31 === 0 ? 1.0 : -1.0;
-        var e = (bits >>> 23) & 0xff;
-        var m = e === 0 ? (bits & 0x7fffff) << 1 : (bits & 0x7fffff) | 0x800000;
-        var f = sign * m * Math.pow(2, e - 150);
+        let bits = (byte0 << 24) | (byte1 << 16) | (byte2 << 8) | byte3;
+        let sign = bits >>> 31 === 0 ? 1.0 : -1.0;
+        let e = (bits >>> 23) & 0xff;
+        let m = e === 0 ? (bits & 0x7fffff) << 1 : (bits & 0x7fffff) | 0x800000;
+        let f = sign * m * Math.pow(2, e - 150);
         return f;
     }
     // Simplify use of data conversions
@@ -422,6 +423,13 @@ function js_decoder(msg) {
     }
     function s32_1(bytes, index) {
         return S32((bytes[index + 1] << 24) | (bytes[index + 2] << 16) | (bytes[index + 3] << 8) | (bytes[index + 4]));
+    }
+    // Format float numbers with decimal places
+    function ff32_1(data, i, dp) {
+        Number(f32_1(data, i).toFixed(dp));
+    }
+    function ff32_2(data, i, dp) {
+        Number(f32_2(data, i).toFixed(dp));
     }
     // Return gas name from gas type byte
     function GetGasName(gas_type) {
@@ -553,37 +561,9 @@ function js_decoder(msg) {
         }
         return "Unknown";
     }
-    // Return flammable gas name from gas type byte
-    /*
-    function GetFlamGasName(gas_type) {
-        switch (gas_type) {
-            case 0x00:
-                return "No Gas";
-            case 0x01:
-                return "Hydrogen";
-            case 0x02:
-                return "Hydrogen Mixture";
-            case 0x03:
-                return "Methane";
-            case 0x04:
-                return "Light Gas";
-            case 0x05:
-                return "Medium Gas";
-            case 0x06:
-                return "Heavy Gas";
-            case 0xFD:
-                return "Err: Unknown Gas";
-            case 0xFE:
-                return "Err: Under Range";
-            case 0xFF:
-                return "Err: Over Range";
-        }
-        return "Unknown";
-    }
-    */
     // Corrosion: Return metal name from id byte
     function GetCrnMetal(id_byte) {
-        var id = id_byte & 0x7f;
+        let id = id_byte & 0x7f;
         switch (id) {
             case 0x00:
                 return "Unknown";
@@ -598,7 +578,7 @@ function js_decoder(msg) {
     }
     // Workaround Fix for OAQ/IAQ/ZN2/ZV v7.01~7.09
     function t_fix_v7(t) {
-        var num = t & 0xFFFF;
+        let num = t & 0xFFFF;
         if (0x8000 & num)
             num = 655 + num;
         return num & 0xFFFF;
@@ -606,9 +586,9 @@ function js_decoder(msg) {
     // --------------------------------------------------------------------------------------
     // Function to decode enLink telemetry (sensor) messages
     function decodeTelemetry(data) {
-        var cpn;
-        var metal;
-        var obj = {};
+        let cpn;
+        let metal;
+        let obj = {};
 
         for (let i = 0; i < data.length; i++) {
             switch (data[i]) {
@@ -616,7 +596,7 @@ function js_decoder(msg) {
                 case ENLINK_TEMP: // Temperature
                     obj.temperature_c = S16((data[i + 1] << 8) | data[i + 2]) / 10;
                     obj.temperature_c_fix_v7 = (t_fix_v7((data[i + 1] << 8) | data[i + 2])) / 10;
-                    //obj.temperature_f = ((obj.temperature_c * 9) / 5 + 32).toFixed(2);
+                    //obj.temperature_f = ((obj.temperature_c * 9) / 5 + 32);
                     i += 2;
                     break;
                 case ENLINK_COMP_TEMP_C: // Compensated Temperature
@@ -682,7 +662,7 @@ function js_decoder(msg) {
                     break;
 
                 case ENLINK_COUNTER:
-                    var pulseCount = u32_2(data, i);
+                    let pulseCount = u32_2(data, i);
                     // Add array of counters
                     if (obj.counter) {
                         obj.counter.push([data[i + 1], pulseCount]);
@@ -690,7 +670,7 @@ function js_decoder(msg) {
                         obj.counter = [[data[i + 1], pulseCount]];
                     }
                     // Add direct values for inputs 1, 2 and 3
-                    var input_no = data[i + 1];
+                    let input_no = data[i + 1];
                     if (input_no === 0x00) { obj.pulse_ip1 = pulseCount; }
                     if (input_no === 0x01) { obj.pulse_ip2 = pulseCount; }
                     if (input_no === 0x02) { obj.pulse_ip3 = pulseCount; }
@@ -705,7 +685,7 @@ function js_decoder(msg) {
                     i += 2;
                     break;
                 case ENLINK_MB_INTERVAL: // Modbus Interval Read
-                    var int_value = Number(f32_2(data, i).toFixed(2));
+                    let int_value = ff32_2(data, i, 2);
                     if (obj.mb_int_val) {
                         obj.mb_int_val.push([data[i + 1], int_value]);
                     } else {
@@ -714,7 +694,7 @@ function js_decoder(msg) {
                     i += 5;
                     break;
                 case ENLINK_MB_CUMULATIVE: // Modbus Cumulative Read
-                    var cum_value = Number(f32_2(data, i).toFixed(2));
+                    let cum_value = ff32_2(data, i, 2);
                     if (obj.mb_cum_val) {
                         obj.mb_cum_val.push([data[i + 1], cum_value]);
                     } else {
@@ -724,7 +704,7 @@ function js_decoder(msg) {
                     break;
 
                 case ENLINK_BVOC: // Breath VOC Estimate equivalent
-                    obj.bvoc = Number(f32_1(data, i).toFixed(3));
+                    obj.bvoc = ff32_1(data, i, 3);
                     i += 4;
                     break;
 
@@ -747,7 +727,7 @@ function js_decoder(msg) {
                     } else {
                         // If (data[i + 1] > 0) transmission was triggered with a Change of State
                         // Transition detected for Closed to Open
-                        var b = false;
+                        let b = false;
                         b = (data[i + 1] & 0x01) > 0;
                         obj.cos_ip_1_hl = b ? 1 : 0;
 
@@ -884,11 +864,11 @@ function js_decoder(msg) {
                     break;
 
                 case ENLINK_DIFF_PRESSURE: // 4 bytes F32, +/- 5000 Pa
-                    obj.dp_pa = Number(f32_1(data, i).toFixed(3));
+                    obj.dp_pa = ff32_1(data, i, 3);
                     i += 4;
                     break;
                 case ENLINK_AIR_FLOW: // 4 bytes F32, 0 -> 100m/s
-                    obj.af_mps = Number(f32_1(data, i).toFixed(3));
+                    obj.af_mps = ff32_1(data, i, 3);
                     i += 4;
                     break;
                 case ENLINK_VOLTAGE: // 2 bytes U16, 0 to 10.000 V
@@ -910,7 +890,7 @@ function js_decoder(msg) {
                     i += 1;
                     break;
                 case ENLINK_GP_PRESSURE_PA: // 4 bytes F32, in Pascals. Typically up to 1MPa (10,000 mbar)
-                    obj.gp_pa = Number(f32_1(data, i).toFixed(2));
+                    obj.gp_pa = ff32_1(data, i, 2);
                     i += 4;
                     break;
                 case ENLINK_GP_TEMPERATURE:
@@ -927,43 +907,43 @@ function js_decoder(msg) {
                     i += 2;
                     break;
                 case ENLINK_MIN_TVOC:
-                    obj.tvoc_min_mg_m3 = Number(f32_1(data, i).toFixed(2));
+                    obj.tvoc_min_mg_m3 = ff32_1(data, i, 2);
                     i += 4;
                     break;
                 case ENLINK_AVG_TVOC:
-                    obj.tvoc_avg_mg_m3 = Number(f32_1(data, i).toFixed(2));
+                    obj.tvoc_avg_mg_m3 = ff32_1(data, i, 2);
                     i += 4;
                     break;
                 case ENLINK_MAX_TVOC:
-                    obj.tvoc_max_mg_m3 = Number(f32_1(data, i).toFixed(2));
+                    obj.tvoc_max_mg_m3 = ff32_1(data, i, 2);
                     i += 4;
                     break;
                 case ENLINK_ETOH: // Ethanol equivalent
-                    obj.etoh_ppm = Number(f32_1(data, i).toFixed(2));
+                    obj.etoh_ppm = ff32_1(data, i, 2);
                     i += 4;
                     break;
                 case ENLINK_TVOC_IAQ:
-                    obj.tvoc_iaq = Number(f32_1(data, i).toFixed(2));
+                    obj.tvoc_iaq = ff32_1(data, i, 2);
                     i += 4;
                     break;
 
                 case ENLINK_CO2E: // CO2e Estimate Equivalent
-                    obj.co2e_ppm = Number(f32_1(data, i).toFixed(2));
+                    obj.co2e_ppm = ff32_1(data, i, 2);
                     i += 4;
                     break;
 
                 case ENLINK_SOUND_MIN:
-                    obj.sound_min_dba = Number(f32_1(data, i).toFixed(2));
+                    obj.sound_min_dba = ff32_1(data, i, 2);
                     i += 4;
                     break;
 
                 case ENLINK_SOUND_AVG:
-                    obj.sound_avg_dba = Number(f32_1(data, i).toFixed(2));
+                    obj.sound_avg_dba = ff32_1(data, i, 2);
                     i += 4;
                     break;
 
                 case ENLINK_SOUND_MAX:
-                    obj.sound_max_dba = Number(f32_1(data, i).toFixed(2));
+                    obj.sound_max_dba = ff32_1(data, i, 2);
                     i += 4;
                     break;
 
@@ -985,73 +965,73 @@ function js_decoder(msg) {
                     break;
 
                 case ENLINK_MC_PM0_1:
-                    obj.mc_pm0_1 = Number(f32_1(data, i).toFixed(2));
+                    obj.mc_pm0_1 = ff32_1(data, i, 2);
                     i += 4;
                     break;
                 case ENLINK_MC_PM0_3:
-                    obj.mc_pm0_3 = Number(f32_1(data, i).toFixed(2));
+                    obj.mc_pm0_3 = ff32_1(data, i, 2);
                     i += 4;
                     break;
                 case ENLINK_MC_PM0_5:
-                    obj.mc_pm0_5 = Number(f32_1(data, i).toFixed(2));
+                    obj.mc_pm0_5 = ff32_1(data, i, 2);
                     i += 4;
                     break;
                 case ENLINK_MC_PM1_0:
-                    obj.mc_pm1_0 = Number(f32_1(data, i).toFixed(2));
+                    obj.mc_pm1_0 = ff32_1(data, i, 2);
                     i += 4;
                     break;
                 case ENLINK_MC_PM2_5:
-                    obj.mc_pm2_5 = Number(f32_1(data, i).toFixed(2));
+                    obj.mc_pm2_5 = ff32_1(data, i, 2);
                     i += 4;
                     break;
                 case ENLINK_MC_PM4_0:
-                    obj.mc_pm4_0 = Number(f32_1(data, i).toFixed(2));
+                    obj.mc_pm4_0 = ff32_1(data, i, 2);
                     i += 4;
                     break;
                 case ENLINK_MC_PM5_0:
-                    obj.mc_pm5_0 = Number(f32_1(data, i).toFixed(2));
+                    obj.mc_pm5_0 = ff32_1(data, i, 2);
                     i += 4;
                     break;
                 case ENLINK_MC_PM10_0:
-                    obj.mc_pm10_0 = Number(f32_1(data, i).toFixed(2));
+                    obj.mc_pm10_0 = ff32_1(data, i, 2);
                     i += 4;
                     break;
 
                 case ENLINK_NC_PM0_1:
-                    obj.nc_pm0_1 = Number(f32_1(data, i).toFixed(2));
+                    obj.nc_pm0_1 = ff32_1(data, i, 2);
                     i += 4;
                     break;
                 case ENLINK_NC_PM0_3:
-                    obj.nc_pm0_3 = Number(f32_1(data, i).toFixed(2));
+                    obj.nc_pm0_3 = ff32_1(data, i, 2);
                     i += 4;
                     break;
                 case ENLINK_NC_PM0_5:
-                    obj.nc_pm0_5 = Number(f32_1(data, i).toFixed(2));
+                    obj.nc_pm0_5 = ff32_1(data, i, 2);
                     i += 4;
                     break;
                 case ENLINK_NC_PM1_0:
-                    obj.nc_pm1_0 = Number(f32_1(data, i).toFixed(2));
+                    obj.nc_pm1_0 = ff32_1(data, i, 2);
                     i += 4;
                     break;
                 case ENLINK_NC_PM2_5:
-                    obj.nc_pm2_5 = Number(f32_1(data, i).toFixed(2));
+                    obj.nc_pm2_5 = ff32_1(data, i, 2);
                     i += 4;
                     break;
                 case ENLINK_NC_PM4_0:
-                    obj.nc_pm4_0 = Number(f32_1(data, i).toFixed(2));
+                    obj.nc_pm4_0 = ff32_1(data, i, 2);
                     i += 4;
                     break;
                 case ENLINK_NC_PM5_0:
-                    obj.nc_pm5_0 = Number(f32_1(data, i).toFixed(2));
+                    obj.nc_pm5_0 = ff32_1(data, i, 2);
                     i += 4;
                     break;
                 case ENLINK_NC_PM10_0:
-                    obj.nc_pm10_0 = Number(f32_1(data, i).toFixed(2));
+                    obj.nc_pm10_0 = ff32_1(data, i, 2);
                     i += 4;
                     break;
 
                 case ENLINK_PM_TPS:
-                    obj.pm_tps = Number(f32_1(data, i).toFixed(2));
+                    obj.pm_tps = ff32_1(data, i, 2);
                     i += 4;
                     break;
 
@@ -1071,7 +1051,7 @@ function js_decoder(msg) {
                     break;
 
                 case ENLINK_GAS_PPB:
-                    var gas_ppb_val = Number(f32_2(data, i).toFixed(2));
+                    let gas_ppb_val = ff32_2(data, i, 2);
                     // Values as array triplet
                     if (obj.gas_ppb) {
                         obj.gas_ppb.push([data[i + 1], GetGasName(data[i + 1]), gas_ppb_val]);
@@ -1083,7 +1063,7 @@ function js_decoder(msg) {
 
                 case ENLINK_GAS_UGM3:
                     // Need to create array as might have multiple sensors
-                    var gas_ugm3_val = Number(f32_2(data, i).toFixed(2));
+                    let gas_ugm3_val = ff32_2(data, i, 2);
                     // As Array
                     if (obj.gas_ugm3) {
                         obj.gas_ugm3.push([data[i + 1], GetGasName(data[i + 1]), gas_ugm3_val]);
@@ -1098,7 +1078,7 @@ function js_decoder(msg) {
                     cpn = (data[i + 1] & 0x80) === 0 ? 1 : 2;
                     metal = GetCrnMetal(data[i + 1]);
                     // Thickness in nanometres
-                    var thk_nm = Number(f32_2(data, i).toFixed(3));
+                    let thk_nm = ff32_2(data, i, 3);
                     // As Array
                     if (obj.crn_thk_nm) {
                         obj.crn_thk_nm.push([cpn, metal, thk_nm]);
@@ -1112,7 +1092,7 @@ function js_decoder(msg) {
                     cpn = (data[i + 1] & 0x80) === 0 ? 1 : 2;
                     metal = GetCrnMetal(data[i + 1]);
                     // Minimum thickness of metal
-                    var min_nm = U16((data[i + 2] << 8) | data[i + 3]);
+                    let min_nm = U16((data[i + 2] << 8) | data[i + 3]);
                     // As Array
                     if (obj.crn_min_nm) {
                         obj.crn_min_nm.push([cpn, metal, min_nm]);
@@ -1126,7 +1106,7 @@ function js_decoder(msg) {
                     cpn = (data[i + 1] & 0x80) === 0 ? 1 : 2;
                     metal = GetCrnMetal(data[i + 1]);
                     // Original thickness of metal
-                    var max_nm = U16((data[i + 2] << 8) | data[i + 3]);
+                    let max_nm = U16((data[i + 2] << 8) | data[i + 3]);
                     // As Array
                     if (obj.crn_max_nm) {
                         obj.crn_max_nm.push([cpn, metal, max_nm]);
@@ -1140,7 +1120,7 @@ function js_decoder(msg) {
                     cpn = (data[i + 1] & 0x80) === 0 ? 1 : 2;
                     metal = GetCrnMetal(data[i + 1]);
                     // Corrosion of coupon in percentage from Max(0%) to Min(100%)
-                    var perc = Number(f32_2(data, i).toFixed(3));
+                    let perc = ff32_2(data, i, 3);
                     // As Array
                     if (obj.crn_perc) {
                         obj.crn_perc.push([cpn, metal, perc]);
@@ -1166,25 +1146,15 @@ function js_decoder(msg) {
                     break;
 
                 case ENLINK_MPS_FLAM_GAS:
-                    var gas_lel_iso_val = Number(f32_2(data, i).toFixed(2));
-
+                    let gas_lel_iso_val = ff32_2(data, i, 2);
                     // Use this to give just a %LEL(ISO) reading independant of gas class
                     // 'General' flammable gas concentration
-                    obj.flam_gen_conc_lel_iso = gas_lel_iso_val;
-
-                    // Create 'zero' values for history logging, then populate the relevant gas class
-                    obj.flam_none = 0;
-                    obj.flam_hydrogen = 0;
-                    obj.flam_hydrogen_mix = 0;
-                    obj.flam_methane = 0;
-                    obj.flam_light = 0;
-                    obj.flam_medium = 0;
-                    obj.flam_heavy = 0;
+                    //obj.flam_gen_conc_lel_iso = gas_lel_iso_val;
 
                     // Add actual reading to gas class
                     switch (data[i + 1]) {
-                        case FLAM_NONE:
-                            obj.flam_none = gas_lel_iso_val;
+                        case FLAM_NO_GAS:
+                            obj.flam_no_gas = gas_lel_iso_val;
                             break;
                         case FLAM_HYDROGEN:
                             obj.flam_hydrogen = gas_lel_iso_val;
@@ -1206,8 +1176,8 @@ function js_decoder(msg) {
                             break;
 
                         // Errors
-                        case FLAM_UNKNOWN:
-                            obj.flam_err_unknown = gas_lel_iso_val;
+                        case FLAM_UNKNOWN_GAS:
+                            obj.flam_err_unknown_gas = gas_lel_iso_val;
                             break;
                         case FLAM_UNDER_RNG:
                             obj.flam_err_under_range = gas_lel_iso_val;
@@ -1217,7 +1187,8 @@ function js_decoder(msg) {
                             break;
 
                         default:
-                            obj.flam_unknown = gas_lel_iso_val;
+                            obj.flam_unknown_type = data[i + 1];
+	                        obj.flam_unknown_value = gas_lel_iso_val;
                             break;
                     }
                     i += 5;
@@ -1226,8 +1197,7 @@ function js_decoder(msg) {
                 // < -------------------------------------------------------------------------------->
                 // Optional KPIs
                 case ENLINK_CPU_TEMP_DEP: // Optional from April 2020
-                    obj.cpu_temp_dep =
-                        data[i + 1] + Math.round((data[i + 2] * 100) / 256) / 100;
+                    obj.cpu_temp_dep = data[i + 1] + Math.round((data[i + 2] * 100) / 256) / 100;
                     i += 2;
                     break;
                 case ENLINK_CPU_TEMP: // New for April 2020 Ver: 4.9
@@ -1290,9 +1260,9 @@ function js_decoder(msg) {
 
                 // < -------------------------------------------------------------------------------->
                 case ENLINK_FAULT:
-                    var sensor_id = (data[i + 1]);
-                    var item_id = (data[i + 2]);
-                    var item_val = U16((data[i + 3] << 8) | data[i + 4]);
+                    let sensor_id = (data[i + 1]);
+                    let fault_code = (data[i + 2]);
+                    let count_val = U16((data[i + 3] << 8) | data[i + 4]);
                     /*
                     if (obj.fault) {
                         obj.fault.push([sensor_id, item_id, item_val]);
@@ -1303,66 +1273,67 @@ function js_decoder(msg) {
                     // Check for known values
                     if (sensor_id == 28) {
                         // SPS30 0x1C/28
-                        if (item_id == 1) {
-                            obj.fault_0x1C_01 = "SPS30 Fan Speed Error: " + item_val;
-                        } else if (item_id == 2) {
-                            obj.fault_0x1C_02 = "SPS30 Laser Failure: " + item_val;
+                        if (fault_code == 1) {
+                            obj.fault_0x1C_01 = "SPS30 Fan Speed Error: " + count_val;
+                        } else if (fault_code == 2) {
+                            obj.fault_0x1C_02 = "SPS30 Laser Failure: " + count_val;
                         } else if (item_id_id == 3) {
-                            obj.fault_0x1C_03 = "SPS30 Fan Failure: " + item_val;
+                            obj.fault_0x1C_03 = "SPS30 Fan Failure: " + count_val;
                         } else {
-                            obj.fault_0x1C_x = "SPS30 General Error. Fault ID: " + item_id + " Value: " + item_val;
+                            obj.fault_0x1C_x = "SPS30 General Error. Fault Code: " + fault_code + " Count: " + count_val;
                         }
                     } else if (sensor_id == 36) {
                         // Flammable Gas - MPS 0x24/36
-                        if (item_id == 0x01) {
-                            obj.fault_0x24_01 = "MPS CRC Error: " + item_val;
-                        } else if (item_id == 0x02) {
-                            obj.fault_0x24_02 = "MPS Bad Parameter: " + item_val;
-                        } else if (item_id == 0x05) {
-                            obj.fault_0x24_05 = "MPS Unknown Cmd: " + item_val;
-                        } else if (item_id == 0x07) {
-                            obj.fault_0x24_07 = "MPS Incomplete Cmd: " + item_val;
-                        } else if (item_id == 0x21) {
-                            obj.fault_0x24_21 = "MPS VDD Out of Range: " + item_val;
-                        } else if (item_id == 0x22) {
-                            obj.fault_0x24_22 = "MPS VREF Out of Range: " + item_val;
-                        } else if (item_id == 0x23) {
-                            obj.fault_0x24_23 = "MPS Env. Sensor Out of Range: " + item_val;
-                        } else if (item_id == 0x24) {
-                            obj.fault_0x24_24 = "MPS Env. Sensor Failed: " + item_val;
-                        } else if (item_id == 0x25) {
-                            obj.fault_0x24_25 = "MPS Microcontroller Error: " + item_val;
-                        } else if (item_id == 0x30) {
-                            obj.fault_0x24_30 = "MPS Sensor Read Negative: " + item_val;
-                        } else if (item_id == 0x31) {
-                            obj.fault_0x24_31 = "MPS Condensation Detected: " + item_val;
-                        } else if (item_id == 0x32) {
-                            obj.fault_0x24_32 = "MPS Sensor Error: " + item_val;
-                        } else if (item_id == 0x33) {
-                            obj.fault_0x24_33 = "MPS Gas detected during startup: " + item_val;
-                        } else if (item_id == 0x34) {
-                            obj.fault_0x24_34 = "MPS Slow Gas accumulation detected: " + item_val;
-                        } else if (item_id == 0x35) {
-                            obj.fault_0x24_35 = "MPS Breath/Humidity Surge: " + item_val;
-                        } else if (item_id == 0xF9) {
-                            obj.fault_0x24_F9 = "MPS Reply Timeout: " + item_val;
-                        } else if (item_id == 0xFA) {
-                            obj.fault_0x24_FA = "MPS Incomplete reply: " + item_val;
-                        } else if (item_id == 0xFB) {
-                            obj.fault_0x24_FB = "MPS CRC Error on reply: " + item_val;
-                        } else if (item_id == 0xFC) {
-                            obj.fault_0x24_FC = "MPS Sensor restart: " + item_val;
-                        } else if (item_id == 0xFF) {
-                            obj.fault_0x24_FF = "MPS Unknown Status: " + item_val;
+                        if (fault_code == 0x01) {
+                            obj.fault_0x24_01 = "MPS CRC Error: " + count_val;
+                        } else if (fault_code == 0x02) {
+                            obj.fault_0x24_02 = "MPS Bad Parameter: " + count_val;
+                        } else if (fault_code == 0x05) {
+                            obj.fault_0x24_05 = "MPS Unknown Cmd: " + count_val;
+                        } else if (fault_code == 0x07) {
+                            obj.fault_0x24_07 = "MPS Incomplete Cmd: " + count_val;
+                        } else if (fault_code == 0x21) {
+                            obj.fault_0x24_21 = "MPS VDD Out of Range: " + count_val;
+                        } else if (fault_code == 0x22) {
+                            obj.fault_0x24_22 = "MPS VREF Out of Range: " + count_val;
+                        } else if (fault_code == 0x23) {
+                            obj.fault_0x24_23 = "MPS Env. Sensor Out of Range: " + count_val;
+                        } else if (fault_code == 0x24) {
+                            obj.fault_0x24_24 = "MPS Env. Sensor Failed: " + count_val;
+                        } else if (fault_code == 0x25) {
+                            obj.fault_0x24_25 = "MPS Microcontroller Error: " + count_val;
+                        } else if (fault_code == 0x30) {
+                            obj.fault_0x24_30 = "MPS Sensor Read Negative: " + count_val;
+                        } else if (fault_code == 0x31) {
+                            obj.fault_0x24_31 = "MPS Condensation Detected: " + count_val;
+                        } else if (fault_code == 0x32) {
+                            obj.fault_0x24_32 = "MPS Sensor Error: " + count_val;
+                        } else if (fault_code == 0x33) {
+                            obj.fault_0x24_33 = "MPS Gas detected during startup: " + count_val;
+                        } else if (fault_code == 0x34) {
+                            obj.fault_0x24_34 = "MPS Slow Gas accumulation detected: " + count_val;
+                        } else if (fault_code == 0x35) {
+                            obj.fault_0x24_35 = "MPS Breath/Humidity Surge: " + count_val;
+                        } else if (fault_code == 0xF9) {
+                            obj.fault_0x24_F9 = "MPS Reply Timeout: " + count_val;
+                        } else if (fault_code == 0xFA) {
+                            obj.fault_0x24_FA = "MPS Incomplete reply: " + count_val;
+                        } else if (fault_code == 0xFB) {
+                            obj.fault_0x24_FB = "MPS CRC Error on reply: " + count_val;
+                        } else if (fault_code == 0xFC) {
+                            obj.fault_0x24_FC = "MPS Sensor restart: " + count_val;
+                        } else if (fault_code == 0xFF) {
+                            obj.fault_0x24_FF = "MPS Unknown Status: " + count_val;
                         } else {
-                            obj.fault_0x24_x = "MPS General Error. Fault ID: " + item_id + " Value: " + item_val;
+                            obj.fault_0x24_x = "MPS General Error. Fault Code: " + fault_code + " Count: " + count_val;
                         }
                     } else {
-                        obj.fault_x = "Unknown Sensor ID: " + sensor_id + " Fault ID: " + item_id + " Value: " + item_val;
+                        obj.fault_x = "Unknown Sensor ID: " + sensor_id + " Fault Code: " + fault_code + " Count: " + count_val;
                     }
                     i += 4;
                     break;
 
+                // < -------------------------------------------------------------------------------->
                 default:
                     // something is wrong with data
                     obj.error = "Telemetry: Error at byte index " + i + "  Data: " + bytesToHexError(data, i);
@@ -1375,209 +1346,203 @@ function js_decoder(msg) {
     // --------------------------------------------------------------------------------------
     // Function to decode enLink response to downlink message
     function decodeStdResponse(data) {
-        var obj = {};
-        for (let i = 0; i < data.length; i++) {
-            switch (data[i]) {
-                // Parse reply from device following a downlink command
-                case ENLINK_HEADER:
-                    if (data[i + 1] == ENLINK_ACK) {
-                        obj.reply = "ACK";
-                    } else if (data[i + 1] == ENLINK_NACK) {
-                        obj.reply = "NACK";
-                    } else {
-                        obj.reply = "Reply parse failure";
-                    }
+        let obj = {};
+        if (data.length != 3) {
+            obj.reply = "Error: Reply is not 3 bytes long. Data: " + bytesToHex(data);
+            return obj;
+        }
+        if (data[0] != ENLINK_HEADER) {
+            obj.reply = "Error: First byte is not 0xA5. Data: " + bytesToHex(data);
+            return obj;
+        }
+        // Parse reply from device following a downlink command
+        if (data[1] == ENLINK_ACK) {
+            obj.reply = "ACK";
+        } else if (data[1] == ENLINK_NACK) {
+            obj.reply = "NACK";
+        } else {
+            obj.reply = "Error: Reply ACK/NACK failure. Data: " + bytesToHex(data);
+            return obj;
+        }
 
-                    if (data[i + 2] == ENLINK_SET_ANTENNA_GAIN) {
-                        obj.command = "Set Antenna Gain";
-                    } else if (data[i + 2] == ENLINK_SET_PUBLIC) {
-                        obj.command = "Set Public";
-                    } else if (data[i + 2] == ENLINK_SET_APPEUI) {
-                        obj.command = "Set AppEUI";
-                    } else if (data[i + 2] == ENLINK_SET_APPKEY) {
-                        obj.command = "Set AppKEY";
-                    } else if (data[i + 2] == ENLINK_SET_ADR) {
-                        obj.command = "Set ADR";
-                    } else if (data[i + 2] == ENLINK_SET_DUTY_CYCLE) {
-                        obj.command = "Set Duty Cycle";
-                    } else if (data[i + 2] == ENLINK_SET_MSG_ACK) {
-                        obj.command = "Set Message Confirmation";
-                    } else if (data[i + 2] == ENLINK_SET_TX_PORT) {
-                        obj.command = "Set TX Port";
-                    } else if (data[i + 2] == ENLINK_SET_DR_INDEX) {
-                        obj.command = "Set Data Rate";
-                    } else if (data[i + 2] == ENLINK_SET_TX_INDEX) {
-                        obj.command = "Set TX Interval";
-                    } else if (data[i + 2] == ENLINK_SET_POW_INDEX) {
-                        obj.command = "Set TX Power";
-                    } else if (data[i + 2] == ENLINK_SET_RX_PORT) {
-                        obj.command = "Set RX Port";
-                    } else if (data[i + 2] == ENLINK_SET_JC_INTERVAL) {
-                        obj.command = "Set Join Check Interval";
-                    } else if (data[i + 2] == ENLINK_SET_JC_PKT_TYPE) {
-                        obj.command = "Set Join Check Packet Type";
-                    } else if (data[i + 2] == ENLINK_SET_ATI_MIN) {
-                        obj.command = "Set ATI Min";
-                    } else if (data[i + 2] == ENLINK_SET_ATI_MAX) {
-                        obj.command = "Set ATI Max";
-                    } else if (data[i + 2] == ENLINK_SET_FULL_PKT_MUL) {
-                        obj.command = "Set Full Packet Multiplier";
-                    } else if (data[i + 2] == ENLINK_SET_WELL_DEFAULT) {
-                        obj.command = "Set WELL defaults";
-                    } else if (data[i + 2] == ENLINK_SET_KPI_INCLUDES_DIRECT) {
-                        obj.command = "Set KPI Includes";
-                    } else if (data[i + 2] == ENLINK_SET_KPI_INCLUDES_INDEX) {
-                        obj.command = "Set KPI Includes";
+        if (data[2] == ENLINK_SET_ANTENNA_GAIN) {
+            obj.command = "Set Antenna Gain";
+        } else if (data[2] == ENLINK_SET_PUBLIC) {
+            obj.command = "Set Public";
+        } else if (data[2] == ENLINK_SET_APPEUI) {
+            obj.command = "Set AppEUI";
+        } else if (data[2] == ENLINK_SET_APPKEY) {
+            obj.command = "Set AppKEY";
+        } else if (data[2] == ENLINK_SET_ADR) {
+            obj.command = "Set ADR";
+        } else if (data[2] == ENLINK_SET_DUTY_CYCLE) {
+            obj.command = "Set Duty Cycle";
+        } else if (data[2] == ENLINK_SET_MSG_ACK) {
+            obj.command = "Set Message Confirmation";
+        } else if (data[2] == ENLINK_SET_TX_PORT) {
+            obj.command = "Set TX Port";
+        } else if (data[2] == ENLINK_SET_DR_INDEX) {
+            obj.command = "Set Data Rate";
+        } else if (data[2] == ENLINK_SET_TX_INDEX) {
+            obj.command = "Set TX Interval";
+        } else if (data[2] == ENLINK_SET_POW_INDEX) {
+            obj.command = "Set TX Power";
+        } else if (data[2] == ENLINK_SET_RX_PORT) {
+            obj.command = "Set RX Port";
+        } else if (data[2] == ENLINK_SET_JC_INTERVAL) {
+            obj.command = "Set Join Check Interval";
+        } else if (data[2] == ENLINK_SET_JC_PKT_TYPE) {
+            obj.command = "Set Join Check Packet Type";
+        } else if (data[2] == ENLINK_SET_ATI_MIN) {
+            obj.command = "Set ATI Min";
+        } else if (data[2] == ENLINK_SET_ATI_MAX) {
+            obj.command = "Set ATI Max";
+        } else if (data[2] == ENLINK_SET_FULL_PKT_MUL) {
+            obj.command = "Set Full Packet Multiplier";
+        } else if (data[2] == ENLINK_SET_WELL_DEFAULT) {
+            obj.command = "Set WELL defaults";
+        } else if (data[2] == ENLINK_SET_KPI_INCLUDES_DIRECT) {
+            obj.command = "Set KPI Includes";
+        } else if (data[2] == ENLINK_SET_KPI_INCLUDES_INDEX) {
+            obj.command = "Set KPI Includes";
 
-                    } else if (data[i + 2] == ENLINK_SET_LUX_SCALE) {
-                        obj.command = "Set LUX Scale";
-                    } else if (data[i + 2] == ENLINK_SET_LUX_OFFSET) {
-                        obj.command = "Set LUX Offset";
+        } else if (data[2] == ENLINK_SET_LUX_SCALE) {
+            obj.command = "Set LUX Scale";
+        } else if (data[2] == ENLINK_SET_LUX_OFFSET) {
+            obj.command = "Set LUX Offset";
 
-                    } else if (data[i + 2] == ENLINK_SET_CASE_FAN_RUN_TIME) {
-                        obj.command = "Set Case Fan Run Time";
-                    } else if (data[i + 2] == ENLINK_SET_HPM_FAN_RUN_TIME) {
-                        obj.command = "Set Particle Sensor Fan Run Time";
+        } else if (data[2] == ENLINK_SET_CASE_FAN_RUN_TIME) {
+            obj.command = "Set Case Fan Run Time";
+        } else if (data[2] == ENLINK_SET_HPM_FAN_RUN_TIME) {
+            obj.command = "Set Particle Sensor Fan Run Time";
 
-                    } else if (data[i + 2] == ENLINK_SET_CO2_CALIB_ENABLE) {
-                        obj.command = "Set CO2 Sensor Auto-Calib Enable/Disable Flag";
-                    } else if (data[i + 2] == ENLINK_SET_CO2_TARGET_PPM) {
-                        obj.command = "Set CO2 Sensor Auto-Calib Target";
-                    } else if (data[i + 2] == ENLINK_SET_CO2_KNOWN_PPM) {
-                        obj.command = "Set CO2 Sensor to Known ppm";
-                        // Sunrise Sensor Only
-                    } else if (data[i + 2] == ENLINK_SET_SR_CO2_FACTORY_CALIB) {
-                        obj.command = "Set SR CO2 Sensor to Factory Calib";
-                    } else if (data[i + 2] == ENLINK_SET_CO2_REGULAR_INTERVAL) {
-                        obj.command = "Set CO2 Sensor Regular Auto-Calib Interval";
-                        // GSS CO2 Only
-                    } else if (data[i + 2] == ENLINK_SET_GSS_CO2_OOB_LIMITS) {
-                        obj.command = "Set GSS CO2 Sensor OOB Limits";
-                    } else if (data[i + 2] == ENLINK_SET_GSS_CO2_INIT_INTERVAL) {
-                        obj.command = "Set GSS CO2 Sensor Initial Auto-Calib Interval";
-                        // PM Sensors
-                    } else if (data[i + 2] == ENLINK_SET_PM_RUN_PERIOD) {
-                        obj.command = "Set PM Sensor Run Period";
-                    } else if (data[i + 2] == ENLINK_SET_PM_CLEANING_PERIOD) {
-                        obj.command = "Set PM Sensor Cleaning Interval";
-                        // Gas Sensors
-                    } else if (data[i + 2] == ENLINK_SET_GAS_IDLE_STATE) {
-                        obj.command = "Set Gas Idle State";
-                    } else if (data[i + 2] == ENLINK_SET_GAS_PRE_DELAY) {
-                        obj.command = "Set Gas Preamble Delay";
-                    } else if (data[i + 2] == ENLINK_SET_GAS_NUM_READS) {
-                        obj.command = "Set Gas Number of Reads";
-                    } else if (data[i + 2] == ENLINK_SET_GAS_READ_INT) {
-                        obj.command = "Set Gas Read Interval";
-                    } else if (data[i + 2] == ENLINK_SET_GAS_AGG_METHOD) {
-                        obj.command = "Set Gas Aggregation Method";
-                    } else if (data[i + 2] == ENLINK_SET_GAS_EMA_FACTOR) {
-                        obj.command = "Set Gas EMA Factor";
-                    } else if (data[i + 2] == ENLINK_SET_GAS_TRIM_PPB) {
-                        obj.command = "Set Gas PPB trim value";
-                    } else if (data[i + 2] == ENLINK_SET_GAS_TRIM_UGM3) {
-                        obj.command = "Set Gas UGM3 trim value";
+        } else if (data[2] == ENLINK_SET_CO2_CALIB_ENABLE) {
+            obj.command = "Set CO2 Sensor Auto-Calib Enable/Disable Flag";
+        } else if (data[2] == ENLINK_SET_CO2_TARGET_PPM) {
+            obj.command = "Set CO2 Sensor Auto-Calib Target";
+        } else if (data[2] == ENLINK_SET_CO2_KNOWN_PPM) {
+            obj.command = "Set CO2 Sensor to Known ppm";
+            // Sunrise Sensor Only
+        } else if (data[2] == ENLINK_SET_SR_CO2_FACTORY_CALIB) {
+            obj.command = "Set SR CO2 Sensor to Factory Calib";
+        } else if (data[2] == ENLINK_SET_CO2_REGULAR_INTERVAL) {
+            obj.command = "Set CO2 Sensor Regular Auto-Calib Interval";
+            // GSS CO2 Only
+        } else if (data[2] == ENLINK_SET_GSS_CO2_OOB_LIMITS) {
+            obj.command = "Set GSS CO2 Sensor OOB Limits";
+        } else if (data[2] == ENLINK_SET_GSS_CO2_INIT_INTERVAL) {
+            obj.command = "Set GSS CO2 Sensor Initial Auto-Calib Interval";
+            // PM Sensors
+        } else if (data[2] == ENLINK_SET_PM_RUN_PERIOD) {
+            obj.command = "Set PM Sensor Run Period";
+        } else if (data[2] == ENLINK_SET_PM_CLEANING_PERIOD) {
+            obj.command = "Set PM Sensor Cleaning Interval";
+            // Gas Sensors
+        } else if (data[2] == ENLINK_SET_GAS_IDLE_STATE) {
+            obj.command = "Set Gas Idle State";
+        } else if (data[2] == ENLINK_SET_GAS_PRE_DELAY) {
+            obj.command = "Set Gas Preamble Delay";
+        } else if (data[2] == ENLINK_SET_GAS_NUM_READS) {
+            obj.command = "Set Gas Number of Reads";
+        } else if (data[2] == ENLINK_SET_GAS_READ_INT) {
+            obj.command = "Set Gas Read Interval";
+        } else if (data[2] == ENLINK_SET_GAS_AGG_METHOD) {
+            obj.command = "Set Gas Aggregation Method";
+        } else if (data[2] == ENLINK_SET_GAS_EMA_FACTOR) {
+            obj.command = "Set Gas EMA Factor";
+        } else if (data[2] == ENLINK_SET_GAS_TRIM_PPB) {
+            obj.command = "Set Gas PPB trim value";
+        } else if (data[2] == ENLINK_SET_GAS_TRIM_UGM3) {
+            obj.command = "Set Gas UGM3 trim value";
 
-                    } else if (data[i + 2] == ENLINK_LEAK_ALARM_MODE) {
-                        obj.command = "Set Leak Sensor Alarm Mode";
-                    } else if (data[i + 2] == ENLINK_LEAK_UPPER_ALARM) {
-                        obj.command = "Set Leak Sensor High Alarm Level";
-                    } else if (data[i + 2] == ENLINK_LEAK_UPPER_HYST) {
-                        obj.command = "Set Leak Sensor High Hysteresis";
-                    } else if (data[i + 2] == ENLINK_LEAK_LOWER_ALARM) {
-                        obj.command = "Set Leak Sensor Low Alarm Level";
-                    } else if (data[i + 2] == ENLINK_LEAK_LOWER_HYST) {
-                        obj.command = "Set Leak Sensor Low Hysteresis";
-                    } else if (data[i + 2] == ENLINK_LEAK_SAMPLE_TIME_S) {
-                        obj.command = "Set Leak Sensor Sample Time";
-                    } else if (data[i + 2] == ENLINK_LEAK_TEST_DURATION) {
-                        obj.command = "Set Leak Sensor Test Time";
+        } else if (data[2] == ENLINK_LEAK_ALARM_MODE) {
+            obj.command = "Set Leak Sensor Alarm Mode";
+        } else if (data[2] == ENLINK_LEAK_UPPER_ALARM) {
+            obj.command = "Set Leak Sensor High Alarm Level";
+        } else if (data[2] == ENLINK_LEAK_UPPER_HYST) {
+            obj.command = "Set Leak Sensor High Hysteresis";
+        } else if (data[2] == ENLINK_LEAK_LOWER_ALARM) {
+            obj.command = "Set Leak Sensor Low Alarm Level";
+        } else if (data[2] == ENLINK_LEAK_LOWER_HYST) {
+            obj.command = "Set Leak Sensor Low Hysteresis";
+        } else if (data[2] == ENLINK_LEAK_SAMPLE_TIME_S) {
+            obj.command = "Set Leak Sensor Sample Time";
+        } else if (data[2] == ENLINK_LEAK_TEST_DURATION) {
+            obj.command = "Set Leak Sensor Test Time";
 
-                    } else if (data[i + 2] == ENLINK_BME680_PKT_INC) {
-                        obj.command = "Set VOC Sensor packet includes";
-                    } else if (data[i + 2] == ENLINK_SPS30_PKT_INC) {
-                        obj.command = "Set SPS30 packet includes";
-                    } else if (data[i + 2] == ENLINK_PIERA_PKT_INC) {
-                        obj.command = "Set PIERA/IPS7100 packet includes";
+        } else if (data[2] == ENLINK_BME680_PKT_INC) {
+            obj.command = "Set VOC Sensor packet includes";
+        } else if (data[2] == ENLINK_SPS30_PKT_INC) {
+            obj.command = "Set SPS30 packet includes";
+        } else if (data[2] == ENLINK_PIERA_PKT_INC) {
+            obj.command = "Set PIERA/IPS7100 packet includes";
 
-                    } else if (data[i + 2] == ENLINK_DP_PKT_INC) {
-                        obj.command = "Set DP/AF packet includes";
-                    } else if (data[i + 2] == ENLINK_DP_AUTO_ZERO) {
-                        obj.command = "DP/AF trigger Auto-Zero process";
-                    } else if (data[i + 2] == ENLINK_DP_SET_DELTA) {
-                        obj.command = "Set DP/AF delta offset";
+        } else if (data[2] == ENLINK_DP_PKT_INC) {
+            obj.command = "Set DP/AF packet includes";
+        } else if (data[2] == ENLINK_DP_AUTO_ZERO) {
+            obj.command = "DP/AF trigger Auto-Zero process";
+        } else if (data[2] == ENLINK_DP_SET_DELTA) {
+            obj.command = "Set DP/AF delta offset";
 
-                    } else if (data[i + 2] == ENLINK_ZMOD4410_PKT_INC) {
-                        obj.command = "Set TVOC Sensor packet includes";
+        } else if (data[2] == ENLINK_ZMOD4410_PKT_INC) {
+            obj.command = "Set TVOC Sensor packet includes";
 
-                    } else if (data[i + 2] == ENLINK_ZV_SCN_REFRESH_INT) {
-                        obj.command = "Set Zone View Screen Refresh rate";
-                    } else if (data[i + 2] == ENLINK_ZV_DISPLAY_TOPLINE) {
-                        obj.command = "Set Zone View display top line option";
-                    } else if (data[i + 2] == ENLINK_ZV_DISPLAY_TEMP_UNITS) {
-                        obj.command = "Set Zone View display temperature unit";
-                    } else if (data[i + 2] == ENLINK_ZV_DISPLAY_COMF_ICON_TYPE) {
-                        obj.command = "Set Zone View display comfort icon type";
-                    } else if (data[i + 2] == ENLINK_ZV_DISPLAY_COMF_LOCN) {
-                        obj.command = "Set Zone View display comfort icon location";
-                    } else if (data[i + 2] == ENLINK_ZV_COMF_LOGIC) {
-                        obj.command = "Set Zone View comfort logic";
-                    } else if (data[i + 2] == ENLINK_ZV_DISPLAY_COMF_ICON_STATUS) {
-                        obj.command = "Set Zone View display comfort icon status";
-                    } else if (data[i + 2] == ENLINK_ZV_INT_LOGIC_LOW_THRESH) {
-                        obj.command = "Set Zone View internal logic low threshold";
-                    } else if (data[i + 2] == ENLINK_ZV_INT_LOGIC_HIGH_THRESH) {
-                        obj.command = "Set Zone View internal logic high threshold";
-                    } else if (data[i + 2] == ENLINK_ZV_HELP_SCN_ENABLE) {
-                        obj.command = "Enable/Disable Zone View Help Screen";
-                    } else if (data[i + 2] == ENLINK_ZV_SET_TEXT) {
-                        obj.command = "Set Zone View text string";
-                    } else if (data[i + 2] == ENLINK_ZV_SET_TEXT_TO_DEFAULT) {
-                        obj.command = "Set Zone View text string to factory default";
+        } else if (data[2] == ENLINK_ZV_SCN_REFRESH_INT) {
+            obj.command = "Set Zone View Screen Refresh rate";
+        } else if (data[2] == ENLINK_ZV_DISPLAY_TOPLINE) {
+            obj.command = "Set Zone View display top line option";
+        } else if (data[2] == ENLINK_ZV_DISPLAY_TEMP_UNITS) {
+            obj.command = "Set Zone View display temperature unit";
+        } else if (data[2] == ENLINK_ZV_DISPLAY_COMF_ICON_TYPE) {
+            obj.command = "Set Zone View display comfort icon type";
+        } else if (data[2] == ENLINK_ZV_DISPLAY_COMF_LOCN) {
+            obj.command = "Set Zone View display comfort icon location";
+        } else if (data[2] == ENLINK_ZV_COMF_LOGIC) {
+            obj.command = "Set Zone View comfort logic";
+        } else if (data[2] == ENLINK_ZV_DISPLAY_COMF_ICON_STATUS) {
+            obj.command = "Set Zone View display comfort icon status";
+        } else if (data[2] == ENLINK_ZV_INT_LOGIC_LOW_THRESH) {
+            obj.command = "Set Zone View internal logic low threshold";
+        } else if (data[2] == ENLINK_ZV_INT_LOGIC_HIGH_THRESH) {
+            obj.command = "Set Zone View internal logic high threshold";
+        } else if (data[2] == ENLINK_ZV_HELP_SCN_ENABLE) {
+            obj.command = "Enable/Disable Zone View Help Screen";
+        } else if (data[2] == ENLINK_ZV_SET_TEXT) {
+            obj.command = "Set Zone View text string";
+        } else if (data[2] == ENLINK_ZV_SET_TEXT_TO_DEFAULT) {
+            obj.command = "Set Zone View text string to factory default";
 
-                    } else if (data[i + 2] == ENLINK_ENABLE_Z45) {
-                        obj.command = "Enable/Disable EPA/Ozone Sensor";
-                    } else if (data[i + 2] == ENLINK_HUMIDITY_TX_RES) {
-                        obj.command = "Humidity data resolution changed";
-                    } else if (data[i + 2] == ENLINK_Z45_TRIG_CLEAN) {
-                        obj.command = "EPA/Ozone Sensor Cleaning Triggered";
-                    } else if (data[i + 2] == ENLINK_Z44_TRIG_CLEAN) {
-                        obj.command = "Cleaning triggered on TVOC Sensor";
-                    } else if (data[i + 2] == ENLINK_HS_SET_THRESH_P) {
-                        obj.command = "Set threshold on human presence sensor";
-                    } else if (data[i + 2] == ENLINK_HS_SET_HYST_P) {
-                        obj.command = "Set hysteresis on human presence sensor";
-                    } else if (data[i + 2] == ENLINK_HS_SET_INACTIVITY) {
-                        obj.command = "Set inactivity on human presence sensor";
-                    } else if (data[i + 2] == ENLINK_HS_ZERO_C_AND_D) {
-                        obj.command = "Counters and detection time set to zero on human presence sensor";
-                    } else if (data[i + 2] == ENLINK_HS_RESET) {
-                        obj.command = "Human presence sensor reset";
-                    } else if (data[i + 2] == ENLINK_MPS_RESET_COUNTERS) {
-                        obj.command = "MPS Sensor fault counters reset to zero";
+        } else if (data[2] == ENLINK_ENABLE_Z45) {
+            obj.command = "Enable/Disable EPA/Ozone Sensor";
+        } else if (data[2] == ENLINK_HUMIDITY_TX_RES) {
+            obj.command = "Humidity data resolution changed";
+        } else if (data[2] == ENLINK_Z45_TRIG_CLEAN) {
+            obj.command = "EPA/Ozone Sensor Cleaning Triggered";
+        } else if (data[2] == ENLINK_Z44_TRIG_CLEAN) {
+            obj.command = "Cleaning triggered on TVOC Sensor";
+        } else if (data[2] == ENLINK_HS_SET_THRESH_P) {
+            obj.command = "Set threshold on human presence sensor";
+        } else if (data[2] == ENLINK_HS_SET_HYST_P) {
+            obj.command = "Set hysteresis on human presence sensor";
+        } else if (data[2] == ENLINK_HS_SET_INACTIVITY) {
+            obj.command = "Set inactivity on human presence sensor";
+        } else if (data[2] == ENLINK_HS_ZERO_C_AND_D) {
+            obj.command = "Counters and detection time set to zero on human presence sensor";
+        } else if (data[2] == ENLINK_HS_RESET) {
+            obj.command = "Human presence sensor reset";
+        } else if (data[2] == ENLINK_MPS_RESET_COUNTERS) {
+            obj.command = "MPS Sensor fault counters reset to zero";
 
-                    } else if (data[i + 2] == ENLINK_REBOOT) {
-                        obj.command = "Reboot";
-                    } else {
-                        obj.command = "Command parse failure: " + data[i + 2];
-                    }
-
-                    i = data.length;
-                    break;
-
-                default:
-                    // Ignore this message
-                    obj.error =
-                        "Std Response: Error at byte index " + i + "  Data: " + bytesToHexError(data, i);
-                    i = data.length;
-                    return obj;
-            }
+        } else if (data[2] == ENLINK_REBOOT) {
+            obj.command = "Reboot";
+        } else {
+            obj.reply = "Unexpected Command byte. Data: " + bytesToHex(data);
         }
         return obj;
     }
     // --------------------------------------------------------------------------------------
 
-    var res = {};
+    let res = {};
     //Check message type
     if (msg.payload[0] == ENLINK_HEADER) {
         // This is a response to a downlink command

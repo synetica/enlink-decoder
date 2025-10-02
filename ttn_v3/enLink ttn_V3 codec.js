@@ -1,15 +1,15 @@
 // Synetica Payload Decoder for The Things Stack V3
-// 20 Aug 2025 (FW Ver:7.16)
+// 02 Oct 2025 (FW Ver:7.16)
 // 24 Apr 2025 Includes Temperature fix
 // https://github.com/synetica/enlink-decoder
 
 function decodeUplink(input) {
- var bytes = input.bytes;
- var fPort = input.fPort;
- var data = {};
- var warnings = [];
- var errors = [];
- var i;
+ let bytes = input.bytes;
+ let fPort = input.fPort;
+ let data = {};
+ let warnings = [];
+ let errors = [];
+ let i;
 
  const ENL_TEMP = 0x01;
  const ENL_RH = 0x02;
@@ -109,6 +109,17 @@ function decodeUplink(input) {
  const ENL_MPS_COUNT = 0x73;
  const ENL_MPS_FLAM_GAS = 0x74;
 
+ const FLAM_NO_GAS = 0x00;
+ const FLAM_HYDROGEN = 0x01;
+ const FLAM_HYD_MIX = 0x02;
+ const FLAM_METHANE = 0x03;
+ const FLAM_LIGHT = 0x04;
+ const FLAM_MEDIUM = 0x05;
+ const FLAM_HEAVY = 0x06;
+ const FLAM_UNKNOWN_GAS = 0xFD;
+ const FLAM_UNDER_RNG = 0xFE;
+ const FLAM_OVER_RNG = 0xFF;
+
  const ENL_CPU_TEMP_DEP = 0x40;
  const ENL_BATT_STATUS = 0x41;
  const ENL_BATT_VOLT = 0x42;
@@ -128,13 +139,13 @@ function decodeUplink(input) {
  const ENL_FAULT = 0xFE;
 
  function S8(bin) {
-  var num = bin & 0xFF;
+  let num = bin & 0xFF;
   if (0x80 & num)
    num = -(0x0100 - num);
   return num;
  }
  function S16(bin) {
-  var num = bin & 0xFFFF;
+  let num = bin & 0xFFFF;
   if (0x8000 & num)
    num = -(0x010000 - num);
   return num;
@@ -163,12 +174,23 @@ function decodeUplink(input) {
   }
   return ival;
  }
+ function bytesToHexError(bytes, err) {
+  let result = "";
+  for (let i = 0; i < bytes.length; i += 1) {
+   if (i == err) {
+    result += '[' + ('0' + (bytes[i]).toString(16).toUpperCase()).slice(-2) + '] ';
+   } else {
+    result += ('0' + (bytes[i]).toString(16).toUpperCase() + ' ').slice(-3);
+   }
+  }
+  return result.trim();
+ }
  function fromF32(byte0, byte1, byte2, byte3) {
-  var bits = (byte0 << 24) | (byte1 << 16) | (byte2 << 8) | (byte3);
-  var sign = ((bits >>> 31) === 0) ? 1.0 : -1.0;
-  var e = ((bits >>> 23) & 0xff);
-  var m = (e === 0) ? (bits & 0x7fffff) << 1 : (bits & 0x7fffff) | 0x800000;
-  var f = sign * m * Math.pow(2, e - 150);
+  let bits = (byte0 << 24) | (byte1 << 16) | (byte2 << 8) | (byte3);
+  let sign = ((bits >>> 31) === 0) ? 1.0 : -1.0;
+  let e = ((bits >>> 23) & 0xff);
+  let m = (e === 0) ? (bits & 0x7fffff) << 1 : (bits & 0x7fffff) | 0x800000;
+  let f = sign * m * Math.pow(2, e - 150);
   return parseFloat(f.toFixed(3));
  }
  function f32_1(bytes, index) {
@@ -187,71 +209,71 @@ function decodeUplink(input) {
   return S32((bytes[index + 1] << 24) | (bytes[index + 2] << 16) | (bytes[index + 3] << 8) | (bytes[index + 4]));
  }
 
- var GAS_HCHO = 0x17;
- var GAS_TVOC = 0x18;
- var GAS_CO = 0x19;
- var GAS_Cl2 = 0x1A;
- var GAS_H2 = 0x1B;
- var GAS_H2S = 0x1C;
- var GAS_HCl = 0x1D;
- var GAS_HCN = 0x1E;
- var GAS_HF = 0x1F;
- var GAS_NH3 = 0x20;
- var GAS_NO2 = 0x21;
- var GAS_O2 = 0x22;
- var GAS_O3 = 0x23;
- var GAS_SO2 = 0x24;
- var GAS_HBr = 0x25;
- var GAS_Br2 = 0x26;
- var GAS_F2 = 0x27;
- var GAS_PH3 = 0x28;
- var GAS_AsH3 = 0x29;
- var GAS_SiH4 = 0x2A;
- var GAS_GeH4 = 0x2B;
- var GAS_B2H6 = 0x2C;
- var GAS_BF3 = 0x2D;
- var GAS_WF6 = 0x2E;
- var GAS_SiF4 = 0x2F;
- var GAS_XeF2 = 0x30;
- var GAS_TiF4 = 0x31;
- var GAS_Odour = 0x32;
- var GAS_IAQ = 0x33;
- var GAS_AQI = 0x34;
- var GAS_NMHC = 0x35;
- var GAS_SOx = 0x36;
- var GAS_NOx = 0x37;
- var GAS_NO = 0x38;
- var GAS_C4H8 = 0x39;
- var GAS_C3H8O2 = 0x3A;
- var GAS_CH4S = 0x3B;
- var GAS_C8H8 = 0x3C;
- var GAS_C4H10 = 0x3D;
- var GAS_C4H6 = 0x3E;
- var GAS_C6H14 = 0x3F;
- var GAS_C2H4O = 0x40;
- var GAS_C3H9N = 0x41;
- var GAS_C3H7N = 0x42;
- var GAS_C2H6O = 0x43;
- var GAS_CS2 = 0x44;
- var GAS_C2H6S = 0x45;
- var GAS_C2H6S2 = 0x46;
- var GAS_C2H4 = 0x47;
- var GAS_CH3OH = 0x48;
- var GAS_C6H6 = 0x49;
- var GAS_C8H10 = 0x4A;
- var GAS_C7H8 = 0x4B;
- var GAS_CH3COOH = 0x4C;
- var GAS_ClO2 = 0x4D;
- var GAS_H2O2 = 0x4E;
- var GAS_N2H4 = 0x4F;
- var GAS_C2H8N2 = 0x50;
- var GAS_C2HCl3 = 0x51;
- var GAS_CHCl3 = 0x52;
- var GAS_C2H3Cl3 = 0x53;
- var GAS_H2Se = 0x54;
+ const GAS_HCHO = 0x17;
+ const GAS_TVOC = 0x18;
+ const GAS_CO = 0x19;
+ const GAS_Cl2 = 0x1A;
+ const GAS_H2 = 0x1B;
+ const GAS_H2S = 0x1C;
+ const GAS_HCl = 0x1D;
+ const GAS_HCN = 0x1E;
+ const GAS_HF = 0x1F;
+ const GAS_NH3 = 0x20;
+ const GAS_NO2 = 0x21;
+ const GAS_O2 = 0x22;
+ const GAS_O3 = 0x23;
+ const GAS_SO2 = 0x24;
+ const GAS_HBr = 0x25;
+ const GAS_Br2 = 0x26;
+ const GAS_F2 = 0x27;
+ const GAS_PH3 = 0x28;
+ const GAS_AsH3 = 0x29;
+ const GAS_SiH4 = 0x2A;
+ const GAS_GeH4 = 0x2B;
+ const GAS_B2H6 = 0x2C;
+ const GAS_BF3 = 0x2D;
+ const GAS_WF6 = 0x2E;
+ const GAS_SiF4 = 0x2F;
+ const GAS_XeF2 = 0x30;
+ const GAS_TiF4 = 0x31;
+ const GAS_Odour = 0x32;
+ const GAS_IAQ = 0x33;
+ const GAS_AQI = 0x34;
+ const GAS_NMHC = 0x35;
+ const GAS_SOx = 0x36;
+ const GAS_NOx = 0x37;
+ const GAS_NO = 0x38;
+ const GAS_C4H8 = 0x39;
+ const GAS_C3H8O2 = 0x3A;
+ const GAS_CH4S = 0x3B;
+ const GAS_C8H8 = 0x3C;
+ const GAS_C4H10 = 0x3D;
+ const GAS_C4H6 = 0x3E;
+ const GAS_C6H14 = 0x3F;
+ const GAS_C2H4O = 0x40;
+ const GAS_C3H9N = 0x41;
+ const GAS_C3H7N = 0x42;
+ const GAS_C2H6O = 0x43;
+ const GAS_CS2 = 0x44;
+ const GAS_C2H6S = 0x45;
+ const GAS_C2H6S2 = 0x46;
+ const GAS_C2H4 = 0x47;
+ const GAS_CH3OH = 0x48;
+ const GAS_C6H6 = 0x49;
+ const GAS_C8H10 = 0x4A;
+ const GAS_C7H8 = 0x4B;
+ const GAS_CH3COOH = 0x4C;
+ const GAS_ClO2 = 0x4D;
+ const GAS_H2O2 = 0x4E;
+ const GAS_N2H4 = 0x4F;
+ const GAS_C2H8N2 = 0x50;
+ const GAS_C2HCl3 = 0x51;
+ const GAS_CHCl3 = 0x52;
+ const GAS_C2H3Cl3 = 0x53;
+ const GAS_H2Se = 0x54;
 
  function GetCrnMetal(id_byte) {
-  var id = (id_byte & 0x7F);
+  let id = (id_byte & 0x7F);
   switch (id) {
    case 0x00:
     return "Unknown";
@@ -291,16 +313,16 @@ function decodeUplink(input) {
  }
  // Workaround Fix for OAQ/IAQ/ZN2/ZV v7.01~7.09
  function t_fix_v7(t) {
-  var num = t & 0xFFFF;
+  let num = t & 0xFFFF;
   if (0x8000 & num)
-      num = 655 + num;
+   num = 655 + num;
   return num & 0xFFFF;
-}
+ }
  // Function to decode enLink Messages
  function DecodePayload(data) {
-  var cpn;
-  var metal;
-  var obj = {};
+  let cpn;
+  let metal;
+  let obj = {};
   for (i = 0; i < data.length; i++) {
    switch (data[i]) {
     case ENL_TEMP:
@@ -363,8 +385,8 @@ function decodeUplink(input) {
      break;
 
     case ENL_COUNTER:
-     var inputN = data[i + 1];
-     var pulseCount = (data[i + 2] << 24) | (data[i + 3] << 16) | (data[i + 4] << 8) | (data[i + 5]);
+     let inputN = data[i + 1];
+     let pulseCount = (data[i + 2] << 24) | (data[i + 3] << 16) | (data[i + 4] << 8) | (data[i + 5]);
      if (inputN === 0x00) { obj.pulse_ip1 = pulseCount; }
      if (inputN === 0x01) { obj.pulse_ip2 = pulseCount; }
      if (inputN === 0x02) { obj.pulse_ip3 = pulseCount; }
@@ -409,7 +431,7 @@ function decodeUplink(input) {
      i += 4;
      break;
     case ENL_COS_STATUS:
-     var b = false;
+     let b = false;
      b = (data[i + 1] & 0x01) > 0;
      obj.cos_ip_1_hl = b ? 1 : 0;
 
@@ -1093,7 +1115,7 @@ function decodeUplink(input) {
     case ENL_CRN_THK:
      cpn = (data[i + 1] & 0x80) === 0 ? 1 : 2;
      metal = GetCrnMetal(data[i + 1]);
-     var thk_nm = f32_2(data, i);
+     let thk_nm = f32_2(data, i);
      if (obj.crn_thk_nm) {
       obj.crn_thk_nm.push([cpn, metal, thk_nm]);
      } else {
@@ -1105,7 +1127,7 @@ function decodeUplink(input) {
     case ENL_CRN_MIN_THK:
      cpn = (data[i + 1] & 0x80) === 0 ? 1 : 2;
      metal = GetCrnMetal(data[i + 1]);
-     var min_nm = U16((data[i + 2] << 8) | (data[i + 3]));
+     let min_nm = U16((data[i + 2] << 8) | (data[i + 3]));
      if (obj.crn_min_nm) {
       obj.crn_min_nm.push([cpn, metal, min_nm]);
      } else {
@@ -1117,7 +1139,7 @@ function decodeUplink(input) {
     case ENL_CRN_MAX_THK:
      cpn = (data[i + 1] & 0x80) === 0 ? 1 : 2;
      metal = GetCrnMetal(data[i + 1]);
-     var max_nm = U16((data[i + 2] << 8) | (data[i + 3]));
+     let max_nm = U16((data[i + 2] << 8) | (data[i + 3]));
      if (obj.crn_max_nm) {
       obj.crn_max_nm.push([cpn, metal, max_nm]);
      } else {
@@ -1129,7 +1151,7 @@ function decodeUplink(input) {
     case ENL_CRN_PERC:
      cpn = (data[i + 1] & 0x80) === 0 ? 1 : 2;
      metal = GetCrnMetal(data[i + 1]);
-     var perc = f32_2(data, i);
+     let perc = f32_2(data, i);
      if (obj.crn_perc) {
       obj.crn_perc.push([cpn, metal, perc]);
      } else {
@@ -1152,12 +1174,60 @@ function decodeUplink(input) {
      i += 4;
      break;
     case ENL_MPS_FLAM_GAS:
-     var gas = GetFlamGas(data[i + 1]);
-     var conc = f32_2(data, i);
+     let gas = GetFlamGas(data[i + 1]);
+     let conc = f32_2(data, i);
+     // Show with array
      if (obj.flam) {
       obj.flam.push([gas, conc]);
      } else {
       obj.flam = [[gas, conc]];
+     }
+     // Create simple values also
+     obj.flam_no_gas = 0;
+     obj.flam_hydrogen = 0;
+     obj.flam_hydrogen_mix = 0;
+     obj.flam_methane = 0;
+     obj.flam_light = 0;
+     obj.flam_medium = 0;
+     obj.flam_heavy = 0;
+
+     switch (data[i + 1]) {
+      case FLAM_NO_GAS:
+       obj.flam_no_gas = conc;
+       break;
+      case FLAM_HYDROGEN:
+       obj.flam_hydrogen = conc;
+       break;
+      case FLAM_HYD_MIX:
+       obj.flam_hydrogen_mix = conc;
+       break;
+      case FLAM_METHANE:
+       obj.flam_methane = conc;
+       break;
+      case FLAM_LIGHT:
+       obj.flam_light = conc;
+       break;
+      case FLAM_MEDIUM:
+       obj.flam_medium = conc;
+       break;
+      case FLAM_HEAVY:
+       obj.flam_heavy = conc;
+       break;
+      // Errors
+      case FLAM_UNKNOWN_GAS:
+       obj.flam_err_unknown_gas = conc;
+       break;
+      case FLAM_UNDER_RNG:
+       obj.flam_err_under_range = conc;
+       break;
+      case FLAM_OVER_RNG:
+       obj.flam_err_over_range = conc;
+       break;
+
+      default:
+       obj.flam_unknown_type = data[i + 1];
+       obj.flam_unknown_value = conc;
+       break;
      }
      i += 5;
      break;
@@ -1226,19 +1296,80 @@ function decodeUplink(input) {
      break;
 
     case ENL_FAULT:
-      var sensor_id = (data[i + 1]);
-      var fault_code = (data[i + 2]);
-      var count_val = U16((data[i + 3] << 8) | data[i + 4]);
-      if (obj.fault) {
-        obj.fault.push([sensor_id, fault_code, count_val]);
+     let sensor_id = (data[i + 1]);
+     let fault_code = (data[i + 2]);
+     let count_val = U16((data[i + 3] << 8) | data[i + 4]);
+     // Show values in an array
+     if (obj.fault) {
+      obj.fault.push([sensor_id, fault_code, count_val]);
+     } else {
+      obj.fault = [[sensor_id, fault_code, count_val]];
+     }
+     // Check for known values
+     if (sensor_id == 28) {
+      // SPS30 0x1C/28
+      if (fault_code == 1) {
+       obj.fault_0x1C_01 = "SPS30 Fan Speed Error: " + count_val;
+      } else if (fault_code == 2) {
+       obj.fault_0x1C_02 = "SPS30 Laser Failure: " + count_val;
+      } else if (item_id_id == 3) {
+       obj.fault_0x1C_03 = "SPS30 Fan Failure: " + count_val;
       } else {
-        obj.fault = [[sensor_id, fault_code, count_val]];
+       obj.fault_0x1C_x = "SPS30 General Error. Fault Code: " + fault_code + " Count: " + count_val;
       }
-      i += 4;
-      break;
-      
+     } else if (sensor_id == 36) {
+      // Flammable Gas - MPS 0x24/36
+      if (fault_code == 0x01) {
+       obj.fault_0x24_01 = "MPS CRC Error: " + count_val;
+      } else if (fault_code == 0x02) {
+       obj.fault_0x24_02 = "MPS Bad Parameter: " + count_val;
+      } else if (fault_code == 0x05) {
+       obj.fault_0x24_05 = "MPS Unknown Cmd: " + count_val;
+      } else if (fault_code == 0x07) {
+       obj.fault_0x24_07 = "MPS Incomplete Cmd: " + count_val;
+      } else if (fault_code == 0x21) {
+       obj.fault_0x24_21 = "MPS VDD Out of Range: " + count_val;
+      } else if (fault_code == 0x22) {
+       obj.fault_0x24_22 = "MPS VREF Out of Range: " + count_val;
+      } else if (fault_code == 0x23) {
+       obj.fault_0x24_23 = "MPS Env. Sensor Out of Range: " + count_val;
+      } else if (fault_code == 0x24) {
+       obj.fault_0x24_24 = "MPS Env. Sensor Failed: " + count_val;
+      } else if (fault_code == 0x25) {
+       obj.fault_0x24_25 = "MPS Microcontroller Error: " + count_val;
+      } else if (fault_code == 0x30) {
+       obj.fault_0x24_30 = "MPS Sensor Read Negative: " + count_val;
+      } else if (fault_code == 0x31) {
+       obj.fault_0x24_31 = "MPS Condensation Detected: " + count_val;
+      } else if (fault_code == 0x32) {
+       obj.fault_0x24_32 = "MPS Sensor Error: " + count_val;
+      } else if (fault_code == 0x33) {
+       obj.fault_0x24_33 = "MPS Gas detected during startup: " + count_val;
+      } else if (fault_code == 0x34) {
+       obj.fault_0x24_34 = "MPS Slow Gas accumulation detected: " + count_val;
+      } else if (fault_code == 0x35) {
+       obj.fault_0x24_35 = "MPS Breath/Humidity Surge: " + count_val;
+      } else if (fault_code == 0xF9) {
+       obj.fault_0x24_F9 = "MPS Reply Timeout: " + count_val;
+      } else if (fault_code == 0xFA) {
+       obj.fault_0x24_FA = "MPS Incomplete reply: " + count_val;
+      } else if (fault_code == 0xFB) {
+       obj.fault_0x24_FB = "MPS CRC Error on reply: " + count_val;
+      } else if (fault_code == 0xFC) {
+       obj.fault_0x24_FC = "MPS Sensor restart: " + count_val;
+      } else if (fault_code == 0xFF) {
+       obj.fault_0x24_FF = "MPS Unknown Status: " + count_val;
+      } else {
+       obj.fault_0x24_x = "MPS General Error. Fault Code: " + fault_code + " Count: " + count_val;
+      }
+     } else {
+      obj.fault_x = "Unknown Sensor ID: " + sensor_id + " Fault Code: " + fault_code + " Count: " + count_val;
+     }
+     i += 4;
+     break;
+
     default: // something is wrong with data
-     obj.error = "Error at" + i + "byte value" + data[i];
+     obj.error = "Data Error at byte index " + i + "  Data: " + bytesToHexError(data, i);
      i = data.length;
      break;
    }
