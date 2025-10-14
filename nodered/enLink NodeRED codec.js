@@ -1,5 +1,5 @@
 // Used for decoding enLink Uplink LoRa Messages
-// 02 Oct 2025 (FW Ver:7.16)
+// 14 Oct 2025 (FW Ver:7.17)
 // 24 Apr 2025 Includes Temperature fix
 // Removed all 'toFixed' to return numbers, not text
 // https://github.com/synetica/enlink-decoder
@@ -8,6 +8,10 @@
 const show_array = 1;		// zero or 1
 const show_simple = 1;
 const show_optional_warnings = 1;
+const node_src_mt_lora = 1;
+// if the orignating node is from the 'lora' node on a Multitech MTCAP Conduit; set to 1
+// Otherwise the node is from a MQTT connection. Check the structure of 'msg' so it matches the
+// expected structure to avoid unexpected results and errors.
 
 // Tested with NodeRed v2.2.2 (embedded hardware with Debian) and v4.0.9 on Linux desktop
 // Connected with MQTT node to Chirpstack v4 with a topic of 'application/+/device/+/event/up'
@@ -203,6 +207,16 @@ const FLAM_HEAVY = 0x06;
 const FLAM_UNKNOWN_GAS = 0xFD;
 const FLAM_UNDER_RNG = 0xFE;
 const FLAM_OVER_RNG = 0xFF;
+
+// v7.17 Radon Sensor
+const ENLINK_RAD_UPTIME = 0x75;             // U32 Uptime of sensor in seconds
+const ENLINK_RAD_UPTIME_AVG = 0x76;         // U32 Average Radon in Bq/m3 since powered up
+const ENLINK_RAD_6HR_AVG = 0x77;            // U16 Last 6hr average Radon in Bq/m3
+const ENLINK_RAD_12HR_AVG = 0x78;           // U16 Last 12hr
+const ENLINK_RAD_24HR_AVG = 0x79;           // U16
+const ENLINK_RAD_48HR_AVG = 0x7A;           // U16
+const ENLINK_RAD_72HR_AVG = 0x7B;           // U16
+const ENLINK_RAD_96HR_AVG = 0x7C;           // U16
 
 // --------------------------------------------------------------------------------------
 // Optional KPI values that can be included in the message
@@ -1769,6 +1783,41 @@ function decodeTelemetry(data) {
                 i += 5;
                 break;
 
+            // Radon Sensor
+            case ENLINK_RAD_UPTIME:
+                obj.rad_uptime_s = u32_1(data, i);
+                i += 4;
+                break;
+            case ENLINK_RAD_UPTIME_AVG:
+                obj.rad_uptime_avg = u32_1(data, i);
+                i += 4;
+                break;
+            case ENLINK_RAD_6HR_AVG:
+                obj.rad_6hr_avg = u16_1(data, i);
+                i += 2;
+                break;
+            case ENLINK_RAD_12HR_AVG:
+                obj.rad_12hr_avg = u16_1(data, i);
+                i += 2;
+                break;
+            case ENLINK_RAD_24HR_AVG:
+                obj.rad_24hr_avg = u16_1(data, i);
+                i += 2;
+                break;
+            case ENLINK_RAD_48HR_AVG:
+                obj.rad_48hr_avg = u16_1(data, i);
+                i += 2;
+                break;
+            case ENLINK_RAD_72HR_AVG:
+                obj.rad_72hr_avg = u16_1(data, i);
+                i += 2;
+                break;
+            case ENLINK_RAD_96HR_AVG:
+                obj.rad_96hr_avg = u16_1(data, i);
+                i += 2;
+                break;
+
+
             // < -------------------------------------------------------------------------------->
             // Optional KPIs
             case ENLINK_CPU_TEMP_DEP:    // Optional from April 2020
@@ -1832,6 +1881,7 @@ function decodeTelemetry(data) {
                 obj.fan_run_time_s = u32_1(data, i);
                 i += 4;
                 break;
+
             // < -------------------------------------------------------------------------------->
             case ENLINK_FAULT:
                 let sensor_id = (data[i + 1]);
@@ -2253,21 +2303,31 @@ if (msg.port === 0) {
 
 // ** Start of Main Function **
 
-// (1) Ignore any non-enLink devEui and add eui with dashes for compatibility
-if (msg.payload.deviceInfo.devEui.slice(0, 8) != "0004a30b") return null;
-let eui_array = msg.payload.deviceInfo.devEui.match(/.{1,2}/g);
-msg.eui = eui_array.join('-');
+// (1) Ignore any non-enLink devEui and add eui with dashes for compatibility if needed
+if (node_src_mt_lora == 1) {
+    if (msg.deveui.slice(0, 11) != "00-04-a3-0b") return null;
+    msg.eui = msg.deveui;
+} else {
+    if (msg.payload.deviceInfo.devEui.slice(0, 8) != "0004a30b") return null;
+    let eui_array = msg.payload.deviceInfo.devEui.match(/.{1,2}/g);
+    msg.eui = eui_array.join('-');
+}
 
 // (2) Strip device payload 'bytes' from message for decoder
-// -- Create byte buffer from B64 message
-let buf = new Buffer(msg.payload.data, 'base64');
-let obj = JSON.parse(JSON.stringify(buf));
-// -- Helps with debugging any problems
-//msg.hex = bytesToHex(obj.data);
+let obj = {};
+if (node_src_mt_lora == 1) {
+    obj.data = msg.payload;
+} else {
+    // -- Create byte buffer from B64 message
+    let buf = new Buffer(msg.payload.data, 'base64');
+    obj = JSON.parse(JSON.stringify(buf));
+    // -- Helps with debugging any problems
+    //msg.hex = bytesToHex(obj.data);
+}
 
 // (3) Ignore empty payloads or single byte join check data
 if (obj.data) {
-    if ((obj.data.length == 0) || (obj.data.length == 1)) {
+    if ((obj.data.length === 0) || (obj.data.length == 1)) {
         if (show_optional_warnings == 1) {
             node.warn("Data array length warning. Length is: " + obj.data.length);
         }
@@ -2295,12 +2355,17 @@ if (obj.data[0] == ENLINK_HEADER) {
 
 // (5) If result is OK, create message for next stage
 if (res !== null) {
-    msg.data = res;  // use 'data' for further function processing
+    // Depending on how you want to process the decoded values...
+    if (node_src_mt_lora == 1) {
+        msg.payload = res;
+    } else {
+        msg.data = res;  // use 'data' for further function processing
+    }
     //msg.human_readable = JSON.stringify(res, null, 4);
     return msg;
 }
 if (show_optional_warnings == 1) {
     node.warn("Decoder returned no data");
 }
-return null;
 
+return null;

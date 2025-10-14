@@ -67,6 +67,7 @@ function js_decoder(msg) {
     // 24 Apr 2025 Includes Temperature fix
     // --------------------------------------------------------------------------------------
     // https://github.com/synetica/enlink-decoder
+    let dbg = 1;
 
     if (msg.payload) {
         if (msg.payload.length === 0) {
@@ -426,10 +427,10 @@ function js_decoder(msg) {
     }
     // Format float numbers with decimal places
     function ff32_1(data, i, dp) {
-        Number(f32_1(data, i).toFixed(dp));
+        return Number(f32_1(data, i).toFixed(dp));
     }
     function ff32_2(data, i, dp) {
-        Number(f32_2(data, i).toFixed(dp));
+        return Number(f32_2(data, i).toFixed(dp));
     }
     // Return gas name from gas type byte
     function GetGasName(gas_type) {
@@ -591,6 +592,10 @@ function js_decoder(msg) {
         let obj = {};
 
         for (let i = 0; i < data.length; i++) {
+            if (dbg == 1) {
+                obj.byte_len = data.length;
+                obj.index = i;
+            }
             switch (data[i]) {
                 // Parse enLink message for telemetry data
                 case ENLINK_TEMP: // Temperature
