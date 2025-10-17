@@ -1,5 +1,5 @@
 // Used for decoding enLink Uplink LoRa Messages
-// 02 Oct 2025 (FW Ver:7.16)
+// 17 Oct 2025 (FW Ver:7.16)
 // 24 Apr 2025 Includes Temperature fix
 // Removed all 'toFixed' to return numbers, not text
 // https://github.com/synetica/enlink-decoder
@@ -1747,15 +1747,32 @@ function decodeTelemetry(data) {
 	                    case FLAM_HEAVY:
 	                        obj.flam_heavy = gas_lel_iso_val;
 	                        break;
+
 	                    // Errors
 	                    case FLAM_UNKNOWN_GAS:
 	                        obj.flam_err_unknown_gas = gas_lel_iso_val;
 	                        break;
 	                    case FLAM_UNDER_RNG:
 	                        obj.flam_err_under_range = gas_lel_iso_val;
+                            // Create 'error' values for history logging
+                            obj.flam_no_gas = -1;
+                            obj.flam_hydrogen = -1;
+                            obj.flam_hydrogen_mix = -1;
+                            obj.flam_methane = -1;
+                            obj.flam_light = -1;
+                            obj.flam_medium = -1;
+                            obj.flam_heavy = -1;
 	                        break;
 	                    case FLAM_OVER_RNG:
 	                        obj.flam_err_over_range = gas_lel_iso_val;
+                            // Create 'error' values for history logging
+                            obj.flam_no_gas = 110;
+                            obj.flam_hydrogen = 110;
+                            obj.flam_hydrogen_mix = 110;
+                            obj.flam_methane = 110;
+                            obj.flam_light = 110;
+                            obj.flam_medium = 110;
+                            obj.flam_heavy = 110;
 	                        break;
 	
 	                    default:

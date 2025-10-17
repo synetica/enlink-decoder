@@ -63,7 +63,7 @@ function decode_hex_string(hex_string) {
 function js_decoder(msg) {
     // Used for decoding enLink Uplink LoRa Messages
     // --------------------------------------------------------------------------------------
-    // 14 Oct 2025 (FW Ver:7.16)
+    // 17 Oct 2025 (FW Ver:7.16)
     // 24 Apr 2025 Includes Temperature fix
     // --------------------------------------------------------------------------------------
     // https://github.com/synetica/enlink-decoder
@@ -1148,8 +1148,17 @@ function js_decoder(msg) {
                 case ENLINK_MPS_FLAM_GAS:
                     let gas_lel_iso_val = ff32_2(data, i, 2);
                     // Use this to give just a %LEL(ISO) reading independant of gas class
-                    // 'General' flammable gas concentration
+                    // 'General' flammable gas concentration; if you want it
                     //obj.flam_gen_conc_lel_iso = gas_lel_iso_val;
+
+                    // Create 'zero' values for history logging, then update the relevant gas class value
+                    obj.flam_no_gas = 0;
+                    obj.flam_hydrogen = 0;
+                    obj.flam_hydrogen_mix = 0;
+                    obj.flam_methane = 0;
+                    obj.flam_light = 0;
+                    obj.flam_medium = 0;
+                    obj.flam_heavy = 0;
 
                     // Add actual reading to gas class
                     switch (data[i + 1]) {
@@ -1181,9 +1190,26 @@ function js_decoder(msg) {
                             break;
                         case FLAM_UNDER_RNG:
                             obj.flam_err_under_range = gas_lel_iso_val;
+                            // Create 'error' values for history logging
+                            obj.flam_no_gas = -1;
+                            obj.flam_hydrogen = -1;
+                            obj.flam_hydrogen_mix = -1;
+                            obj.flam_methane = -1;
+                            obj.flam_light = -1;
+                            obj.flam_medium = -1;
+                            obj.flam_heavy = -1;
+
                             break;
                         case FLAM_OVER_RNG:
                             obj.flam_err_over_range = gas_lel_iso_val;
+                            // Create 'error' values for history logging
+                            obj.flam_no_gas = 110;
+                            obj.flam_hydrogen = 110;
+                            obj.flam_hydrogen_mix = 110;
+                            obj.flam_methane = 110;
+                            obj.flam_light = 110;
+                            obj.flam_medium = 110;
+                            obj.flam_heavy = 110;
                             break;
 
                         default:
