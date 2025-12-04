@@ -4,7 +4,7 @@
 
 Online decoder can be found here: [Live Decoder](https://synetica.github.io/enlink-decoder/)
 
-> Latest firmware release is v7.16.
+> Latest firmware release is v7.19.
 
 > **Bug Workaround!** </br> There has been a problem introduced from firmware v7.01 to v7.09 inclusive. This affects the newer IAQ/OAQ, ZonePlus, Zone V2, and ZoneView. This is due to the introduction of a high-precision temperature/humidity sensor. The internal data structure changed, and a bug caused the transmitted data packet for temperatures to be wrong for ambient temperatures below 0.0°C or above 32.7°C. This has been fixed in firmware v7.10 and above. If a customer's enLink devices are experiencing temperatures above 32.7°C there is a decoder workaround that works for temperatures between 0.0°C and 65.5°C. Temperatures outside these values will be decoded incorrectly. Look for the function **t_fix_v7(t)** in the decoder samples.
 
@@ -33,10 +33,10 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
     - [Pulse Counters - Change of State](#pulse-counters---change-of-state)
     - [Gas Readings](#gas-readings)
     - [Corrosion](#corrosion)
-    - [MPS Flammable Gas Readings](#mps-flammable-gas-readings)
-    - [Sensor Fault Code Messages](#sensor-fault-code-message)
+    - [Flammable Gas Readings](#flammable-gas-readings)
+    - [Sensor Fault Code Messages](#sensor-fault-code-messages)
       - [SPS30 Particulates](#sps30-particulates---sensor-id-28-0x1c)
-      - [MPS Flammable Gas](#mps-flammable-gas---sensor-id-36-0x24)
+      - [Flammable Gas](#flammable-gas---sensor-id-36-0x24)
   - [enLink KPI Payload Data](#enlink-kpi-payload-data)
 - [Downlink Payload](#downlink-payload)
   - [Downlink Payload Structure](#downlink-payload-structure)
@@ -59,7 +59,7 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
     - [Leak Sensor Downlinks](#leak-sensor-downlinks)
     - [Differential Pressure / Air Flow Downlinks](#differential-pressure--air-flow-downlinks)
     - [Zone View e-paper Display Downlinks](#zone-view-e-paper-display-downlinks)
-    - [MPS Sensor Downlink](#mps-sensor-downlink)
+    - [Flammable Gas Sensor Downlink](#flammable-gas-sensor-downlink)
 - [Sample CODECs for Decoding Messages](#sample-codecs-for-decoding-messages)
 
 </br>
@@ -396,8 +396,8 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x70` 112 | Detection: Event Count  | 0 to 65535 | count | 2 | U16
 | `0x71` 113 | Detection: Smoke Count  | 0 to 65535 | count | 2 | U16
 | `0x72` 114 | Detection: Vape Count   | 0 to 65535 | count | 2 | U16
-| `0x73` 115 | MPS Flammable Gas Sensor Cycle Count (internal counter increments every 4 seconds)  |  | count | 4 | I32
-| `0x74` 116 | MPS Flammable Gas ID + %LEL(Lower Explosive Level) concentration   | < -15%  to > +110% | %LEL(ISO) | 1 + 4 | F32
+| `0x73` 115 | Flammable Gas Sensor Cycle Count (internal counter increments every 4 seconds)  |  | count | 4 | I32
+| `0x74` 116 | Flammable Gas ID + %LEL(Lower Explosive Level) concentration   | < -15%  to > +110% | %LEL(ISO) | 1 + 4 | F32
 | `0xFE` 254 | Condition: [Sensor ID] + [Item ID] + [Item Value] |  |  | 1 + 1 + 2 | U16
 </br>
 
@@ -539,7 +539,7 @@ Other Coupon/Metal types are:
 | `0x02` - Silver                | | `0x82` - Silver
 | `0x03` - Chromium              | | `0x83` - Chromium
 
-### MPS Flammable Gas Readings
+### Flammable Gas Readings
 
 ---
 
@@ -549,9 +549,9 @@ The full message is sent as 6 bytes. For example:
 
 > Example Payload Data: `74 03 41 BC 7A E1`
 
-Ths translates to Gas Type `0x03` which is **Methane**. The value is **23.56 %LEL(ISO)**.
+This translates to Gas Type `0x03` which is **Methane**. The value is **23.56 %LEL(ISO)**.
 
-The Gas types are listed here:
+The Gas classes are listed here:
 
 |  |  |  |  |  |
 |--|--|--|--|--|
@@ -564,7 +564,7 @@ The Gas types are listed here:
 
 </br>
 
-### Sensor Fault Code Message
+### Sensor Fault Code Messages
 
 ---
 
@@ -590,11 +590,9 @@ The example shows Sensor-ID `0x1C` (28 decimal). This is the SPS30 particulate s
 
 > Note: These packets are only sent if the count is greater than zero.
 
-#### MPS Flammable Gas - Sensor ID: 36 `0x24`
+#### Flammable Gas - Sensor ID: 36 `0x24`
 
 Available from v7.16 onwards.
-
-'Molecular Property Spectrometer' sensor messages.
 
 > Example Payload Data: `FE 24 35 00 27`
 
@@ -626,7 +624,6 @@ All the values are a count of the occurence of each condition.
 | `0xFF` | Unknown Status                 | Unknown status ID received from sensor.
 
 > Note: These packets are only sent if the count is greater than zero. </br> You can reset these counters with a downlink.
-
 
 </br>
 
@@ -1188,11 +1185,11 @@ The following are used in the Zone View product that includes an e-paper display
 
 See the device configuration screens via the USB connection for more information on formatting screen messages.
 
-### MPS Sensor Downlink
+### Flammable Gas Sensor Downlink
 
 Available from v7.16 onwards.
 
-The following is used in products that includes an MPS (Molecular Property Spectrometer) flammable gas sensor.
+The following is used in products that include a flammable gas sensor.
 
 | Name | Msg Len | Command | Value |
 | ---- | ------- | ------- | ----- |

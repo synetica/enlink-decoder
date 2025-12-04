@@ -63,7 +63,7 @@ function decode_hex_string(hex_string) {
 function js_decoder(msg) {
     // Used for decoding enLink Uplink LoRa Messages
     // --------------------------------------------------------------------------------------
-    // 17 Oct 2025 (FW Ver:7.16)
+    // 04 Dec 2025 (FW Ver:7.19)
     // 24 Apr 2025 Includes Temperature fix
     // --------------------------------------------------------------------------------------
     // https://github.com/synetica/enlink-decoder
@@ -187,8 +187,8 @@ function js_decoder(msg) {
     const ENLINK_DE_SMOKE = 0x71;
     const ENLINK_DE_VAPE = 0x72;
 
-    const ENLINK_MPS_CYCLECOUNT = 0x73;
-    const ENLINK_MPS_FLAM_GAS = 0x74;
+    const ENLINK_FGS_CYCLECOUNT = 0x73;
+    const ENLINK_FGS_FLAM_GAS = 0x74;
 
     // Flam Gas Type Byte
     const FLAM_NO_GAS = 0x00;
@@ -330,7 +330,7 @@ function js_decoder(msg) {
     const ENLINK_HS_ZERO_C_AND_D = 0x57;
     const ENLINK_HS_RESET = 0x58;
 
-    const ENLINK_MPS_RESET_COUNTERS = 0x59;
+    const ENLINK_FGS_RESET_COUNTERS = 0x59;
 
     const ENLINK_REBOOT = 0xff;
 
@@ -1140,12 +1140,12 @@ function js_decoder(msg) {
                     i += 2;
                     break;
 
-                case ENLINK_MPS_CYCLECOUNT:
-                    obj.mps_count = s32_1(data, i);
+                case ENLINK_FGS_CYCLECOUNT:
+                    obj.flam_count = s32_1(data, i);
                     i += 4;
                     break;
 
-                case ENLINK_MPS_FLAM_GAS:
+                case ENLINK_FGS_FLAM_GAS:
                     let gas_lel_iso_val = ff32_2(data, i, 2);
                     // Use this to give just a %LEL(ISO) reading independant of gas class
                     // 'General' flammable gas concentration; if you want it

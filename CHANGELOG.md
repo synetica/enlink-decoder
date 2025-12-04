@@ -1,5 +1,11 @@
 # Change Log
 
+
+## 2025 December Updates
+
+- Updated firmware up to 7.19
+- Renamed MPS Sensor to the Flamable Gas Sensor for clarity.
+
 ## 2025 August Updates
 
 - Updated firmware up to 7.16

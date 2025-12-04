@@ -1,5 +1,5 @@
 // Used for decoding enLink Uplink LoRa Messages
-// 17 Oct 2025 (FW Ver:7.16)
+// 04 Dec 2025 (FW Ver:7.19)
 // 24 Apr 2025 Includes Temperature fix
 // Removed all 'toFixed' to return numbers, not text
 // https://github.com/synetica/enlink-decoder
@@ -184,9 +184,9 @@ const ENLINK_DE_EVENT = 0x70;                              // U16 count
 const ENLINK_DE_SMOKE = 0x71;                              // U16 count
 const ENLINK_DE_VAPE = 0x72;                               // U16 count
 
-// MPS Sensor
-const ENLINK_MPS_CYCLECOUNT = 0x73;                         // I32 count
-const ENLINK_MPS_FLAM_GAS = 0x74;                           // 1 + 4 | Gas ID + Conc %LEL(ISO) F32
+// Flammable Gas Sensor
+const ENLINK_FGS_CYCLECOUNT = 0x73;                         // I32 count
+const ENLINK_FGS_FLAM_GAS = 0x74;                           // 1 + 4 | Gas ID + Conc %LEL(ISO) F32
 
 // Flam Gas Type Byte
 const FLAM_NO_GAS = 0x00;
@@ -326,8 +326,8 @@ const ENLINK_HS_SET_HYST_P = 0x55;
 const ENLINK_HS_SET_INACTIVITY = 0x56;
 const ENLINK_HS_ZERO_C_AND_D = 0x57;
 const ENLINK_HS_RESET = 0x58;
-// MPS Sensor
-const ENLINK_MPS_RESET_COUNTERS = 0x59;
+// Flammable Gas Sensor
+const ENLINK_FGS_RESET_COUNTERS = 0x59;
 
 const ENLINK_REBOOT = 0xFF;
 
@@ -1696,13 +1696,13 @@ function decodeTelemetry(data) {
                 i += 2;
                 break;
 
-            // MPS Flammable Gas Sensor
-            case ENLINK_MPS_CYCLECOUNT:
+            // Flammable Gas Sensor
+            case ENLINK_FGS_CYCLECOUNT:
                 obj.flam_count = s32_1(data, i);
                 i += 4;
                 break;
 
-            case ENLINK_MPS_FLAM_GAS:
+            case ENLINK_FGS_FLAM_GAS:
                 // %LEL(ISO) Flammable Gas
                 let gas_lel_iso_val = f32_2(data, i);
                 // Use this to give just a %LEL(ISO) reading independant of gas class
@@ -1871,49 +1871,49 @@ function decodeTelemetry(data) {
                         obj.fault_0x1C_x = "SPS30 General Error. Fault Code: " + fault_code + " Count: " + count_val;
                     }
                 } else if (sensor_id == 36) {
-                    // Flammable Gas - MPS 0x24/36
+                    // Flammable Gas 0x24/36
                     if (fault_code == 0x01) {
-                        obj.fault_0x24_01 = "MPS CRC Error: " + count_val;
+                        obj.fault_0x24_01 = "FGS CRC Error: " + count_val;
                     } else if (fault_code == 0x02) {
-                        obj.fault_0x24_02 = "MPS Bad Parameter: " + count_val;
+                        obj.fault_0x24_02 = "FGS Bad Parameter: " + count_val;
                     } else if (fault_code == 0x05) {
-                        obj.fault_0x24_05 = "MPS Unknown Cmd: " + count_val;
+                        obj.fault_0x24_05 = "FGS Unknown Cmd: " + count_val;
                     } else if (fault_code == 0x07) {
-                        obj.fault_0x24_07 = "MPS Incomplete Cmd: " + count_val;
+                        obj.fault_0x24_07 = "FGS Incomplete Cmd: " + count_val;
                     } else if (fault_code == 0x21) {
-                        obj.fault_0x24_21 = "MPS VDD Out of Range: " + count_val;
+                        obj.fault_0x24_21 = "FGS VDD Out of Range: " + count_val;
                     } else if (fault_code == 0x22) {
-                        obj.fault_0x24_22 = "MPS VREF Out of Range: " + count_val;
+                        obj.fault_0x24_22 = "FGS VREF Out of Range: " + count_val;
                     } else if (fault_code == 0x23) {
-                        obj.fault_0x24_23 = "MPS Env. Sensor Out of Range: " + count_val;
+                        obj.fault_0x24_23 = "FGS Env. Sensor Out of Range: " + count_val;
                     } else if (fault_code == 0x24) {
-                        obj.fault_0x24_24 = "MPS Env. Sensor Failed: " + count_val;
+                        obj.fault_0x24_24 = "FGS Env. Sensor Failed: " + count_val;
                     } else if (fault_code == 0x25) {
-                        obj.fault_0x24_25 = "MPS Microcontroller Error: " + count_val;
+                        obj.fault_0x24_25 = "FGS Microcontroller Error: " + count_val;
                     } else if (fault_code == 0x30) {
-                        obj.fault_0x24_30 = "MPS Sensor Read Negative: " + count_val;
+                        obj.fault_0x24_30 = "FGS Sensor Read Negative: " + count_val;
                     } else if (fault_code == 0x31) {
-                        obj.fault_0x24_31 = "MPS Condensation Detected: " + count_val;
+                        obj.fault_0x24_31 = "FGS Condensation Detected: " + count_val;
                     } else if (fault_code == 0x32) {
-                        obj.fault_0x24_32 = "MPS Sensor Error: " + count_val;
+                        obj.fault_0x24_32 = "FGS Sensor Error: " + count_val;
                     } else if (fault_code == 0x33) {
-                        obj.fault_0x24_33 = "MPS Gas detected during startup: " + count_val;
+                        obj.fault_0x24_33 = "FGS Gas detected during startup: " + count_val;
                     } else if (fault_code == 0x34) {
-                        obj.fault_0x24_34 = "MPS Slow Gas accumulation detected: " + count_val;
+                        obj.fault_0x24_34 = "FGS Slow Gas accumulation detected: " + count_val;
                     } else if (fault_code == 0x35) {
-                        obj.fault_0x24_35 = "MPS Breath/Humidity Surge: " + count_val;
+                        obj.fault_0x24_35 = "FGS Breath/Humidity Surge: " + count_val;
                     } else if (fault_code == 0xF9) {
-                        obj.fault_0x24_F9 = "MPS Reply Timeout: " + count_val;
+                        obj.fault_0x24_F9 = "FGS Reply Timeout: " + count_val;
                     } else if (fault_code == 0xFA) {
-                        obj.fault_0x24_FA = "MPS Incomplete reply: " + count_val;
+                        obj.fault_0x24_FA = "FGS Incomplete reply: " + count_val;
                     } else if (fault_code == 0xFB) {
-                        obj.fault_0x24_FB = "MPS CRC Error on reply: " + count_val;
+                        obj.fault_0x24_FB = "FGS CRC Error on reply: " + count_val;
                     } else if (fault_code == 0xFC) {
-                        obj.fault_0x24_FC = "MPS Sensor restart: " + count_val;
+                        obj.fault_0x24_FC = "FGS Sensor restart: " + count_val;
                     } else if (fault_code == 0xFF) {
-                        obj.fault_0x24_FF = "MPS Unknown Status: " + count_val;
+                        obj.fault_0x24_FF = "FGS Unknown Status: " + count_val;
                     } else {
-                        obj.fault_0x24_x = "MPS General Error. Fault Code: " + fault_code + " Count: " + count_val;
+                        obj.fault_0x24_x = "FGS General Error. Fault Code: " + fault_code + " Count: " + count_val;
                     }
                 } else {
                     obj.fault_x = "Unknown Sensor ID: " + sensor_id + " Fault Code: " + fault_code + " Count: " + count_val;
@@ -2121,8 +2121,8 @@ function decodeStdResponse(data) {
         obj.command = "Counters and detection time set to zero on human presence sensor";
     } else if (data[2] == ENLINK_HS_RESET) {
         obj.command = "Human presence sensor reset";
-    } else if (data[2] == ENLINK_MPS_RESET_COUNTERS) {
-        obj.command = "MPS Sensor fault counters reset to zero";
+    } else if (data[2] == ENLINK_FGS_RESET_COUNTERS) {
+        obj.command = "FGS fault counters reset to zero";
 
     } else if (data[2] == ENLINK_REBOOT) {
         obj.command = "Reboot";

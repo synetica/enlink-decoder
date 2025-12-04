@@ -1,5 +1,5 @@
 // Used for decoding enLink Uplink LoRa Messages
-// 17 Oct 2025 (FW Ver:7.17)
+// 04 Dec 2025 (FW Ver:7.19)
 // 24 Apr 2025 Includes Temperature fix
 // Removed all 'toFixed' to return numbers, not text
 // https://github.com/synetica/enlink-decoder
@@ -192,9 +192,9 @@ const ENLINK_DE_EVENT = 0x70;                              // U16 count
 const ENLINK_DE_SMOKE = 0x71;                              // U16 count
 const ENLINK_DE_VAPE = 0x72;                               // U16 count
 
-// MPS Sensor
-const ENLINK_MPS_CYCLECOUNT = 0x73;                         // I32 count
-const ENLINK_MPS_FLAM_GAS = 0x74;                           // 1 + 4 | Gas ID + Conc %LEL(ISO) F32
+// Flammable Gas Sensor
+const ENLINK_FGS_CYCLECOUNT = 0x73;                         // I32 count
+const ENLINK_FGS_FLAM_GAS = 0x74;                           // 1 + 4 | Gas ID + Conc %LEL(ISO) F32
 
 // Flam Gas Type Byte
 const FLAM_NO_GAS = 0x00;
@@ -1712,13 +1712,13 @@ function decodeTelemetry(data) {
                 i += 2;
                 break;
 
-            // MPS Flammable Gas Sensor
-            case ENLINK_MPS_CYCLECOUNT:
+            // Flammable Gas Sensor
+            case ENLINK_FGS_CYCLECOUNT:
                 obj.flam_count = s32_1(data, i);
                 i += 4;
                 break;
 
-            case ENLINK_MPS_FLAM_GAS:
+            case ENLINK_FGS_FLAM_GAS:
                 // %LEL(ISO) Flammable Gas
                 let gas_lel_iso_val = f32_2(data, i);
                 // Use this to give just a %LEL(ISO) reading independant of gas class

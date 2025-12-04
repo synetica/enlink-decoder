@@ -1,5 +1,5 @@
 // Synetica Payload Decoder for The Things Stack V3
-// 04 Nov 2025 (FW Ver:7.18)
+// 04 Dec 2025 (FW Ver:7.19)
 // 24 Apr 2025 Includes Temperature fix
 // https://github.com/synetica/enlink-decoder
 
@@ -109,8 +109,8 @@ function decodeUplink(input) {
  const ENL_DE_EVENT=0x70;
  const ENL_DE_SMOKE=0x71;
  const ENL_DE_VAPE=0x72;
- const ENL_MPS_COUNT=0x73;
- const ENL_MPS_FLAM_GAS=0x74;
+ const ENL_FGS_COUNT=0x73;
+ const ENL_FGS_FLAM_GAS=0x74;
 
  const FLAM_NO_GAS=0x00;
  const FLAM_HYDROGEN=0x01;
@@ -1248,11 +1248,11 @@ function decodeUplink(input) {
      i += 2;
      break;
 
-    case ENL_MPS_COUNT:
-     o.mps_count=s32_1(d, i);
+    case ENL_FGS_COUNT:
+     o.flam_count=s32_1(d, i);
      i += 4;
      break;
-    case ENL_MPS_FLAM_GAS:
+    case ENL_FGS_FLAM_GAS:
      let gas=GetFlamGas(d[i + 1]);
      let conc=f32_2(d, i);
      // Show with array
