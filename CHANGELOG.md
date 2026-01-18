@@ -1,6 +1,9 @@
 # Change Log
 
+## 2026 January Updates
 
+- Updated firmware up to 7.20
+- Add Radon gas values and fault decoders
 ## 2025 December Updates
 
 - Updated firmware up to 7.19
