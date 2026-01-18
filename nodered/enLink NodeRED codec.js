@@ -1,5 +1,5 @@
 // Used for decoding enLink Uplink LoRa Messages
-// 04 Dec 2025 (FW Ver:7.19)
+// 14 Jan 2026 (FW Ver:7.20)
 // 24 Apr 2025 Includes Temperature fix
 // Removed all 'toFixed' to return numbers, not text
 // https://github.com/synetica/enlink-decoder
@@ -105,6 +105,45 @@ const ENLINK_PM_TPS = 0x60;                                // F32  um    Typical
 const ENLINK_GAS_PPB = 0x61;                               // Gas-Type byte + F32 Concentration in ppb
 const ENLINK_GAS_UGM3 = 0x66;                              // Gas-Type byte + F32 Volumetric mass as ug/m3
 
+const ENLINK_CRN_THK = 0x62;                               // Coupon No. + Metal Type byte + F32 nm. Thickness
+const ENLINK_CRN_MIN_THK = 0x63;                           // Coupon No. + Metal Type byte + U16 nm. Min Thickness (when depleted)
+const ENLINK_CRN_MAX_THK = 0x64;                           // Coupon No. + Metal Type byte + U16 nm. Max/Original Thickness
+const ENLINK_CRN_PERC = 0x65;                              // Coupon No. + Metal Type byte + F32 nm.
+//    PERC: Percentage of corrosion between Max(0%) to Min(100%)
+const ENLINK_FAST_AQI = 0x67;                              // U16  AQI (1 min calculation)
+const ENLINK_EPA_AQI = 0x68;                               // U16  EPA AQI (8hr or 1hr, whichever is worst) See online docs.
+
+// More Particulate Matter
+const ENLINK_MC_PM0_1 = 0x69;                              // F32  ug/m3 Mass Concentration
+const ENLINK_MC_PM0_3 = 0x6A;                              // F32  ug/m3
+const ENLINK_MC_PM0_5 = 0x6B;                              // F32  ug/m3
+const ENLINK_MC_PM5_0 = 0x6C;                              // F32  ug/m3
+
+const ENLINK_NC_PM0_1 = 0x6D;                              // F32  #/cm3 Number Concentration
+const ENLINK_NC_PM0_3 = 0x6E;                              // F32  #/cm3
+const ENLINK_NC_PM5_0 = 0x6F;                              // F32  #/cm3
+
+// IPS7100 Particulate Detection Events - type counts
+const ENLINK_DE_EVENT = 0x70;                              // U16 count
+const ENLINK_DE_SMOKE = 0x71;                              // U16 count
+const ENLINK_DE_VAPE = 0x72;                               // U16 count
+
+// Flammable Gas Sensor
+const ENLINK_FGS_CYCLECOUNT = 0x73;                         // I32 count
+const ENLINK_FGS_FLAM_GAS = 0x74;                           // 1 + 4 | Gas ID + Conc %LEL(ISO) F32
+
+// v7.20 Radon Sensor
+const ENLINK_RAD_UPTIME = 0x75;             // U32 Uptime of sensor in seconds
+const ENLINK_RAD_UPTIME_AVG = 0x76;         // U16 Average Radon in Bq/m3 since powered up
+const ENLINK_RAD_6HR_AVG = 0x77;            // U16 Last 6hr average Radon in Bq/m3
+const ENLINK_RAD_12HR_AVG = 0x78;           // U16 Last 12hr
+const ENLINK_RAD_24HR_AVG = 0x79;           // U16
+const ENLINK_RAD_48HR_AVG = 0x7A;           // U16
+const ENLINK_RAD_72HR_AVG = 0x7B;           // U16
+const ENLINK_RAD_96HR_AVG = 0x7C;           // U16
+
+// --------------------------------------------------------------------------------------
+
 // Gas Type Byte
 const GAS_HCHO = 0x17;
 const GAS_TVOC = 0x18;
@@ -169,33 +208,6 @@ const GAS_CHCl3 = 0x52;
 const GAS_C2H3Cl3 = 0x53;
 const GAS_H2Se = 0x54;
 
-const ENLINK_CRN_THK = 0x62;                               // Coupon No. + Metal Type byte + F32 nm. Thickness
-const ENLINK_CRN_MIN_THK = 0x63;                           // Coupon No. + Metal Type byte + U16 nm. Min Thickness (when depleted)
-const ENLINK_CRN_MAX_THK = 0x64;                           // Coupon No. + Metal Type byte + U16 nm. Max/Original Thickness
-const ENLINK_CRN_PERC = 0x65;                              // Coupon No. + Metal Type byte + F32 nm.
-//    PERC: Percentage of corrosion between Max(0%) to Min(100%)
-const ENLINK_FAST_AQI = 0x67;                              // U16  AQI (1 min calculation)
-const ENLINK_EPA_AQI = 0x68;                               // U16  EPA AQI (8hr or 1hr, whichever is worst) See online docs.
-
-// More Particulate Matter
-const ENLINK_MC_PM0_1 = 0x69;                              // F32  ug/m3 Mass Concentration
-const ENLINK_MC_PM0_3 = 0x6A;                              // F32  ug/m3
-const ENLINK_MC_PM0_5 = 0x6B;                              // F32  ug/m3
-const ENLINK_MC_PM5_0 = 0x6C;                              // F32  ug/m3
-
-const ENLINK_NC_PM0_1 = 0x6D;                              // F32  #/cm3 Number Concentration
-const ENLINK_NC_PM0_3 = 0x6E;                              // F32  #/cm3
-const ENLINK_NC_PM5_0 = 0x6F;                              // F32  #/cm3
-
-// IPS7100 Particulate Detection Events - type counts
-const ENLINK_DE_EVENT = 0x70;                              // U16 count
-const ENLINK_DE_SMOKE = 0x71;                              // U16 count
-const ENLINK_DE_VAPE = 0x72;                               // U16 count
-
-// Flammable Gas Sensor
-const ENLINK_FGS_CYCLECOUNT = 0x73;                         // I32 count
-const ENLINK_FGS_FLAM_GAS = 0x74;                           // 1 + 4 | Gas ID + Conc %LEL(ISO) F32
-
 // Flam Gas Type Byte
 const FLAM_NO_GAS = 0x00;
 const FLAM_HYDROGEN = 0x01;
@@ -207,16 +219,6 @@ const FLAM_HEAVY = 0x06;
 const FLAM_UNKNOWN_GAS = 0xFD;
 const FLAM_UNDER_RNG = 0xFE;
 const FLAM_OVER_RNG = 0xFF;
-
-// v7.17 Radon Sensor
-const ENLINK_RAD_UPTIME = 0x75;             // U32 Uptime of sensor in seconds
-const ENLINK_RAD_UPTIME_AVG = 0x76;         // U32 Average Radon in Bq/m3 since powered up
-const ENLINK_RAD_6HR_AVG = 0x77;            // U16 Last 6hr average Radon in Bq/m3
-const ENLINK_RAD_12HR_AVG = 0x78;           // U16 Last 12hr
-const ENLINK_RAD_24HR_AVG = 0x79;           // U16
-const ENLINK_RAD_48HR_AVG = 0x7A;           // U16
-const ENLINK_RAD_72HR_AVG = 0x7B;           // U16
-const ENLINK_RAD_96HR_AVG = 0x7C;           // U16
 
 // --------------------------------------------------------------------------------------
 // Optional KPI values that can be included in the message
@@ -344,8 +346,10 @@ const ENLINK_HS_SET_HYST_P = 0x55;
 const ENLINK_HS_SET_INACTIVITY = 0x56;
 const ENLINK_HS_ZERO_C_AND_D = 0x57;
 const ENLINK_HS_RESET = 0x58;
-// MPS Sensor
-const ENLINK_MPS_RESET_COUNTERS = 0x59;
+// FGS - Flammable Gas Sensor
+const ENLINK_FGS_RESET_COUNTERS = 0x59;
+
+const ENLINK_RAD_RESET = 0x5A;
 
 const ENLINK_REBOOT = 0xFF;
 
@@ -1805,31 +1809,31 @@ function decodeTelemetry(data) {
                 i += 4;
                 break;
             case ENLINK_RAD_UPTIME_AVG:
-                obj.rad_uptime_avg = u32_1(data, i);
-                i += 4;
+                obj.rad_ut_avg = u16_1(data, i);
+                i += 2;
                 break;
             case ENLINK_RAD_6HR_AVG:
-                obj.rad_6hr_avg = u16_1(data, i);
+                obj.rad_6h_avg = u16_1(data, i);
                 i += 2;
                 break;
             case ENLINK_RAD_12HR_AVG:
-                obj.rad_12hr_avg = u16_1(data, i);
+                obj.rad_12h_avg = u16_1(data, i);
                 i += 2;
                 break;
             case ENLINK_RAD_24HR_AVG:
-                obj.rad_24hr_avg = u16_1(data, i);
+                obj.rad_24h_avg = u16_1(data, i);
                 i += 2;
                 break;
             case ENLINK_RAD_48HR_AVG:
-                obj.rad_48hr_avg = u16_1(data, i);
+                obj.rad_48h_avg = u16_1(data, i);
                 i += 2;
                 break;
             case ENLINK_RAD_72HR_AVG:
-                obj.rad_72hr_avg = u16_1(data, i);
+                obj.rad_72h_avg = u16_1(data, i);
                 i += 2;
                 break;
             case ENLINK_RAD_96HR_AVG:
-                obj.rad_96hr_avg = u16_1(data, i);
+                obj.rad_96h_avg = u16_1(data, i);
                 i += 2;
                 break;
 
@@ -1922,49 +1926,62 @@ function decodeTelemetry(data) {
                         obj.fault_0x1C_x = "SPS30 General Error. Fault Code: " + fault_code + " Count: " + count_val;
                     }
                 } else if (sensor_id == 36) {
-                    // Flammable Gas - MPS 0x24/36
+                    // Flammable Gas 0x24/36
                     if (fault_code == 0x01) {
-                        obj.fault_0x24_01 = "MPS CRC Error: " + count_val;
+                        obj.fault_0x24_01 = "FGS CRC Error: " + count_val;
                     } else if (fault_code == 0x02) {
-                        obj.fault_0x24_02 = "MPS Bad Parameter: " + count_val;
+                        obj.fault_0x24_02 = "FGS Bad Parameter: " + count_val;
                     } else if (fault_code == 0x05) {
-                        obj.fault_0x24_05 = "MPS Unknown Cmd: " + count_val;
+                        obj.fault_0x24_05 = "FGS Unknown Cmd: " + count_val;
                     } else if (fault_code == 0x07) {
-                        obj.fault_0x24_07 = "MPS Incomplete Cmd: " + count_val;
+                        obj.fault_0x24_07 = "FGS Incomplete Cmd: " + count_val;
                     } else if (fault_code == 0x21) {
-                        obj.fault_0x24_21 = "MPS VDD Out of Range: " + count_val;
+                        obj.fault_0x24_21 = "FGS VDD Out of Range: " + count_val;
                     } else if (fault_code == 0x22) {
-                        obj.fault_0x24_22 = "MPS VREF Out of Range: " + count_val;
+                        obj.fault_0x24_22 = "FGS VREF Out of Range: " + count_val;
                     } else if (fault_code == 0x23) {
-                        obj.fault_0x24_23 = "MPS Env. Sensor Out of Range: " + count_val;
+                        obj.fault_0x24_23 = "FGS Env. Sensor Out of Range: " + count_val;
                     } else if (fault_code == 0x24) {
-                        obj.fault_0x24_24 = "MPS Env. Sensor Failed: " + count_val;
+                        obj.fault_0x24_24 = "FGS Env. Sensor Failed: " + count_val;
                     } else if (fault_code == 0x25) {
-                        obj.fault_0x24_25 = "MPS Microcontroller Error: " + count_val;
+                        obj.fault_0x24_25 = "FGS Microcontroller Error: " + count_val;
                     } else if (fault_code == 0x30) {
-                        obj.fault_0x24_30 = "MPS Sensor Read Negative: " + count_val;
+                        obj.fault_0x24_30 = "FGS Sensor Read Negative: " + count_val;
                     } else if (fault_code == 0x31) {
-                        obj.fault_0x24_31 = "MPS Condensation Detected: " + count_val;
+                        obj.fault_0x24_31 = "FGS Condensation Detected: " + count_val;
                     } else if (fault_code == 0x32) {
-                        obj.fault_0x24_32 = "MPS Sensor Error: " + count_val;
+                        obj.fault_0x24_32 = "FGS Sensor Error: " + count_val;
                     } else if (fault_code == 0x33) {
-                        obj.fault_0x24_33 = "MPS Gas detected during startup: " + count_val;
+                        obj.fault_0x24_33 = "FGS Gas detected during startup: " + count_val;
                     } else if (fault_code == 0x34) {
-                        obj.fault_0x24_34 = "MPS Slow Gas accumulation detected: " + count_val;
+                        obj.fault_0x24_34 = "FGS Slow Gas accumulation detected: " + count_val;
                     } else if (fault_code == 0x35) {
-                        obj.fault_0x24_35 = "MPS Breath/Humidity Surge: " + count_val;
+                        obj.fault_0x24_35 = "FGS Breath/Humidity Surge: " + count_val;
                     } else if (fault_code == 0xF9) {
-                        obj.fault_0x24_F9 = "MPS Reply Timeout: " + count_val;
+                        obj.fault_0x24_F9 = "FGS Reply Timeout: " + count_val;
                     } else if (fault_code == 0xFA) {
-                        obj.fault_0x24_FA = "MPS Incomplete reply: " + count_val;
+                        obj.fault_0x24_FA = "FGS Incomplete reply: " + count_val;
                     } else if (fault_code == 0xFB) {
-                        obj.fault_0x24_FB = "MPS CRC Error on reply: " + count_val;
+                        obj.fault_0x24_FB = "FGS CRC Error on reply: " + count_val;
                     } else if (fault_code == 0xFC) {
-                        obj.fault_0x24_FC = "MPS Sensor restart: " + count_val;
+                        obj.fault_0x24_FC = "FGS Sensor restart: " + count_val;
                     } else if (fault_code == 0xFF) {
-                        obj.fault_0x24_FF = "MPS Unknown Status: " + count_val;
+                        obj.fault_0x24_FF = "FGS Unknown Status: " + count_val;
                     } else {
-                        obj.fault_0x24_x = "MPS General Error. Fault Code: " + fault_code + " Count: " + count_val;
+                        obj.fault_0x24_x = "FGS General Error. Fault Code: " + fault_code + " Count: " + count_val;
+                    }
+                } else if (sensor_id == 45) {
+                    // Radon Gas - 0x2D/45
+                    if (fault_code == 0x01) {
+                        obj.fault_0x2D_01 = "Radon Comms Timeouts: " + count_val;
+                    } else if (fault_code == 0x02) {
+                        obj.fault_0x2D_02 = "Radon Msg too short: " + count_val;
+                    } else if (fault_code == 0x03) {
+                        obj.fault_0x2D_03 = "Radon CRC failures: " + count_val;
+                    } else if (fault_code == 0x04) {
+                        obj.fault_0x2D_04 = "Radon Restarts: " + count_val;
+                    } else {
+                        obj.fault_0x2D_x = "Radon General Error. Fault Code: " + fault_code + " Count: " + count_val;
                     }
                 } else {
                     obj.fault_x = "Unknown Sensor ID: " + sensor_id + " Fault Code: " + fault_code + " Count: " + count_val;
@@ -2172,8 +2189,10 @@ function decodeStdResponse(data) {
         obj.command = "Counters and detection time set to zero on human presence sensor";
     } else if (data[2] == ENLINK_HS_RESET) {
         obj.command = "Human presence sensor reset";
-    } else if (data[2] == ENLINK_MPS_RESET_COUNTERS) {
-        obj.command = "MPS Sensor fault counters reset to zero";
+    } else if (data[2] == ENLINK_FGS_RESET_COUNTERS) {
+        obj.command = "FGS fault counters reset to zero";
+    } else if (data[2] == ENLINK_RAD_RESET) {
+        obj.command = "Radon sensor reset";
 
     } else if (data[2] == ENLINK_REBOOT) {
         obj.command = "Reboot";

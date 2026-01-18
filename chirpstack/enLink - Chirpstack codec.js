@@ -1,5 +1,5 @@
 // Used for decoding enLink Uplink LoRa Messages
-// 04 Dec 2025 (FW Ver:7.19)
+// 14 Jan 2026 (FW Ver:7.20)
 // 24 Apr 2025 Includes Temperature fix
 // Removed all 'toFixed' to return numbers, not text
 // https://github.com/synetica/enlink-decoder
@@ -96,6 +96,44 @@ const ENLINK_PM_TPS = 0x60;                                // F32  um    Typical
 
 const ENLINK_GAS_PPB = 0x61;                               // Gas-Type byte + F32 Concentration in ppb
 const ENLINK_GAS_UGM3 = 0x66;                              // Gas-Type byte + F32 Volumetric mass as ug/m3
+const ENLINK_CRN_THK = 0x62;                               // Coupon No. + Metal Type byte + F32 nm. Thickness
+const ENLINK_CRN_MIN_THK = 0x63;                           // Coupon No. + Metal Type byte + U16 nm. Min Thickness (when depleted)
+const ENLINK_CRN_MAX_THK = 0x64;                           // Coupon No. + Metal Type byte + U16 nm. Max/Original Thickness
+const ENLINK_CRN_PERC = 0x65;                              // Coupon No. + Metal Type byte + F32 nm.
+//    PERC: Percentage of corrosion between Max(0%) to Min(100%)
+const ENLINK_FAST_AQI = 0x67;                              // U16  AQI (1 min calculation)
+const ENLINK_EPA_AQI = 0x68;                               // U16  EPA AQI (8hr or 1hr, whichever is worst) See online docs.
+
+// More Particulate Matter
+const ENLINK_MC_PM0_1 = 0x69;                              // F32  ug/m3 Mass Concentration
+const ENLINK_MC_PM0_3 = 0x6A;                              // F32  ug/m3
+const ENLINK_MC_PM0_5 = 0x6B;                              // F32  ug/m3
+const ENLINK_MC_PM5_0 = 0x6C;                              // F32  ug/m3
+
+const ENLINK_NC_PM0_1 = 0x6D;                              // F32  #/cm3 Number Concentration
+const ENLINK_NC_PM0_3 = 0x6E;                              // F32  #/cm3
+const ENLINK_NC_PM5_0 = 0x6F;                              // F32  #/cm3
+
+// IPS7100 Particulate Detection Events - type counts
+const ENLINK_DE_EVENT = 0x70;                              // U16 count
+const ENLINK_DE_SMOKE = 0x71;                              // U16 count
+const ENLINK_DE_VAPE = 0x72;                               // U16 count
+
+// Flammable Gas Sensor
+const ENLINK_FGS_CYCLECOUNT = 0x73;                         // I32 count
+const ENLINK_FGS_FLAM_GAS = 0x74;                           // 1 + 4 | Gas ID + Conc %LEL(ISO) F32
+
+// v7.20 Radon Sensor
+const ENLINK_RAD_UPTIME = 0x75;             // U32 Uptime of sensor in seconds
+const ENLINK_RAD_UPTIME_AVG = 0x76;         // U16 Average Radon in Bq/m3 since powered up
+const ENLINK_RAD_6HR_AVG = 0x77;            // U16 Last 6hr average Radon in Bq/m3
+const ENLINK_RAD_12HR_AVG = 0x78;           // U16 Last 12hr
+const ENLINK_RAD_24HR_AVG = 0x79;           // U16
+const ENLINK_RAD_48HR_AVG = 0x7A;           // U16
+const ENLINK_RAD_72HR_AVG = 0x7B;           // U16
+const ENLINK_RAD_96HR_AVG = 0x7C;           // U16
+
+// --------------------------------------------------------------------------------------
 
 // Gas Type Byte
 const GAS_HCHO = 0x17;
@@ -160,33 +198,6 @@ const GAS_C2HCl3 = 0x51;
 const GAS_CHCl3 = 0x52;
 const GAS_C2H3Cl3 = 0x53;
 const GAS_H2Se = 0x54;
-
-const ENLINK_CRN_THK = 0x62;                               // Coupon No. + Metal Type byte + F32 nm. Thickness
-const ENLINK_CRN_MIN_THK = 0x63;                           // Coupon No. + Metal Type byte + U16 nm. Min Thickness (when depleted)
-const ENLINK_CRN_MAX_THK = 0x64;                           // Coupon No. + Metal Type byte + U16 nm. Max/Original Thickness
-const ENLINK_CRN_PERC = 0x65;                              // Coupon No. + Metal Type byte + F32 nm.
-//    PERC: Percentage of corrosion between Max(0%) to Min(100%)
-const ENLINK_FAST_AQI = 0x67;                              // U16  AQI (1 min calculation)
-const ENLINK_EPA_AQI = 0x68;                               // U16  EPA AQI (8hr or 1hr, whichever is worst) See online docs.
-
-// More Particulate Matter
-const ENLINK_MC_PM0_1 = 0x69;                              // F32  ug/m3 Mass Concentration
-const ENLINK_MC_PM0_3 = 0x6A;                              // F32  ug/m3
-const ENLINK_MC_PM0_5 = 0x6B;                              // F32  ug/m3
-const ENLINK_MC_PM5_0 = 0x6C;                              // F32  ug/m3
-
-const ENLINK_NC_PM0_1 = 0x6D;                              // F32  #/cm3 Number Concentration
-const ENLINK_NC_PM0_3 = 0x6E;                              // F32  #/cm3
-const ENLINK_NC_PM5_0 = 0x6F;                              // F32  #/cm3
-
-// IPS7100 Particulate Detection Events - type counts
-const ENLINK_DE_EVENT = 0x70;                              // U16 count
-const ENLINK_DE_SMOKE = 0x71;                              // U16 count
-const ENLINK_DE_VAPE = 0x72;                               // U16 count
-
-// Flammable Gas Sensor
-const ENLINK_FGS_CYCLECOUNT = 0x73;                         // I32 count
-const ENLINK_FGS_FLAM_GAS = 0x74;                           // 1 + 4 | Gas ID + Conc %LEL(ISO) F32
 
 // Flam Gas Type Byte
 const FLAM_NO_GAS = 0x00;
@@ -328,6 +339,8 @@ const ENLINK_HS_ZERO_C_AND_D = 0x57;
 const ENLINK_HS_RESET = 0x58;
 // Flammable Gas Sensor
 const ENLINK_FGS_RESET_COUNTERS = 0x59;
+
+const ENLINK_RADON_RESET = 0x5A;
 
 const ENLINK_REBOOT = 0xFF;
 
@@ -1784,6 +1797,40 @@ function decodeTelemetry(data) {
                 i += 5;
                 break;
 
+            // Radon Sensor
+            case ENLINK_RAD_UPTIME:
+                obj.rad_uptime_s = u32_1(data, i);
+                i += 4;
+                break;
+            case ENLINK_RAD_UPTIME_AVG:
+                obj.rad_ut_avg = u16_1(data, i);
+                i += 2;
+                break;
+            case ENLINK_RAD_6HR_AVG:
+                obj.rad_6h_avg = u16_1(data, i);
+                i += 2;
+                break;
+            case ENLINK_RAD_12HR_AVG:
+                obj.rad_12h_avg = u16_1(data, i);
+                i += 2;
+                break;
+            case ENLINK_RAD_24HR_AVG:
+                obj.rad_24h_avg = u16_1(data, i);
+                i += 2;
+                break;
+            case ENLINK_RAD_48HR_AVG:
+                obj.rad_48h_avg = u16_1(data, i);
+                i += 2;
+                break;
+            case ENLINK_RAD_72HR_AVG:
+                obj.rad_72h_avg = u16_1(data, i);
+                i += 2;
+                break;
+            case ENLINK_RAD_96HR_AVG:
+                obj.rad_96h_avg = u16_1(data, i);
+                i += 2;
+                break;
+
             // < -------------------------------------------------------------------------------->
             // Optional KPIs
             case ENLINK_CPU_TEMP_DEP:    // Optional from April 2020
@@ -1914,6 +1961,19 @@ function decodeTelemetry(data) {
                         obj.fault_0x24_FF = "FGS Unknown Status: " + count_val;
                     } else {
                         obj.fault_0x24_x = "FGS General Error. Fault Code: " + fault_code + " Count: " + count_val;
+                    }
+                } else if (sensor_id == 45) {
+                    // Radon Gas - 0x2D/45
+                    if (fault_code == 0x01) {
+                        obj.fault_0x2D_01 = "Radon Comms Timeouts: " + count_val;
+                    } else if (fault_code == 0x02) {
+                        obj.fault_0x2D_02 = "Radon Msg too short: " + count_val;
+                    } else if (fault_code == 0x03) {
+                        obj.fault_0x2D_03 = "Radon CRC failures: " + count_val;
+                    } else if (fault_code == 0x04) {
+                        obj.fault_0x2D_04 = "Radon Restarts: " + count_val;
+                    } else {
+                        obj.fault_0x2D_x = "Radon General Error. Fault Code: " + fault_code + " Count: " + count_val;
                     }
                 } else {
                     obj.fault_x = "Unknown Sensor ID: " + sensor_id + " Fault Code: " + fault_code + " Count: " + count_val;
@@ -2123,6 +2183,8 @@ function decodeStdResponse(data) {
         obj.command = "Human presence sensor reset";
     } else if (data[2] == ENLINK_FGS_RESET_COUNTERS) {
         obj.command = "FGS fault counters reset to zero";
+    } else if (data[2] == ENLINK_RADON_RESET) {
+        obj.command = "Radon sensor reset";
 
     } else if (data[2] == ENLINK_REBOOT) {
         obj.command = "Reboot";

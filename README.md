@@ -4,7 +4,7 @@
 
 Online decoder can be found here: [Live Decoder](https://synetica.github.io/enlink-decoder/)
 
-> Latest firmware release is v7.19.
+> Latest firmware release is v7.20
 
 > **Bug Workaround!** </br> There has been a problem introduced from firmware v7.01 to v7.09 inclusive. This affects the newer IAQ/OAQ, ZonePlus, Zone V2, and ZoneView. This is due to the introduction of a high-precision temperature/humidity sensor. The internal data structure changed, and a bug caused the transmitted data packet for temperatures to be wrong for ambient temperatures below 0.0°C or above 32.7°C. This has been fixed in firmware v7.10 and above. If a customer's enLink devices are experiencing temperatures above 32.7°C there is a decoder workaround that works for temperatures between 0.0°C and 65.5°C. Temperatures outside these values will be decoded incorrectly. Look for the function **t_fix_v7(t)** in the decoder samples.
 
@@ -37,6 +37,7 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
     - [Sensor Fault Code Messages](#sensor-fault-code-messages)
       - [SPS30 Particulates](#sps30-particulates---sensor-id-28-0x1c)
       - [Flammable Gas](#flammable-gas---sensor-id-36-0x24)
+      - [Radon Gas](#radon-gas-sensor---sensor-id-45-0x2d)
   - [enLink KPI Payload Data](#enlink-kpi-payload-data)
 - [Downlink Payload](#downlink-payload)
   - [Downlink Payload Structure](#downlink-payload-structure)
@@ -60,6 +61,7 @@ Online decoder can be found here: [Live Decoder](https://synetica.github.io/enli
     - [Differential Pressure / Air Flow Downlinks](#differential-pressure--air-flow-downlinks)
     - [Zone View e-paper Display Downlinks](#zone-view-e-paper-display-downlinks)
     - [Flammable Gas Sensor Downlink](#flammable-gas-sensor-downlink)
+    - [Radon Sensor Downlinks](#radon-sensor-downlinks)
 - [Sample CODECs for Decoding Messages](#sample-codecs-for-decoding-messages)
 
 </br>
@@ -131,6 +133,7 @@ Link to: [Air / Air-X Downlinks](#air--air-x-downlinks)
 |:-----------|:--------|:-------------|:------------|
 | FW-AQ  | (default) | `0x01`, `0x02`, `0x3B` | Temperature, Humidity/Hi-Res Humidity (Selectable from v7.05) [Temperature/Humidity Downlinks](#temperaturehumidity-downlinks)
 | | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e - [VOC Sensor Downlinks](#voc-sensor-downlinks)
+| | R | `0x75`, `0x76`, `0x77`, `0x78`, `0x79`, `0x7A`, `0x7B`, `0x7C` | Radon Gas Uptime and concentrations - [Radon Sensor Downlinks](#radon-sensor-downlinks)
 | | C | `0x08` | NDIR CO<sub>2</sub> ppm - [CO<sub>2</sub> Sensor Downlinks](#carbon-dioxide-sensor-downlinks)
 | | I | `0x36`, `0x37`, `0x38`, `0x39`, `0x3A` | Indoor TVOC Sensor (enLink IAQ) - [TVOC Sensor Downlinks](#tvoc-sensor-downlinks)
 | | D | `0x67`, `0x68` | Outdoor EPA Sensor (enLink OAQ) [EPA Sensor Downlink](#epa-sensor-downlink)
@@ -398,7 +401,15 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x72` 114 | Detection: Vape Count   | 0 to 65535 | count | 2 | U16
 | `0x73` 115 | Flammable Gas Sensor Cycle Count (internal counter increments every 4 seconds)  |  | count | 4 | I32
 | `0x74` 116 | Flammable Gas ID + %LEL(Lower Explosive Level) concentration   | < -15%  to > +110% | %LEL(ISO) | 1 + 4 | F32
-| `0xFE` 254 | Condition: [Sensor ID] + [Item ID] + [Item Value] |  |  | 1 + 1 + 2 | U16
+| `0x75` 117 | Radon Sensor Uptime | 0 to 2^32 | seconds | 4 | U32
+| `0x76` 118 | Radon Gas average over uptime | 0 to 2^16 | Bq/m³ | 4 | U16
+| `0x77` 119 | Radon Gas average over 6 hours | 0 to 2^16 | Bq/m³ | 4 | U16
+| `0x78` 119 | Radon Gas average over 12 hours | 0 to 2^16 | Bq/m³ | 4 | U16
+| `0x79` 119 | Radon Gas average over 24 hours | 0 to 2^16 | Bq/m³ | 4 | U16
+| `0x7A` 119 | Radon Gas average over 48 hours | 0 to 2^16 | Bq/m³ | 4 | U16
+| `0x7B` 119 | Radon Gas average over 72 hours | 0 to 2^16 | Bq/m³ | 4 | U16
+| `0x7C` 119 | Radon Gas average over 96 hours | 0 to 2^16 | Bq/m³ | 4 | U16
+| `0xFE` 254 | Fault: [Sensor ID] + [Fault ID] + [Fault Value] |  |  | 1 + 1 + 2 | U16
 </br>
 
 ## Decoding Complex Uplinks
@@ -543,13 +554,15 @@ Other Coupon/Metal types are:
 
 ---
 
+Available from v7.16 onwards.
+
 Type: `0x74`
 
 The full message is sent as 6 bytes. For example:
 
 > Example Payload Data: `74 03 41 BC 7A E1`
 
-This translates to Gas Type `0x03` which is **Methane**. The value is **23.56 %LEL(ISO)**.
+This translates to Gas Type `0x03` which is **Methane**. The next four bytes are a floating point (F32) number. In this example the value is **23.56 %LEL(ISO)**.
 
 The Gas classes are listed here:
 
@@ -624,6 +637,23 @@ All the values are a count of the occurence of each condition.
 | `0xFF` | Unknown Status                 | Unknown status ID received from sensor.
 
 > Note: These packets are only sent if the count is greater than zero. </br> You can reset these counters with a downlink.
+
+#### Radon Gas Sensor - Sensor ID: 45 `0x2D`
+
+Available from v7.20 onwards.
+
+> Example Payload Data: `FE 2D 01 02 27`
+
+The example shows Sensor-ID `0x2D` (45 decimal). This is the Radon gas sensor. The Fault-Code is `0x01`. This is 'Comms Timeout'. The value is 0x0227 (551 decimal) - this is the number of timeout errors occured since last power-up.
+
+| Fault Code | Name | Value Description |
+|--|--|--|
+| `0x01` | Comms Timeout | Count of serial comms timeouts
+| `0x02` | Comms Message too short | Count of truncated messages received
+| `0x03` | Comms CRC Failure | Count of CRC failures when checking message integrity
+| `0x04` | Restart | Count. After too many comms failures the sensor will be power cycled
+
+> Note: These packets are only sent if the count is greater than zero.
 
 </br>
 
@@ -1198,6 +1228,24 @@ The following is used in products that include a flammable gas sensor.
 | Example Setting | Message |
 | --------------- | ------- |
 | To set all the counters to zero | `A5 01 59` |
+
+### Radon Sensor Downlinks
+
+Available from v7.20 onwards.
+
+The following is used in products that include a radon gas sensor.
+
+| Name | Msg Len | Command | Value |
+| ---- | ------- | ------- | ----- |
+| Reset sensor options | 2 | `0x5A` | `1` - Reset Sensor, `2` - Reset fault codes only
+| Set read interval    | 2 | `0x5B` | `1` to `240` minutes
+
+| Example Setting | Message |
+| --------------- | ------- |
+| To reset the radon sensor (power cycle) | `A5 02 5A 01` |
+| To reset the fault codes | `A5 02 5A 02` |
+| Set read interval to 10 minutes (default) | `A5 02 5B 0A` |
+| Set read interval to 60 minutes | `A5 02 5B 3C` |
 
 </br>
 

@@ -63,7 +63,7 @@ function decode_hex_string(hex_string) {
 function js_decoder(msg) {
     // Used for decoding enLink Uplink LoRa Messages
     // --------------------------------------------------------------------------------------
-    // 04 Dec 2025 (FW Ver:7.19)
+    // 14 Jan 2026 (FW Ver:7.20)
     // 24 Apr 2025 Includes Temperature fix
     // --------------------------------------------------------------------------------------
     // https://github.com/synetica/enlink-decoder
@@ -190,6 +190,17 @@ function js_decoder(msg) {
     const ENLINK_FGS_CYCLECOUNT = 0x73;
     const ENLINK_FGS_FLAM_GAS = 0x74;
 
+    // v7.20 Radon Sensor
+    const ENLINK_RAD_UPTIME = 0x75;
+    const ENLINK_RAD_UPTIME_AVG = 0x76;
+    const ENLINK_RAD_6HR_AVG = 0x77;
+    const ENLINK_RAD_12HR_AVG = 0x78;
+    const ENLINK_RAD_24HR_AVG = 0x79;
+    const ENLINK_RAD_48HR_AVG = 0x7A;
+    const ENLINK_RAD_72HR_AVG = 0x7B;
+    const ENLINK_RAD_96HR_AVG = 0x7C;
+
+    // --------------------------------------------------------------------------------------
     // Flam Gas Type Byte
     const FLAM_NO_GAS = 0x00;
     const FLAM_HYDROGEN = 0x01;
@@ -331,6 +342,7 @@ function js_decoder(msg) {
     const ENLINK_HS_RESET = 0x58;
 
     const ENLINK_FGS_RESET_COUNTERS = 0x59;
+    const ENLINK_RADON_RESET = 0x5A;
 
     const ENLINK_REBOOT = 0xff;
 
@@ -1220,6 +1232,40 @@ function js_decoder(msg) {
                     i += 5;
                     break;
 
+                // Radon Sensor
+                case ENLINK_RAD_UPTIME:
+                    obj.rad_uptime_s = u32_1(data, i);
+                    i += 4;
+                    break;
+                case ENLINK_RAD_UPTIME_AVG:
+                    obj.rad_ut_avg = u16_1(data, i);
+                    i += 2;
+                    break;
+                case ENLINK_RAD_6HR_AVG:
+                    obj.rad_6h_avg = u16_1(data, i);
+                    i += 2;
+                    break;
+                case ENLINK_RAD_12HR_AVG:
+                    obj.rad_12h_avg = u16_1(data, i);
+                    i += 2;
+                    break;
+                case ENLINK_RAD_24HR_AVG:
+                    obj.rad_24h_avg = u16_1(data, i);
+                    i += 2;
+                    break;
+                case ENLINK_RAD_48HR_AVG:
+                    obj.rad_48h_avg = u16_1(data, i);
+                    i += 2;
+                    break;
+                case ENLINK_RAD_72HR_AVG:
+                    obj.rad_72h_avg = u16_1(data, i);
+                    i += 2;
+                    break;
+                case ENLINK_RAD_96HR_AVG:
+                    obj.rad_96h_avg = u16_1(data, i);
+                    i += 2;
+                    break;
+
                 // < -------------------------------------------------------------------------------->
                 // Optional KPIs
                 case ENLINK_CPU_TEMP_DEP: // Optional from April 2020
@@ -1309,49 +1355,62 @@ function js_decoder(msg) {
                             obj.fault_0x1C_x = "SPS30 General Error. Fault Code: " + fault_code + " Count: " + count_val;
                         }
                     } else if (sensor_id == 36) {
-                        // Flammable Gas - MPS 0x24/36
+                        // Flammable Gas - 0x24/36
                         if (fault_code == 0x01) {
-                            obj.fault_0x24_01 = "MPS CRC Error: " + count_val;
+                            obj.fault_0x24_01 = "FGS CRC Error: " + count_val;
                         } else if (fault_code == 0x02) {
-                            obj.fault_0x24_02 = "MPS Bad Parameter: " + count_val;
+                            obj.fault_0x24_02 = "FGS Bad Parameter: " + count_val;
                         } else if (fault_code == 0x05) {
-                            obj.fault_0x24_05 = "MPS Unknown Cmd: " + count_val;
+                            obj.fault_0x24_05 = "FGS Unknown Cmd: " + count_val;
                         } else if (fault_code == 0x07) {
-                            obj.fault_0x24_07 = "MPS Incomplete Cmd: " + count_val;
+                            obj.fault_0x24_07 = "FGS Incomplete Cmd: " + count_val;
                         } else if (fault_code == 0x21) {
-                            obj.fault_0x24_21 = "MPS VDD Out of Range: " + count_val;
+                            obj.fault_0x24_21 = "FGS VDD Out of Range: " + count_val;
                         } else if (fault_code == 0x22) {
-                            obj.fault_0x24_22 = "MPS VREF Out of Range: " + count_val;
+                            obj.fault_0x24_22 = "FGS VREF Out of Range: " + count_val;
                         } else if (fault_code == 0x23) {
-                            obj.fault_0x24_23 = "MPS Env. Sensor Out of Range: " + count_val;
+                            obj.fault_0x24_23 = "FGS Env. Sensor Out of Range: " + count_val;
                         } else if (fault_code == 0x24) {
-                            obj.fault_0x24_24 = "MPS Env. Sensor Failed: " + count_val;
+                            obj.fault_0x24_24 = "FGS Env. Sensor Failed: " + count_val;
                         } else if (fault_code == 0x25) {
-                            obj.fault_0x24_25 = "MPS Microcontroller Error: " + count_val;
+                            obj.fault_0x24_25 = "FGS Microcontroller Error: " + count_val;
                         } else if (fault_code == 0x30) {
-                            obj.fault_0x24_30 = "MPS Sensor Read Negative: " + count_val;
+                            obj.fault_0x24_30 = "FGS Sensor Read Negative: " + count_val;
                         } else if (fault_code == 0x31) {
-                            obj.fault_0x24_31 = "MPS Condensation Detected: " + count_val;
+                            obj.fault_0x24_31 = "FGS Condensation Detected: " + count_val;
                         } else if (fault_code == 0x32) {
-                            obj.fault_0x24_32 = "MPS Sensor Error: " + count_val;
+                            obj.fault_0x24_32 = "FGS Sensor Error: " + count_val;
                         } else if (fault_code == 0x33) {
-                            obj.fault_0x24_33 = "MPS Gas detected during startup: " + count_val;
+                            obj.fault_0x24_33 = "FGS Gas detected during startup: " + count_val;
                         } else if (fault_code == 0x34) {
-                            obj.fault_0x24_34 = "MPS Slow Gas accumulation detected: " + count_val;
+                            obj.fault_0x24_34 = "FGS Slow Gas accumulation detected: " + count_val;
                         } else if (fault_code == 0x35) {
-                            obj.fault_0x24_35 = "MPS Breath/Humidity Surge: " + count_val;
+                            obj.fault_0x24_35 = "FGS Breath/Humidity Surge: " + count_val;
                         } else if (fault_code == 0xF9) {
-                            obj.fault_0x24_F9 = "MPS Reply Timeout: " + count_val;
+                            obj.fault_0x24_F9 = "FGS Reply Timeout: " + count_val;
                         } else if (fault_code == 0xFA) {
-                            obj.fault_0x24_FA = "MPS Incomplete reply: " + count_val;
+                            obj.fault_0x24_FA = "FGS Incomplete reply: " + count_val;
                         } else if (fault_code == 0xFB) {
-                            obj.fault_0x24_FB = "MPS CRC Error on reply: " + count_val;
+                            obj.fault_0x24_FB = "FGS CRC Error on reply: " + count_val;
                         } else if (fault_code == 0xFC) {
-                            obj.fault_0x24_FC = "MPS Sensor restart: " + count_val;
+                            obj.fault_0x24_FC = "FGS Sensor restart: " + count_val;
                         } else if (fault_code == 0xFF) {
-                            obj.fault_0x24_FF = "MPS Unknown Status: " + count_val;
+                            obj.fault_0x24_FF = "FGS Unknown Status: " + count_val;
                         } else {
-                            obj.fault_0x24_x = "MPS General Error. Fault Code: " + fault_code + " Count: " + count_val;
+                            obj.fault_0x24_x = "FGS General Error. Fault Code: " + fault_code + " Count: " + count_val;
+                        }
+                    } else if (sensor_id == 45) {
+                        // Radon Gas - 0x2D/45
+                        if (fault_code == 0x01) {
+                            obj.fault_0x2D_01 = "Radon Comms Timeouts: " + count_val;
+                        } else if (fault_code == 0x02) {
+                            obj.fault_0x2D_02 = "Radon Msg too short: " + count_val;
+                        } else if (fault_code == 0x03) {
+                            obj.fault_0x2D_03 = "Radon CRC failures: " + count_val;
+                        } else if (fault_code == 0x04) {
+                            obj.fault_0x2D_04 = "Radon Restarts: " + count_val;
+                        } else {
+                            obj.fault_0x2D_x = "Radon General Error. Fault Code: " + fault_code + " Count: " + count_val;
                         }
                     } else {
                         obj.fault_x = "Unknown Sensor ID: " + sensor_id + " Fault Code: " + fault_code + " Count: " + count_val;
@@ -1556,8 +1615,10 @@ function js_decoder(msg) {
             obj.command = "Counters and detection time set to zero on human presence sensor";
         } else if (data[2] == ENLINK_HS_RESET) {
             obj.command = "Human presence sensor reset";
-        } else if (data[2] == ENLINK_MPS_RESET_COUNTERS) {
-            obj.command = "MPS Sensor fault counters reset to zero";
+        } else if (data[2] == ENLINK_FGS_RESET_COUNTERS) {
+            obj.command = "FGS fault counters reset to zero";
+        } else if (data[2] == ENLINK_RADON_RESET) {
+            obj.command = "Radon sensor reset";
 
         } else if (data[2] == ENLINK_REBOOT) {
             obj.command = "Reboot";

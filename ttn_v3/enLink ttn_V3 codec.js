@@ -1,5 +1,5 @@
 // Synetica Payload Decoder for The Things Stack V3
-// 04 Dec 2025 (FW Ver:7.19)
+// 14 Jan 2026 (FW Ver:7.20)
 // 24 Apr 2025 Includes Temperature fix
 // https://github.com/synetica/enlink-decoder
 
@@ -111,7 +111,17 @@ function decodeUplink(input) {
  const ENL_DE_VAPE=0x72;
  const ENL_FGS_COUNT=0x73;
  const ENL_FGS_FLAM_GAS=0x74;
+ const ENL_RAD_UPTIME=0x75;
+ const ENL_RAD_UT_AVG=0x76;
+ const ENL_RAD_6H_AVG=0x77;
+ const ENL_RAD_12H_AVG=0x78;
+ const ENL_RAD_24H_AVG=0x79;
+ const ENL_RAD_48H_AVG=0x7A;
+ const ENL_RAD_72H_AVG=0x7B;
+ const ENL_RAD_96H_AVG=0x7C;
 
+ // --------------------------------------------------------------------------------------
+ 
  const FLAM_NO_GAS=0x00;
  const FLAM_HYDROGEN=0x01;
  const FLAM_HYD_MIX=0x02;
@@ -1325,6 +1335,39 @@ function decodeUplink(input) {
      i += 5;
      break;
 
+    case ENL_RAD_UPTIME:
+     o.rad_uptime_s=u32_1(d, i);
+     i += 4;
+     break;
+    case ENL_RAD_UT_AVG:
+     o.rad_ut_avg=u16_1(d, i);
+     i += 2;
+     break;
+    case ENL_RAD_6H_AVG:
+     o.rad_6h_avg=u16_1(d, i);
+     i += 2;
+     break;
+    case ENL_RAD_12H_AVG:
+     o.rad_12h_avg=u16_1(d, i);
+     i += 2;
+     break;
+    case ENL_RAD_24H_AVG:
+     o.rad_24h_avg=u16_1(d, i);
+     i += 2;
+     break;
+    case ENL_RAD_48H_AVG:
+     o.rad_48h_avg=u16_1(d, i);
+     i += 2;
+     break;
+    case ENL_RAD_72H_AVG:
+     o.rad_72h_avg=u16_1(d, i);
+     i += 2;
+     break;
+    case ENL_RAD_96H_AVG:
+     o.rad_96h_avg=u16_1(d, i);
+     i += 2;
+     break;
+
     // Optional KPIs
     case ENL_CPU_TEMP_DEP:
      o.cpu_temp_dep=d[i + 1] + (Math.round(d[i + 2] * 100 / 256) / 100);
@@ -1411,49 +1454,62 @@ function decodeUplink(input) {
        o.fault_0x1C_x="SPS30 General Error. Fault Code: " + fault_code + " Count: " + count_val;
       }
      } else if (sensor_id == 36) {
-      // Flammable Gas - MPS 0x24/36
+      // Flammable Gas - 0x24/36
       if (fault_code == 0x01) {
-       o.fault_0x24_01="MPS CRC Error: " + count_val;
+       o.fault_0x24_01="FGS CRC Error: " + count_val;
       } else if (fault_code == 0x02) {
-       o.fault_0x24_02="MPS Bad Parameter: " + count_val;
+       o.fault_0x24_02="FGS Bad Parameter: " + count_val;
       } else if (fault_code == 0x05) {
-       o.fault_0x24_05="MPS Unknown Cmd: " + count_val;
+       o.fault_0x24_05="FGS Unknown Cmd: " + count_val;
       } else if (fault_code == 0x07) {
-       o.fault_0x24_07="MPS Incomplete Cmd: " + count_val;
+       o.fault_0x24_07="FGS Incomplete Cmd: " + count_val;
       } else if (fault_code == 0x21) {
-       o.fault_0x24_21="MPS VDD Out of Range: " + count_val;
+       o.fault_0x24_21="FGS VDD Out of Range: " + count_val;
       } else if (fault_code == 0x22) {
-       o.fault_0x24_22="MPS VREF Out of Range: " + count_val;
+       o.fault_0x24_22="FGS VREF Out of Range: " + count_val;
       } else if (fault_code == 0x23) {
-       o.fault_0x24_23="MPS Env. Sensor Out of Range: " + count_val;
+       o.fault_0x24_23="FGS Env. Sensor Out of Range: " + count_val;
       } else if (fault_code == 0x24) {
-       o.fault_0x24_24="MPS Env. Sensor Failed: " + count_val;
+       o.fault_0x24_24="FGS Env. Sensor Failed: " + count_val;
       } else if (fault_code == 0x25) {
-       o.fault_0x24_25="MPS Microcontroller Error: " + count_val;
+       o.fault_0x24_25="FGS Microcontroller Error: " + count_val;
       } else if (fault_code == 0x30) {
-       o.fault_0x24_30="MPS Sensor Read Negative: " + count_val;
+       o.fault_0x24_30="FGS Sensor Read Negative: " + count_val;
       } else if (fault_code == 0x31) {
-       o.fault_0x24_31="MPS Condensation Detected: " + count_val;
+       o.fault_0x24_31="FGS Condensation Detected: " + count_val;
       } else if (fault_code == 0x32) {
-       o.fault_0x24_32="MPS Sensor Error: " + count_val;
+       o.fault_0x24_32="FGS Sensor Error: " + count_val;
       } else if (fault_code == 0x33) {
-       o.fault_0x24_33="MPS Gas detected during startup: " + count_val;
+       o.fault_0x24_33="FGS Gas detected during startup: " + count_val;
       } else if (fault_code == 0x34) {
-       o.fault_0x24_34="MPS Slow Gas accumulation detected: " + count_val;
+       o.fault_0x24_34="FGS Slow Gas accumulation detected: " + count_val;
       } else if (fault_code == 0x35) {
-       o.fault_0x24_35="MPS Breath/Humidity Surge: " + count_val;
+       o.fault_0x24_35="FGS Breath/Humidity Surge: " + count_val;
       } else if (fault_code == 0xF9) {
-       o.fault_0x24_F9="MPS Reply Timeout: " + count_val;
+       o.fault_0x24_F9="FGS Reply Timeout: " + count_val;
       } else if (fault_code == 0xFA) {
-       o.fault_0x24_FA="MPS Incomplete reply: " + count_val;
+       o.fault_0x24_FA="FGS Incomplete reply: " + count_val;
       } else if (fault_code == 0xFB) {
-       o.fault_0x24_FB="MPS CRC Error on reply: " + count_val;
+       o.fault_0x24_FB="FGS CRC Error on reply: " + count_val;
       } else if (fault_code == 0xFC) {
-       o.fault_0x24_FC="MPS Sensor restart: " + count_val;
+       o.fault_0x24_FC="FGS Sensor restart: " + count_val;
       } else if (fault_code == 0xFF) {
-       o.fault_0x24_FF="MPS Unknown Status: " + count_val;
+       o.fault_0x24_FF="FGS Unknown Status: " + count_val;
       } else {
-       o.fault_0x24_x="MPS General Error. Fault Code: " + fault_code + " Count: " + count_val;
+       o.fault_0x24_x="FGS General Error. Fault Code: " + fault_code + " Count: " + count_val;
+      }
+    } else if (sensor_id == 45) {
+      // Radon Gas - 0x2D/45
+      if (fault_code == 0x01) {
+        obj.fault_0x2D_01 = "Radon Comms Timeouts: " + count_val;
+      } else if (fault_code == 0x02) {
+        obj.fault_0x2D_02 = "Radon Msg too short: " + count_val;
+      } else if (fault_code == 0x03) {
+        obj.fault_0x2D_03 = "Radon CRC failures: " + count_val;
+      } else if (fault_code == 0x04) {
+        obj.fault_0x2D_04 = "Radon Restarts: " + count_val;
+      } else {
+        obj.fault_0x2D_x = "Radon General Error. Fault Code: " + fault_code + " Count: " + count_val;
       }
      } else {
       o.fault_x="Unknown Sensor ID: " + sensor_id + " Fault Code: " + fault_code + " Count: " + count_val;
