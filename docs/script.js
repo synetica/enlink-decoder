@@ -63,7 +63,7 @@ function decode_hex_string(hex_string) {
 function js_decoder(msg) {
     // Used for decoding enLink Uplink LoRa Messages
     // --------------------------------------------------------------------------------------
-    // 14 Jan 2026 (FW Ver:7.20)
+    // 05 Feb 2026 (FW Ver:7.20)
     // 24 Apr 2025 Includes Temperature fix
     // --------------------------------------------------------------------------------------
     // https://github.com/synetica/enlink-decoder
@@ -232,6 +232,7 @@ function js_decoder(msg) {
     const ENLINK_CPU_TEMP = 0x4e;
     // --------------------------------------------------------------------------------------
     // Status Message
+    const ENLINK_KPI = 0xFD;
     const ENLINK_FAULT = 0xFE;
 
     // --------------------------------------------------------------------------------------
@@ -424,6 +425,9 @@ function js_decoder(msg) {
     function f32_2(bytes, index) {
         return fromF32(bytes[index + 2], bytes[index + 3], bytes[index + 4], bytes[index + 5]);
     }
+    function f32_3(bytes, index) {
+        return fromF32(bytes[index + 3], bytes[index + 4], bytes[index + 5], bytes[index + 6]);
+    }
     function u16_1(bytes, index) {
         return U16((bytes[index + 1] << 8) | (bytes[index + 2]));
     }
@@ -442,6 +446,9 @@ function js_decoder(msg) {
     }
     function ff32_2(data, i, dp) {
         return Number(f32_2(data, i).toFixed(dp));
+    }
+    function ff32_3(data, i, dp) {
+        return Number(f32_3(data, i).toFixed(dp));
     }
     // Return gas name from gas type byte
     function GetGasName(gas_type) {
@@ -1330,6 +1337,52 @@ function js_decoder(msg) {
                     i += 4;
                     break;
 
+                    // < -------------------------------------------------------------------------------->
+            case ENLINK_KPI:
+                let kpi_sensor_id = (data[i + 1]);
+                let kpi_code = (data[i + 2]);
+                let kpi_val_0 = ff32_3(data, i, 0);
+                let kpi_val_3 = ff32_3(data, i, 3);
+                let kpi_val_6 = ff32_3(data, i, 6);
+                
+                // Show values in an array
+                /*
+                if (show_array == 1) {
+                    if (obj.kpi) {
+                        obj.kpi.push([kpi_sensor_id, kpi_code, kpi_val_3]);
+                    } else {
+                        obj.kpi = [[kpi_sensor_id, kpi_code, kpi_val_3]];
+                    }
+                }
+                */
+                // Check for known values - Always show this
+                if (kpi_sensor_id == 45) {
+                    // Radon Gas - 0x2D/45
+                    if (kpi_code == 1) {
+                        obj.kpi_0x2D_01 = "Radon Read Attempts: " + kpi_val_0;
+                    } else if (kpi_code == 2) {
+                        obj.kpi_0x2D_02 = "Radon Read Errors: " + kpi_val_0;
+                    } else if (kpi_code == 3) {
+                        obj.kpi_0x2D_03 = "Radon Success Factor: " + kpi_val_3 + "%";
+                    } else if (kpi_code == 4) {
+                        obj.kpi_0x2D_04 = "Buffer Zeros Cleared: " + kpi_val_0;
+                    } else if (kpi_code == 5) {
+                        obj.kpi_0x2D_05 = "CPU/Sensor fn() mean: " + kpi_val_6;
+                    } else if (kpi_code == 6) {
+                        obj.kpi_0x2D_06 = "CPU/Sensor fn() stddev: " + kpi_val_6;
+                    } else if (kpi_code == 7) {
+                        obj.kpi_0x2D_07 = "Read Window Total Time: " + kpi_val_3 + "s";
+                    } else if (kpi_code == 8) {
+                        obj.kpi_0x2D_08 = "Read Window Average Time: " + kpi_val_3 + "s";
+                    } else {
+                        obj.fault_0x2D_x = "Radon KPI Error. KPI Code: " + kpi_code + " Value: " + kpi_val_3;
+                    }
+                } else {
+                    obj.kpi_x = "Unknown Sensor ID: " + kpi_sensor_id + " KPI Code: " + kpi_code + " Value: " + kpi_val_3;
+                }
+                i += 6;
+                break;
+
                 // < -------------------------------------------------------------------------------->
                 case ENLINK_FAULT:
                     let sensor_id = (data[i + 1]);
@@ -1402,13 +1455,7 @@ function js_decoder(msg) {
                     } else if (sensor_id == 45) {
                         // Radon Gas - 0x2D/45
                         if (fault_code == 0x01) {
-                            obj.fault_0x2D_01 = "Radon Comms Timeouts: " + count_val;
-                        } else if (fault_code == 0x02) {
-                            obj.fault_0x2D_02 = "Radon Msg too short: " + count_val;
-                        } else if (fault_code == 0x03) {
-                            obj.fault_0x2D_03 = "Radon CRC failures: " + count_val;
-                        } else if (fault_code == 0x04) {
-                            obj.fault_0x2D_04 = "Radon Restarts: " + count_val;
+                            obj.fault_0x2D_01 = "Radon Restarts: " + count_val;
                         } else {
                             obj.fault_0x2D_x = "Radon General Error. Fault Code: " + fault_code + " Count: " + count_val;
                         }

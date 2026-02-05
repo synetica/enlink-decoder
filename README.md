@@ -644,14 +644,11 @@ Available from v7.20 onwards.
 
 > Example Payload Data: `FE 2D 01 02 27`
 
-The example shows Sensor-ID `0x2D` (45 decimal). This is the Radon gas sensor. The Fault-Code is `0x01`. This is 'Comms Timeout'. The value is 0x0227 (551 decimal) - this is the number of timeout errors occured since last power-up.
+The example shows Sensor-ID `0x2D` (45 decimal). This is the Radon gas sensor. The Fault-Code is `0x01`. This is 'Restarts'. The value is 0x0227 (551 decimal) - this is the number of times errors have forced the sensor to restart (power cycle) since last power-up of the device.
 
 | Fault Code | Name | Value Description |
 |--|--|--|
-| `0x01` | Comms Timeout | Count of serial comms timeouts
-| `0x02` | Comms Message too short | Count of truncated messages received
-| `0x03` | Comms CRC Failure | Count of CRC failures when checking message integrity
-| `0x04` | Restart | Count. After too many comms failures the sensor will be power cycled
+| `0x01` | Restart | Count. After 7 comms failures the sensor will be power cycled.
 
 > Note: These packets are only sent if the count is greater than zero.
 

@@ -1,5 +1,5 @@
 // Used for decoding enLink Uplink LoRa Messages
-// 14 Jan 2026 (FW Ver:7.20)
+// 05 Feb 2026 (FW Ver:7.20)
 // 24 Apr 2025 Includes Temperature fix
 // Removed all 'toFixed' to return numbers, not text
 // https://github.com/synetica/enlink-decoder
@@ -1973,13 +1973,7 @@ function decodeTelemetry(data) {
                 } else if (sensor_id == 45) {
                     // Radon Gas - 0x2D/45
                     if (fault_code == 0x01) {
-                        obj.fault_0x2D_01 = "Radon Comms Timeouts: " + count_val;
-                    } else if (fault_code == 0x02) {
-                        obj.fault_0x2D_02 = "Radon Msg too short: " + count_val;
-                    } else if (fault_code == 0x03) {
-                        obj.fault_0x2D_03 = "Radon CRC failures: " + count_val;
-                    } else if (fault_code == 0x04) {
-                        obj.fault_0x2D_04 = "Radon Restarts: " + count_val;
+                        obj.fault_0x2D_01 = "Radon Restarts: " + count_val;
                     } else {
                         obj.fault_0x2D_x = "Radon General Error. Fault Code: " + fault_code + " Count: " + count_val;
                     }
