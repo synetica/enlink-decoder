@@ -315,7 +315,7 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x09` 009 | Ozone (O3) | 0 to 1<br />0 to 1000 | ppm<br />ppb | 2 | U16 | / 10000<br />/ 10
 | `0x0A` 010 | Air Pollutants: CO, Ammonia, Ethanol, H2, Methane / Propane / Iso-Butane. | 100 to 1500 (Typ)| kΩ | 2 | U16 | / 10
 | `0x0D` 013 | Hydrogen Sulphide (H<sub>2</sub>S) | 0 to 100 | ppm | 2 | U16 | / 100
-| `0x0E` 014 | Pulse ID + Pulse Counter | ID: 0 to 3<br />Value: 0 to 2^32 | count | 1 + 4 | U32
+| `0x0E` 014 | Pulse ID + Pulse Counter | ID: 0 to 2<br />Value: 0 to 2^32 | count | 1 + 4 | U32
 | `0x0F` 015 | MB ID + Modbus Exception | ID: 0 to 31<br />Error Num | | 1 + 1 | U8
 | `0x10` 016 | MB ID + Modbus Interval value | ID: 0 to 31<br />Interval Value | | 1 + 4 | F32
 | `0x11` 017 | MB ID + Modbus Cumulative value | ID: 0 to 31<br />Cumulative&nbsp;Value | | 1 + 4 | F32
@@ -1234,13 +1234,13 @@ The following is used in products that include a radon gas sensor.
 
 | Name | Msg Len | Command | Value |
 | ---- | ------- | ------- | ----- |
-| Reset sensor options | 2 | `0x5A` | `1` - Reset Sensor, `2` - Reset fault codes only
+| Reset sensor options | 2 | `0x5A` | `1` - Reset Sensor, `2` - Reset fault code counter only
 | Set read interval    | 2 | `0x5B` | `1` to `240` minutes
 
 | Example Setting | Message |
 | --------------- | ------- |
 | To reset the radon sensor (power cycle) | `A5 02 5A 01` |
-| To reset the fault codes | `A5 02 5A 02` |
+| To reset the fault code count | `A5 02 5A 02` |
 | Set read interval to 10 minutes (default) | `A5 02 5B 0A` |
 | Set read interval to 60 minutes | `A5 02 5B 3C` |
 
