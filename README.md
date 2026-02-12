@@ -302,8 +302,14 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 
 ## Uplink Payload 'Type'
 
+| Type Hex&nbsp;Dec| System Message | Num Bytes | 
+|:----------:| --------------------- |:---------:|
+| `0xA5` 165 | ACK/NACK reply from a [downlink](#downlink-payload). See [examples](#example-uplink-replies-to-downlink-messages) | 3 or 5 |
+| `0x00` 000 | Firmware Version - 3 bytes, `0x00` `MAJOR` `MINOR` Only sent in first payload after power up, or by [downlink request](#send-firmware-version-in-downlink)| 3 | 
+
+
 | Type Hex&nbsp;Dec| Sensor | Sensor Range | Units | Num Bytes | Format | Scaling |
-|:---------:| ------ | ------------ | ----- |:---------:|:-----------:| ------- |
+|:----------:| ------ | ------------ | ----- |:---------:|:-----------:| ------- |
 | `0x01` 001 | Temperature | -40 to 85 | °C | 2 | S16 | / 10
 | `0x02` 002 | Humidity | 0 to 100 | %rH | 1 | U8
 | `0x03` 003 | Ambient Light | 0.01 to 83k | lux | 2 | U16
@@ -687,7 +693,7 @@ Example code for different LoRaWAN Network Servers (LNS) is included in the fold
 
 # Downlink Payload
 
-Downlink payloads are sent to re-configure the device. When the device processes the payload, it acknowledges the message by transmitting an ACK/NACK and the identifier code. This is to notify the user that the message has been received. An example to decode the ACK/NACK messages that are sent from the end-node to the LNS is included in the NodeRED source.
+Downlink payloads are sent to re-configure the device. When the device processes the payload, it acknowledges the message by transmitting an ACK/NACK and the identifier code. This is to notify the user that the message has been received. An example to decode the ACK/NACK messages that are sent from the end-node to the LNS is included in the example decoder source files.
 
 ## Downlink Payload Structure
 | Header | Msg Len | Command | Value      |
@@ -709,6 +715,7 @@ When the enLink device receives a downlink message, it first checks the port byt
 | Name | Msg Len | Command | Value | Reboot Required? |
 | -----| ------- | ------- | ------| ---------------- |
 | Reboot | 1  | `0xFF`
+| Send Firmware Version | 1  | `0x00` | See reply in ACK [here](#example-uplink-replies-to-downlink-messages)
 | Antenna Gain (v5.12) | 2  | `0x01` | `0` to `25.5` dBi (single byte `0` to `255`) Default is 2.0 dBi | Yes
 | Public Network | 2  | `0x02` | `0`/`1` (Disable/Enable) | Yes
 | AppEUI | 9  | `0x05` | 8 Bytes for the **EUI**  | Yes
@@ -755,6 +762,14 @@ Particulates included data packets: PM 2.5 and PM 10.0 only
 ### Reboot
 
 > Payload Data:  `A5 01 FF`
+
+### Send Firmware Version in downlink
+
+Available from v7.20 onwards.
+
+> Payload Data:  `A5 01 00`<br/>
+
+The version is sent in the ACK message and the next payload.
 
 ### Set Antenna Gain to default (2.0 dBi)
 
@@ -816,6 +831,10 @@ This uses a message to enable/disable a single KPI at a time. The message is a s
 **ACK** `0x06` - Successfully changed the Message Confirmation Option (`0x09`)
 
 > Return Data: `A5 06 09`
+
+**ACK** `0x06` - Request for Firmware Version (`0x00`)
+
+> Return Data: `A5 06 00 07 14` Shows the firmware is v7.20
 
 **NACK** `0x15` - failed to change the Transmit Port (`0x0A`)
 

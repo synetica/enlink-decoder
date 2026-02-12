@@ -63,7 +63,7 @@ function decode_hex_string(hex_string) {
 function js_decoder(msg) {
     // Used for decoding enLink Uplink LoRa Messages
     // --------------------------------------------------------------------------------------
-    // 05 Feb 2026 (FW Ver:7.20)
+    // 12 Feb 2026 (FW Ver:7.20)
     // 24 Apr 2025 Includes Temperature fix
     // --------------------------------------------------------------------------------------
     // https://github.com/synetica/enlink-decoder
@@ -77,6 +77,7 @@ function js_decoder(msg) {
     }
     // --------------------------------------------------------------------------------------
     // Telemetry data from all enLink Models
+    const ENLINK_SYS_INFO = 0x00;
     const ENLINK_TEMP = 0x01;
     const ENLINK_RH = 0x02;
     const ENLINK_LUX = 0x03;
@@ -241,6 +242,7 @@ function js_decoder(msg) {
     const ENLINK_ACK = 0x06;
     const ENLINK_NACK = 0x15;
     // Downlink reply message values
+    const ENLINK_SEND_SYS_INFO = 0x00;
     const ENLINK_SET_ANTENNA_GAIN = 0x01;
     const ENLINK_SET_PUBLIC = 0x02;
     const ENLINK_SET_APPEUI = 0x05; // 8 bytes
@@ -612,6 +614,13 @@ function js_decoder(msg) {
         for (let i = 0; i < data.length; i++) {
             switch (data[i]) {
                 // Parse enLink message for telemetry data
+                case ENLINK_SYS_INFO:
+                    if (data[i + 1] === 0x00) {
+                        obj.ver_major = data[i + 2];
+                        obj.ver_minor = data[i + 3];
+                    }
+                    i += 3;
+                    break;
                 case ENLINK_TEMP: // Temperature
                     obj.temperature_c = S16((data[i + 1] << 8) | data[i + 2]) / 10;
                     obj.temperature_c_fix_v7 = (t_fix_v7((data[i + 1] << 8) | data[i + 2])) / 10;
@@ -1479,10 +1488,6 @@ function js_decoder(msg) {
     // Function to decode enLink response to downlink message
     function decodeStdResponse(data) {
         let obj = {};
-        if (data.length != 3) {
-            obj.reply = "Error: Reply is not 3 bytes long. Data: " + bytesToHex(data);
-            return obj;
-        }
         if (data[0] != ENLINK_HEADER) {
             obj.reply = "Error: First byte is not 0xA5. Data: " + bytesToHex(data);
             return obj;
@@ -1497,7 +1502,9 @@ function js_decoder(msg) {
             return obj;
         }
 
-        if (data[2] == ENLINK_SET_ANTENNA_GAIN) {
+        if (data[2] == ENLINK_SEND_SYS_INFO) {
+            obj.command = "Device Firmware Version: " + data[3] + "." + data[4];
+        } else if (data[2] == ENLINK_SET_ANTENNA_GAIN) {
             obj.command = "Set Antenna Gain";
         } else if (data[2] == ENLINK_SET_PUBLIC) {
             obj.command = "Set Public";

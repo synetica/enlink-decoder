@@ -3,6 +3,7 @@
 ## 2026 January Updates
 
 - Updated firmware up to 7.20
+- Add Firmware Version as uplink in payload. Can be requested with a downlink where it is included in the ACK reply and next payload.
 - Add Radon gas values and fault decoders
 
 ## 2025 December Updates

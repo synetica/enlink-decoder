@@ -1,15 +1,16 @@
 // Used for decoding enLink Uplink LoRa Messages
-// 05 Feb 2026 (FW Ver:7.20)
+// 12 Feb 2026 (FW Ver:7.20)
 // 24 Apr 2025 Includes Temperature fix
 // Removed all 'toFixed' to return numbers, not text
 // https://github.com/synetica/enlink-decoder
 
 // Show complex data as either an array, a simple data value, or both.
-let show_array = 1;		// zero or 1
+let show_array = 0;		// zero or 1
 let show_simple = 1;
 
 // --------------------------------------------------------------------------------------
 // Telemetry data from all enLink Models
+const ENLINK_SYS_INFO = 0x00;
 const ENLINK_TEMP = 0x01;                                  // S16  -3276.8 C -> 3276.7 C (-10..80) [Divide word by 10]
 const ENLINK_RH = 0x02;                                    // U8   0 -> 255 %RH (Actually 0..100%)
 const ENLINK_LUX = 0x03;                                   // U16  0 -> 65535 Lux
@@ -229,7 +230,6 @@ const ENLINK_LOGIN_FAIL_COUNT = 0x4C;                      // U16  0 -> 65535 co
 const ENLINK_FAN_RUN_TIME = 0x4D;                          // U32  0 -> 2^32 seconds = 136 years
 const ENLINK_CPU_TEMP = 0x4E;                              // S16  -3276.8 C -> 3276.7 C (-10..80) [Divide by 10]
 
-const ENLINK_KPI = 0xFD;
 const ENLINK_FAULT = 0xFE;
 
 // --------------------------------------------------------------------------------------
@@ -238,6 +238,7 @@ const ENLINK_HEADER = 0xA5;
 const ENLINK_ACK = 0x06;
 const ENLINK_NACK = 0x15;
 // Downlink reply message values
+const ENLINK_SEND_SYS_INFO = 0x00;
 const ENLINK_SET_ANTENNA_GAIN = 0x01;
 const ENLINK_SET_PUBLIC = 0x02;
 const ENLINK_SET_APPEUI = 0x05;   // 8 bytes
@@ -641,8 +642,14 @@ function decodeTelemetry(data) {
     let obj = {};
     for (let i = 0; i < data.length; i++) {
         switch (data[i]) {
-
             // Parse enLink message for telemetry data
+            case ENLINK_SYS_INFO:
+                if (data[i + 1] === 0x00) {
+                    obj.ver_major = data[i + 2];
+                    obj.ver_minor = data[i + 3];
+                }
+                i += 3;
+                break;
             case ENLINK_TEMP: // Temperature
                 obj.temperature_c = (S16((data[i + 1] << 8) | (data[i + 2]))) / 10;
                 obj.temperature_c_fix_v7 = (t_fix_v7((data[i + 1] << 8) | data[i + 2])) / 10;
@@ -1898,48 +1905,6 @@ function decodeTelemetry(data) {
                 obj.fan_run_time_s = u32_1(data, i);
                 i += 4;
                 break;
-            // < -------------------------------------------------------------------------------->
-            case ENLINK_KPI:
-                let kpi_sensor_id = (data[i + 1]);
-                let kpi_code = (data[i + 2]);
-                let kpi_val_0 = Number(f32_3(data, i).toFixed(0));
-                let kpi_val_3 = Number(f32_3(data, i).toFixed(3));
-                let kpi_val_6 = Number(f32_3(data, i).toFixed(6));
-                // Show values in an array
-                if (show_array == 1) {
-                    if (obj.kpi) {
-                        obj.kpi.push([kpi_sensor_id, kpi_code, kpi_val_3]);
-                    } else {
-                        obj.kpi = [[kpi_sensor_id, kpi_code, kpi_val_3]];
-                    }
-                }
-                // Check for known values - Always show this
-                if (kpi_sensor_id == 45) {
-                    // Radon Gas - 0x2D/45
-                    if (kpi_code == 1) {
-                        obj.kpi_0x2D_01 = "Radon Read Attempts: " + kpi_val_0;
-                    } else if (kpi_code == 2) {
-                        obj.kpi_0x2D_02 = "Radon Read Errors: " + kpi_val_0;
-                    } else if (kpi_code == 3) {
-                        obj.kpi_0x2D_03 = "Radon Success Factor: " + kpi_val_3 + "%";
-                    } else if (kpi_code == 4) {
-                        obj.kpi_0x2D_04 = "Buffer Zeros Cleared: " + kpi_val_0;
-                    } else if (kpi_code == 5) {
-                        obj.kpi_0x2D_05 = "CPU/Sensor fn() mean: " + kpi_val_6;
-                    } else if (kpi_code == 6) {
-                        obj.kpi_0x2D_06 = "CPU/Sensor fn() stddev: " + kpi_val_6;
-                    } else if (kpi_code == 7) {
-                        obj.kpi_0x2D_07 = "Read Window Total Time: " + kpi_val_3 + "s";
-                    } else if (kpi_code == 8) {
-                        obj.kpi_0x2D_08 = "Read Window Average Time: " + kpi_val_3 + "s";
-                    } else {
-                        obj.fault_0x2D_x = "Radon KPI Error. KPI Code: " + kpi_code + " Value: " + kpi_val_3;
-                    }
-                } else {
-                    obj.kpi_x = "Unknown Sensor ID: " + kpi_sensor_id + " KPI Code: " + kpi_code + " Value: " + kpi_val_3;
-                }
-                i += 6;
-                break;
 
             // < -------------------------------------------------------------------------------->
             case ENLINK_FAULT:
@@ -2059,7 +2024,9 @@ function decodeStdResponse(data) {
         return obj;
     }
 
-    if (data[2] == ENLINK_SET_ANTENNA_GAIN) {
+    if (data[2] == ENLINK_SEND_SYS_INFO) {
+        obj.command = "Device Firmware Version: " + data[3] + "." + data[4];
+    } else if (data[2] == ENLINK_SET_ANTENNA_GAIN) {
         obj.command = "Set Antenna Gain";
     } else if (data[2] == ENLINK_SET_PUBLIC) {
         obj.command = "Set Public";
