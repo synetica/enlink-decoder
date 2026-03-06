@@ -135,13 +135,13 @@ Link to: [Air / Air-X Downlinks](#air--air-x-downlinks)
 | | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e - [VOC Sensor Downlinks](#voc-sensor-downlinks)
 | | R | `0x75`, `0x76`, `0x77`, `0x78`, `0x79`, `0x7A`, `0x7B`, `0x7C` | Radon Gas Uptime and concentrations - [Radon Sensor Downlinks](#radon-sensor-downlinks)
 | | C | `0x08` | NDIR CO<sub>2</sub> ppm - [CO<sub>2</sub> Sensor Downlinks](#carbon-dioxide-sensor-downlinks)
+| | F | `0x73`, `0x74` | Flammable Gas Sensor
 | | I | `0x36`, `0x37`, `0x38`, `0x39`, `0x3A` | Indoor TVOC Sensor (enLink IAQ) - [TVOC Sensor Downlinks](#tvoc-sensor-downlinks)
 | | D | `0x67`, `0x68` | Outdoor EPA Sensor (enLink OAQ) [EPA Sensor Downlink](#epa-sensor-downlink)
 | | O | `0x61` | Ozone (Discontinued after v7.10)
 | | O3 | `0x61` | Ozone (From v7.11)
 | | G | `0x61`, `0x66` | Single Gas Sensor - [Gas Sensor Downlinks](#gas-sensor-downlinks)
 | | S | `0x50`, `0x51`, `0x52` | Sound
-| | N | `0x73`, `0x74` | MPS (Molecular Property Spectrometer)
 | | P+ | `0x57`, `0x58`, `0x59`, `0x5A`,<br/>`0x5B`, `0x5C`, `0x5D`, `0x5E`, `0x5F`, `0x60` | Particles ([IAQ](https://synetica.net/enlink-iaq/)/[OAQ](https://synetica.net/enlink-oaq/)) </br> [Particulate Sensor Downlinks](#airair-x-and-iaqoaq-particulate-sensor-downlinks)
 | | PP | `0x69`, `0x6A`, `0x6B`, `0x57`, `0x58`, `0x6C`, <br/>`0x5A`, `0x6D`, `0x6E`, `0x5B`, `0x5C`, `0x5D`, <br/>`0x6F`, `0x5F`, <br/>`0x3C`, `0x3D` | Particles ([IAQ Plus](https://synetica.net/enlink-iaq-plus/)) </br> [Particulate Sensor Downlinks](#iaq-plusvape-particulate-sensor-downlinks) </br> **Unit must be externally powered** </br></br> Compensated Temp/Humidity
 | | PV | `0x69`, `0x6A`, `0x6B`, `0x57`, `0x58`, `0x6C`, <br/>`0x5A`, `0x6D`, `0x6E`, `0x5B`, `0x5C`, `0x5D`, <br/>`0x6F`, `0x5F`, `0x70`, `0x71`, `0x72`, <br/>`0x3C`, `0x3D` | Particles, Smoke/Vape ([IAQ Vape](https://synetica.net/enlink-iaq-vape/)) - Includes [ATI](#ati---adaptive-transmission-interval) feature </br> [Particulate Sensor Downlinks](#iaq-plusvape-particulate-sensor-downlinks) </br> **Unit must be externally powered** </br></br> Compensated Temp/Humidity
@@ -410,11 +410,11 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | `0x75` 117 | Radon Sensor Uptime | 0 to 2^32 | seconds | 4 | U32
 | `0x76` 118 | Radon Gas average over uptime | 0 to 2^16 | Bq/m³ | 4 | U16
 | `0x77` 119 | Radon Gas average over 6 hours | 0 to 2^16 | Bq/m³ | 4 | U16
-| `0x78` 119 | Radon Gas average over 12 hours | 0 to 2^16 | Bq/m³ | 4 | U16
-| `0x79` 119 | Radon Gas average over 24 hours | 0 to 2^16 | Bq/m³ | 4 | U16
-| `0x7A` 119 | Radon Gas average over 48 hours | 0 to 2^16 | Bq/m³ | 4 | U16
-| `0x7B` 119 | Radon Gas average over 72 hours | 0 to 2^16 | Bq/m³ | 4 | U16
-| `0x7C` 119 | Radon Gas average over 96 hours | 0 to 2^16 | Bq/m³ | 4 | U16
+| `0x78` 120 | Radon Gas average over 12 hours | 0 to 2^16 | Bq/m³ | 4 | U16
+| `0x79` 121 | Radon Gas average over 24 hours | 0 to 2^16 | Bq/m³ | 4 | U16
+| `0x7A` 122 | Radon Gas average over 48 hours | 0 to 2^16 | Bq/m³ | 4 | U16
+| `0x7B` 123 | Radon Gas average over 72 hours | 0 to 2^16 | Bq/m³ | 4 | U16
+| `0x7C` 124 | Radon Gas average over 96 hours | 0 to 2^16 | Bq/m³ | 4 | U16
 | `0xFE` 254 | Fault: [Sensor ID] + [Fault ID] + [Fault Value] |  |  | 1 + 1 + 2 | U16
 </br>
 
