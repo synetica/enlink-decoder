@@ -1,5 +1,10 @@
 # Change Log
 
+## 2026 March Updates
+
+- Updated firmware up to 7.21
+- Fixed maximum range for plug-in gas sensor. Was limited to 32.8ppm even when range was 100ppm.
+
 ## 2026 January Updates
 
 - Updated firmware up to 7.20
