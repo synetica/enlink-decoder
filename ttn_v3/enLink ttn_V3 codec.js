@@ -1,5 +1,5 @@
 // Synetica Payload Decoder for The Things Stack V3
-// 12 Feb 2026 (FW Ver:7.20)
+// 10 Mar 2026 (FW Ver:7.22)
 // 24 Apr 2025 Includes Temperature fix
 // https://github.com/synetica/enlink-decoder
 
@@ -15,6 +15,13 @@ function decodeUplink(input) {
  let show_simple=1;
 
  const ENL_SYS_INFO=0x00;
+ // System /Sensor IDs
+ const SYSID_FW_VER = 0x00;
+ const SENSID_SPS30 = 0x1C;
+ const SENSID_PLUGIN_GAS = 0x1E;
+ const SENSID_FGS = 0x24;
+ const SENSID_RADON = 0x2D;
+
  const ENL_TEMP=0x01;
  const ENL_RH=0x02;
  const ENL_LUX=0x03;
@@ -199,6 +206,9 @@ function decodeUplink(input) {
   }
   return result.trim();
  }
+ function hex(data) {
+  return ('0' + data.toString(16).toUpperCase()).slice(-2);
+ }
  function fromF32(byte0, byte1, byte2, byte3) {
   let bits=(byte0 << 24) | (byte1 << 16) | (byte2 << 8) | (byte3);
   let sign=((bits >>> 31) === 0) ? 1.0 : -1.0;
@@ -222,7 +232,6 @@ function decodeUplink(input) {
  function u32_2(bytes, index) {
   return U32((bytes[index + 2] << 24) | (bytes[index + 3] << 16) | (bytes[index + 4] << 8) | (bytes[index + 5]));
  }
-
  function s32_1(bytes, index) {
   return S32((bytes[index + 1] << 24) | (bytes[index + 2] << 16) | (bytes[index + 3] << 8) | (bytes[index + 4]));
  }
@@ -281,11 +290,17 @@ function decodeUplink(input) {
   for (i=0; i < d.length; i++) {
    switch (d[i]) {
     case ENL_SYS_INFO:
-      if (d[i + 1] === 0x00) {
+      if (d[i + 1] === SYSID_FW_VER) {
         o.ver_major = d[i + 2];
         o.ver_minor = d[i + 3];
+        i += 3;
       }
-      i += 3;
+      if (d[i] === ENL_SYS_INFO) {
+        if (d[i + 1] === SENSID_PLUGIN_GAS) {
+          o.gas_serial = hex(d[i + 2]) + hex(d[i + 3]) + hex(d[i + 4]) + hex(d[i + 5]) + hex(d[i + 6]);
+          i += 6;
+        }
+      }
       break;
     case ENL_TEMP:
      o.temp_c=(S16((d[i + 1] << 8) | (d[i + 2]))) / 10;
@@ -1450,7 +1465,7 @@ function decodeUplink(input) {
       o.fault=[[sensor_id, fault_code, count_val]];
      }
      // Check for known values
-     if (sensor_id == 28) {
+     if (sensor_id == SENSID_SPS30) {
       // SPS30 0x1C/28
       if (fault_code == 1) {
        o.fault_0x1C_01="SPS30 Fan Speed Error: " + count_val;
@@ -1461,7 +1476,7 @@ function decodeUplink(input) {
       } else {
        o.fault_0x1C_x="SPS30 General Error. Fault Code: " + fault_code + " Count: " + count_val;
       }
-     } else if (sensor_id == 36) {
+     } else if (sensor_id == SENSID_FGS) {
       // Flammable Gas - 0x24/36
       if (fault_code == 0x01) {
        o.fault_0x24_01="FGS CRC Error: " + count_val;
@@ -1506,7 +1521,7 @@ function decodeUplink(input) {
       } else {
        o.fault_0x24_x="FGS General Error. Fault Code: " + fault_code + " Count: " + count_val;
       }
-    } else if (sensor_id == 45) {
+    } else if (sensor_id == SENSID_RADON) {
       // Radon Gas - 0x2D/45
       if (fault_code == 0x01) {
         obj.fault_0x2D_01 = "Radon Restarts: " + count_val;

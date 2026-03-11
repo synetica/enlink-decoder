@@ -63,7 +63,7 @@ function decode_hex_string(hex_string) {
 function js_decoder(msg) {
     // Used for decoding enLink Uplink LoRa Messages
     // --------------------------------------------------------------------------------------
-    // 12 Feb 2026 (FW Ver:7.20)
+    // 10 Mar 2026 (FW Ver:7.22)
     // 24 Apr 2025 Includes Temperature fix
     // --------------------------------------------------------------------------------------
     // https://github.com/synetica/enlink-decoder
@@ -76,8 +76,17 @@ function js_decoder(msg) {
         return "Error: no data to decode";
     }
     // --------------------------------------------------------------------------------------
-    // Telemetry data from all enLink Models
     const ENLINK_SYS_INFO = 0x00;
+    // --------------------------------------------------------------------------------------
+    // System /Sensor IDs
+    const SYSID_FW_VER = 0x00;
+    const SENSID_SPS30 = 0x1C;
+    const SENSID_PLUGIN_GAS = 0x1E;
+    const SENSID_FGS = 0x24;
+    const SENSID_RADON = 0x2D;
+
+    // --------------------------------------------------------------------------------------
+    // Sensor specific telemetry data - these may not all be supported by all models. Check online docs for details.
     const ENLINK_TEMP = 0x01;
     const ENLINK_RH = 0x02;
     const ENLINK_LUX = 0x03;
@@ -411,6 +420,9 @@ function js_decoder(msg) {
         }
         return result.trim();
     }
+    function hex(data) {
+        return ('0' + data.toString(16).toUpperCase()).slice(-2);
+    }
     // Convert 4 IEEE754 bytes
     function fromF32(byte0, byte1, byte2, byte3) {
         let bits = (byte0 << 24) | (byte1 << 16) | (byte2 << 8) | byte3;
@@ -615,11 +627,19 @@ function js_decoder(msg) {
             switch (data[i]) {
                 // Parse enLink message for telemetry data
                 case ENLINK_SYS_INFO:
-                    if (data[i + 1] === 0x00) {
-                        obj.ver_major = data[i + 2];
-                        obj.ver_minor = data[i + 3];
+                    if (data[i + 1] === SYSID_FW_VER) {
+                        //obj.ver_major = data[i + 2];
+                        //obj.ver_minor = data[i + 3];
+                        obj.fw_version = data[i + 2] + "." + ('0' + data[i + 3]).slice(-2);
+                        i += 3;
                     }
-                    i += 3;
+                    if (data[i] === ENLINK_SYS_INFO) {
+                        if (data[i + 1] === SENSID_PLUGIN_GAS) {
+                            // Serial is in hex
+                            obj.gas_serial = hex(data[i + 2]) + hex(data[i + 3]) + hex(data[i + 4]) + hex(data[i + 5]) + hex(data[i + 6]);
+                            i += 6;
+                        }
+                    }
                     break;
                 case ENLINK_TEMP: // Temperature
                     obj.temperature_c = S16((data[i + 1] << 8) | data[i + 2]) / 10;
@@ -1405,7 +1425,7 @@ function js_decoder(msg) {
                     }
                     */
                     // Check for known values
-                    if (sensor_id == 28) {
+                    if (sensor_id == SENSID_SPS30) {
                         // SPS30 0x1C/28
                         if (fault_code == 1) {
                             obj.fault_0x1C_01 = "SPS30 Fan Speed Error: " + count_val;
@@ -1416,7 +1436,7 @@ function js_decoder(msg) {
                         } else {
                             obj.fault_0x1C_x = "SPS30 General Error. Fault Code: " + fault_code + " Count: " + count_val;
                         }
-                    } else if (sensor_id == 36) {
+                    } else if (sensor_id == SENSID_FGS) {
                         // Flammable Gas - 0x24/36
                         if (fault_code == 0x01) {
                             obj.fault_0x24_01 = "FGS CRC Error: " + count_val;
@@ -1461,7 +1481,7 @@ function js_decoder(msg) {
                         } else {
                             obj.fault_0x24_x = "FGS General Error. Fault Code: " + fault_code + " Count: " + count_val;
                         }
-                    } else if (sensor_id == 45) {
+                    } else if (sensor_id == SENSID_RADON) {
                         // Radon Gas - 0x2D/45
                         if (fault_code == 0x01) {
                             obj.fault_0x2D_01 = "Radon Restarts: " + count_val;

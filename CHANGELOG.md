@@ -4,6 +4,10 @@
 
 - Updated firmware up to 7.21
 - Fixed maximum range for plug-in gas sensor. Was limited to 32.8ppm even when range was 100ppm.
+- Updated firmware up to 7.22
+- Added Plug-in Gas option to ZonePlus device.
+- Fixed minimum range for CO2. Some sensors use S16, others U16. So, some could read a negative value, but because value was sent as U16, was decoded to be >32768. Those with S16 are now limited so values < 0 are fixed to zero.
+- Add Plug-in gas sensor serial as uplink in payload. Can be requested with a downlink where it is included in the next payload (not the ACK as it's not on every device).
 
 ## 2026 January Updates
 

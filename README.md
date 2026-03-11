@@ -4,7 +4,7 @@
 
 Online decoder can be found here: [Live Decoder](https://synetica.github.io/enlink-decoder/)
 
-> Latest firmware release is v7.21
+> Latest firmware release is v7.22
 
 > **Bug Workaround!** </br> There has been a problem introduced from firmware v7.01 to v7.09 inclusive. This affects the newer IAQ/OAQ, ZonePlus, Zone V2, and ZoneView. This is due to the introduction of a high-precision temperature/humidity sensor. The internal data structure changed, and a bug caused the transmitted data packet for temperatures to be wrong for ambient temperatures below 0.0°C or above 32.7°C. This has been fixed in firmware v7.10 and above. If a customer's enLink devices are experiencing temperatures above 32.7°C there is a decoder workaround that works for temperatures between 0.0°C and 65.5°C. Temperatures outside these values will be decoded incorrectly. Look for the function **t_fix_v7(t)** in the decoder samples.
 
@@ -157,6 +157,7 @@ Link to: [Air / Air-X Downlinks](#air--air-x-downlinks)
 | | V | `0x04`, `0x05`, `0x12`, `0x3F` | Pressure, VOC IAQ, bVOC, CO<sub>2</sub>e - [VOC Sensor Downlinks](#voc-sensor-downlinks)
 | | C | `0x08` | NDIR CO<sub>2</sub> ppm - [CO<sub>2</sub> Sensor Downlinks](#carbon-dioxide-sensor-downlinks)
 | | M | `0x13`, `0x14` | Motion (PIR). Includes [ATI](#ati---adaptive-transmission-interval) feature
+| | G | `0x61`, `0x66` | Single Gas Sensor - [Gas Sensor Downlinks](#gas-sensor-downlinks)
 | | S | `0x50`, `0x51`, `0x52` | Sound
 
 ## enLink Zone
@@ -305,8 +306,14 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 | Type Hex&nbsp;Dec| System Message | Num Bytes | 
 |:----------:| --------------------- |:---------:|
 | `0xA5` 165 | ACK/NACK reply from a [downlink](#downlink-payload). See [examples](#example-uplink-replies-to-downlink-messages) | 3 or 5 |
-| `0x00` 000 | Firmware Version - 3 bytes, `0x00` `MAJOR` `MINOR` Only sent in first payload after power up, or by [downlink request](#send-firmware-version-in-downlink)| 3 | 
+| `0x00` 000 | System Information</br>The next byte value after **Type** byte indicates the ID of the System Information. See table below:
 
+| Sys ID Hex&nbsp;Dec | Name    | System Info Message | Example | Num Bytes | 
+|:----------:|:-----------------|:--------- |:--------- |:---------:|
+| `0x00` 000 | Firmware Version | `MAJOR` `MINOR` Sent in first payload after power up, or by [downlink request](#send-system-information-in-downlink)| `00`&nbsp;`00`&nbsp;`07`&nbsp;`16`</br>Version 7.22| 2 + 2 | 
+| `0x1E` 030 | Plug-In Gas Version | This is available to devices (ZNP/IAQ/OAQ) with the `G` option of a single plug-in gas sensor. Sent in first payload after sensor is initialised, or by [downlink request](#send-system-information-in-downlink)| `00`&nbsp;`1E`&nbsp;`01`&nbsp;`02`&nbsp;`03`&nbsp;`04`&nbsp;`05`</br>Serial&nbsp;`0102030405`| 2 + 5 | 
+
+### This next table describes the uplinks packets for the various sensors
 
 | Type Hex&nbsp;Dec| Sensor | Sensor Range | Units | Num Bytes | Format | Scaling |
 |:----------:| ------ | ------------ | ----- |:---------:|:-----------:| ------- |
@@ -715,7 +722,7 @@ When the enLink device receives a downlink message, it first checks the port byt
 | Name | Msg Len | Command | Value | Reboot Required? |
 | -----| ------- | ------- | ------| ---------------- |
 | Reboot | 1  | `0xFF`
-| Send Firmware Version | 1  | `0x00` | See reply in ACK [here](#example-uplink-replies-to-downlink-messages)
+| Send System Information | 1  | `0x00` | See reply in ACK [here](#example-uplink-replies-to-downlink-messages)
 | Antenna Gain (v5.12) | 2  | `0x01` | `0` to `25.5` dBi (single byte `0` to `255`) Default is 2.0 dBi | Yes
 | Public Network | 2  | `0x02` | `0`/`1` (Disable/Enable) | Yes
 | AppEUI | 9  | `0x05` | 8 Bytes for the **EUI**  | Yes
@@ -763,13 +770,13 @@ Particulates included data packets: PM 2.5 and PM 10.0 only
 
 > Payload Data:  `A5 01 FF`
 
-### Send Firmware Version in downlink
+### Send System Information in downlink
 
 Available from v7.20 onwards.
 
 > Payload Data:  `A5 01 00`<br/>
 
-The version is sent in the ACK message and the next payload.
+The firmware version is sent in the ACK message and is included in the next payload. If the device includes a plug-in gas sensor, it's serial number is also included in the next uplink.
 
 ### Set Antenna Gain to default (2.0 dBi)
 
@@ -832,9 +839,9 @@ This uses a message to enable/disable a single KPI at a time. The message is a s
 
 > Return Data: `A5 06 09`
 
-**ACK** `0x06` - Request for Firmware Version (`0x00`)
+**ACK** `0x06` - Request for System Information - Firmware Version (`0x00`)
 
-> Return Data: `A5 06 00 07 14` Shows the firmware is v7.20
+> Return Data: `A5 06 00 07 16` Shows the firmware is v7.22
 
 **NACK** `0x15` - failed to change the Transmit Port (`0x0A`)
 
