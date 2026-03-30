@@ -1366,7 +1366,8 @@ function js_decoder(msg) {
                     i += 4;
                     break;
 
-                    // < -------------------------------------------------------------------------------->
+            // < -------------------------------------------------------------------------------->
+            // Only for development debugging
             case ENLINK_KPI:
                 let kpi_sensor_id = (data[i + 1]);
                 let kpi_code = (data[i + 2]);

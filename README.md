@@ -4,7 +4,7 @@
 
 Online decoder can be found here: [Live Decoder](https://synetica.github.io/enlink-decoder/)
 
-> Latest firmware release is v7.22
+> Latest firmware release is v7.23
 
 ## Table of Contents
 - [Preamble](#preamble)
