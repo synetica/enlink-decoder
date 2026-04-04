@@ -63,7 +63,7 @@ function decode_hex_string(hex_string) {
 function js_decoder(msg) {
     // Used for decoding enLink Uplink LoRa Messages
     // --------------------------------------------------------------------------------------
-    // 10 Mar 2026 (FW Ver:7.22)
+    // 30 Mar 2026 (FW Ver:7.23)
     // 24 Apr 2025 Includes Temperature fix
     // --------------------------------------------------------------------------------------
     // https://github.com/synetica/enlink-decoder
@@ -643,7 +643,7 @@ function js_decoder(msg) {
                     break;
                 case ENLINK_TEMP: // Temperature
                     obj.temperature_c = S16((data[i + 1] << 8) | data[i + 2]) / 10;
-                    obj.temperature_c_fix_v7 = (t_fix_v7((data[i + 1] << 8) | data[i + 2])) / 10;
+                    //obj.temperature_c_fix_v7 = (t_fix_v7((data[i + 1] << 8) | data[i + 2])) / 10;
                     //obj.temperature_f = ((obj.temperature_c * 9) / 5 + 32);
                     i += 2;
                     break;
@@ -1366,8 +1366,7 @@ function js_decoder(msg) {
                     i += 4;
                     break;
 
-            // < -------------------------------------------------------------------------------->
-            // Only for development debugging
+                    // < -------------------------------------------------------------------------------->
             case ENLINK_KPI:
                 let kpi_sensor_id = (data[i + 1]);
                 let kpi_code = (data[i + 2]);
