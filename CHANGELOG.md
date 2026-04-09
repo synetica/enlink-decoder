@@ -2,7 +2,8 @@
 
 ## 2026 April Updates
 
-- Re-written the online decoder. This now includes a Modbus Configuration helper for creating downlink messages for configuring and querying the [enlink Modbus Bridge](https://www.synetica.net/enlink-modbus/).
+- 04 Apr. Re-written the online decoder. This now includes a Modbus Configuration helper for creating downlink messages for configuring and querying the [enlink Modbus Bridge](https://www.synetica.net/enlink-modbus/).
+- 09 Apr. Changed web path and added link for Modbus Configurator.
 
 ## 2026 March Updates
 

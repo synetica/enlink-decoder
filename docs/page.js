@@ -33,8 +33,9 @@
     wireConfiguratorControls();
     preloadSamples();
     syncTheme();
-    syncTool(state.tool);
+    syncToolFromLocation();
     syncDecoderTab(state.decoderTab);
+    window.addEventListener("hashchange", syncToolFromLocation);
     syncEncodingControls();
     renderAllRows();
   }
@@ -51,6 +52,7 @@
     els.formatButtons = Array.from(document.querySelectorAll("[data-format-choice]"));
     els.hexFormatToggle = document.getElementById("hex-format-toggle");
     els.copyTabDelimited = document.getElementById("copy-tab-delimited");
+    els.saveCsv = document.getElementById("save-csv");
     els.saveConfig = document.getElementById("save-config");
     els.loadConfig = document.getElementById("load-config");
     els.loadSample = document.getElementById("load-sample");
@@ -85,11 +87,24 @@
 
   function wireToolSwitch() {
     els.toolButtons.forEach((button) => {
-      button.addEventListener("click", () => syncTool(button.dataset.toolTarget === "configurator" ? "configurator" : "decoder"));
+      button.addEventListener("click", () => syncTool(button.dataset.toolTarget === "configurator" ? "configurator" : "decoder", true));
     });
   }
 
-  function syncTool(tool) {
+  function syncToolFromLocation() {
+    const hash = (window.location.hash || "").toLowerCase().replace(/^#/, "");
+    if (hash === "configurator" || hash === "modbus") {
+      syncTool("configurator", false);
+      return;
+    }
+    if (hash === "decoder") {
+      syncTool("decoder", false);
+      return;
+    }
+    syncTool(state.tool || "decoder", false);
+  }
+
+  function syncTool(tool, updateHash = false) {
     state.tool = tool;
     els.toolButtons.forEach((button) => {
       const active = button.dataset.toolTarget === tool;
@@ -101,6 +116,10 @@
       panel.classList.toggle("is-active", active);
       panel.hidden = !active;
     });
+    if (updateHash) {
+      const nextHash = tool === "configurator" ? "#modbus" : "#decoder";
+      if (window.location.hash !== nextHash) history.replaceState(null, "", nextHash);
+    }
   }
 
   function wireDecoderTabs() {
@@ -146,6 +165,7 @@
     els.tableBody.addEventListener("input", onTableInput);
     els.tableBody.addEventListener("click", onTableClick);
     els.copyTabDelimited.addEventListener("click", copyTabDelimited);
+    els.saveCsv.addEventListener("click", saveCsv);
     els.saveConfig.addEventListener("click", saveConfiguration);
     els.loadConfig.addEventListener("click", loadConfiguration);
     els.loadSample.addEventListener("click", loadSampleConfiguration);
@@ -452,6 +472,28 @@
       return;
     }
     copyText(lines.join("\n")).then(() => flashAction(els.copyTabDelimited, "Tab-delimited rows copied", "success"));
+  }
+
+  function saveCsv() {
+    const lines = state.rows
+      .filter((row) => row.status === "OK" || row.status === "Delete")
+      .map((row) => [row.item, row.deviceId, row.regType, row.address, row.dataType, row.order, row.multiplier, row.readingType].join(","));
+    if (!lines.length) {
+      flashAction(els.saveCsv, "No OK/Delete rows to save", "error");
+      return;
+    }
+    const header = ["#", "ID", "Reg Type", "Address", "Data Type", "Order", "Multiplier", "Reading Type"].join(",");
+    const csvContent = [header, ...lines].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "enlink-config.csv");
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    flashAction(els.saveCsv, "CSV file downloaded", "success");
   }
 
   function saveConfiguration() {

@@ -2,7 +2,7 @@
 
 [![GitHub](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/synetica/enlink-decoder/blob/master/LICENSE)
 
-Online decoder can be found here: [LoRaWAN Tools with downlink decoder](https://synetica.github.io/enlink-decoder/)
+Online decoder can be found here: [LoRaWAN Tools with downlink decoder](https://synetica.github.io/enlink-decoder/#decoder)
 
 > Latest firmware release is v7.23
 
