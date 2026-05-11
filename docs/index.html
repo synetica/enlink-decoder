@@ -141,8 +141,9 @@
               <tr>
                 <th class="col-item">#</th>
                 <th class="col-status">Status</th>
-                <th class="col-dup" title="Copy config from above">⎘</th>
+                <th class="col-dup" title="Copy config from above">▼</th>
                 <th class="col-id">ID</th>
+                <th class="col-select" title="Select from meter list">🔍</th>
                 <th class="col-reg">Reg Type</th>
                 <th class="col-address">Address</th>
                 <th class="col-type">Data Type</th>
@@ -159,6 +160,43 @@
         </div>
       </div>
     </section>
+  </main>
+
+  <!-- Meter Selection Modal -->
+  <div id="meter-modal" class="modal" hidden>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Select Meter Parameter</h3>
+        <button type="button" class="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="field-block">
+          <label for="manufacturer-select">Manufacturer</label>
+          <select id="manufacturer-select">
+            <option value="">Select Manufacturer</option>
+          </select>
+        </div>
+        <div class="field-block">
+          <label for="model-select">Model</label>
+          <select id="model-select" disabled>
+            <option value="">Select Model</option>
+          </select>
+        </div>
+        <div class="field-block">
+          <label for="parameter-select">Parameter</label>
+          <select id="parameter-select" disabled>
+            <option value="">Select Parameter</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="modal-cancel" class="action-button action-button--small">Cancel</button>
+        <button type="button" id="modal-ok" class="action-button action-button--small" disabled>OK</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
   </main>
 
   <footer class="site-footer">

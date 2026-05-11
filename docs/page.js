@@ -19,6 +19,9 @@
     rows: []
   };
 
+  let meterData = [];
+  let currentRowIndex = -1;
+
   const els = {};
 
   document.addEventListener("DOMContentLoaded", init);
@@ -38,6 +41,8 @@
     window.addEventListener("hashchange", syncToolFromLocation);
     syncEncodingControls();
     renderAllRows();
+    loadMeterData();
+    wireModal();
   }
 
   function cacheDom() {
@@ -58,6 +63,13 @@
     els.loadSample = document.getElementById("load-sample");
     els.clearConfig = document.getElementById("clear-config");
     els.configFeedback = document.getElementById("config-feedback");
+    els.meterModal = document.getElementById("meter-modal");
+    els.manufacturerSelect = document.getElementById("manufacturer-select");
+    els.modelSelect = document.getElementById("model-select");
+    els.parameterSelect = document.getElementById("parameter-select");
+    els.modalOk = document.getElementById("modal-ok");
+    els.modalCancel = document.getElementById("modal-cancel");
+    els.modalClose = document.querySelector(".modal-close");
   }
 
   function loadTheme() {
@@ -83,6 +95,161 @@
     els.themeToggle.setAttribute("aria-pressed", state.theme === "dark" ? "true" : "false");
     els.themeToggle.title = state.theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
     els.themeIcon.textContent = state.theme === "dark" ? "☀" : "☾";
+  }
+
+  function loadMeterData() {
+    fetch('mb_meter_list.csv')
+      .then(response => response.text())
+      .then(csvText => {
+        meterData = parseCSV(csvText);
+        populateManufacturers();
+      })
+      .catch(error => console.error('Error loading meter data:', error));
+  }
+
+  function parseCSV(csvText) {
+    const lines = csvText.trim().split('\n');
+    const headers = parseCSVLine(lines[0]);
+    return lines.slice(1).map(line => {
+      const values = parseCSVLine(line);
+      const obj = {};
+      headers.forEach((header, i) => {
+        obj[header] = values[i] || '';
+      });
+      return obj;
+    });
+  }
+
+  function parseCSVLine(line) {
+    const result = [];
+    let current = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === ',' && !inQuotes) {
+        result.push(current.trim());
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    result.push(current.trim());
+    return result;
+  }
+
+  function populateManufacturers() {
+    const manufacturers = [...new Set(meterData.map(item => item.Manufacturer))].sort();
+    els.manufacturerSelect.innerHTML = '<option value="">Select Manufacturer</option>';
+    manufacturers.forEach(man => {
+      const option = document.createElement('option');
+      option.value = man;
+      option.textContent = man;
+      els.manufacturerSelect.appendChild(option);
+    });
+  }
+
+  function wireModal() {
+    // Meter select buttons
+    els.tableBody.addEventListener('click', (event) => {
+      const btn = event.target.closest('.meter-select-btn');
+      if (btn) {
+        currentRowIndex = Number(btn.dataset.rowIndex);
+        openModal();
+      }
+    });
+
+    // Modal events
+    els.manufacturerSelect.addEventListener('change', onManufacturerChange);
+    els.modelSelect.addEventListener('change', onModelChange);
+    els.parameterSelect.addEventListener('change', onParameterChange);
+    els.modalOk.addEventListener('click', onModalOk);
+    els.modalCancel.addEventListener('click', closeModal);
+    els.modalClose.addEventListener('click', closeModal);
+    els.meterModal.addEventListener('click', (event) => {
+      if (event.target === els.meterModal) closeModal();
+    });
+  }
+
+  function openModal() {
+    els.meterModal.hidden = false;
+    resetModal();
+  }
+
+  function closeModal() {
+    els.meterModal.hidden = true;
+    currentRowIndex = -1;
+  }
+
+  function resetModal() {
+    els.manufacturerSelect.value = '';
+    els.modelSelect.value = '';
+    els.parameterSelect.value = '';
+    els.modelSelect.disabled = true;
+    els.parameterSelect.disabled = true;
+    els.modalOk.disabled = true;
+  }
+
+  function onManufacturerChange() {
+    const manufacturer = els.manufacturerSelect.value;
+    if (!manufacturer) {
+      resetModal();
+      return;
+    }
+    const models = [...new Set(meterData.filter(item => item.Manufacturer === manufacturer).map(item => item.Model))].sort();
+    els.modelSelect.innerHTML = '<option value="">Select Model</option>';
+    models.forEach(model => {
+      const option = document.createElement('option');
+      option.value = model;
+      option.textContent = model;
+      els.modelSelect.appendChild(option);
+    });
+    els.modelSelect.disabled = false;
+    els.parameterSelect.disabled = true;
+    els.parameterSelect.innerHTML = '<option value="">Select Parameter</option>';
+    els.modalOk.disabled = true;
+  }
+
+  function onModelChange() {
+    const manufacturer = els.manufacturerSelect.value;
+    const model = els.modelSelect.value;
+    if (!model) {
+      els.parameterSelect.disabled = true;
+      els.parameterSelect.innerHTML = '<option value="">Select Parameter</option>';
+      els.modalOk.disabled = true;
+      return;
+    }
+    const parameters = meterData.filter(item => item.Manufacturer === manufacturer && item.Model === model);
+    els.parameterSelect.innerHTML = '<option value="">Select Parameter</option>';
+    parameters.forEach(param => {
+      const option = document.createElement('option');
+      option.value = JSON.stringify(param);
+      option.textContent = `${param.Parameter} (${param.Units})`;
+      els.parameterSelect.appendChild(option);
+    });
+    els.parameterSelect.disabled = false;
+    els.modalOk.disabled = true;
+  }
+
+  function onParameterChange() {
+    els.modalOk.disabled = !els.parameterSelect.value;
+  }
+
+  function onModalOk() {
+    const paramStr = els.parameterSelect.value;
+    if (!paramStr || currentRowIndex < 0) return;
+    const param = JSON.parse(paramStr);
+    const row = state.rows[currentRowIndex];
+    row.regType = param['Register Type (H/I)'] === 'H' ? 'Hold' : 'Input';
+    row.address = param['Address (0 to 65535)'];
+    row.dataType = param['Data (USF; 16 32 64)'];
+    row.order = param['Order (HH, HL, LH, LL)'];
+    row.multiplier = param['Multiplier (Float)'];
+    row.readingType = param['Reading (Int, Cum)'];
+    applyRowsToInputs();
+    renderAllRows();
+    closeModal();
   }
 
   function wireToolSwitch() {
@@ -209,8 +376,9 @@
       tr.innerHTML = `
         <td class="item-cell">${row.item}</td>
         <td class="status-cell"><span class="status-pill" data-role="status"></span></td>
-        <td class="dup-cell"><button type="button" class="copy-icon-btn" data-copy-above title="Copy config from above" aria-label="Copy config from above">⎘</button></td>
+        <td class="dup-cell"><button type="button" class="copy-icon-btn" data-copy-above title="Copy config from above" aria-label="Copy config from above">▼</button></td>
         <td><input class="row-input" data-field="deviceId" inputmode="numeric" autocomplete="off" title="Enter 0 to 247 - Use 0 to delete this item in the enLink device" /></td>
+        <td class="col-select"><button type="button" class="meter-select-btn" data-row-index="${i}" title="Select from meter list" aria-label="Select from meter list">🔍</button></td>
         <td><input class="row-input" data-field="regType" list="reg-type-options" autocomplete="off" /></td>
         <td><input class="row-input" data-field="address" inputmode="numeric" autocomplete="off" /></td>
         <td><input class="row-input" data-field="dataType" list="data-type-options" autocomplete="off" /></td>

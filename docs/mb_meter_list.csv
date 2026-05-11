@@ -1,0 +1,61 @@
+Manufacturer,Model,Parameter,Units,Register Type (H/I),Address (0 to 65535),Data (USF; 16 32 64),"Order (HH, HL, LH, LL)",Multiplier (Float),"Reading (Int, Cum)"
+Eastron,SDM630MCT,Active Energy - Total,kWh,Input,342,F32,HH,1,Cum
+Eastron,SDM630MCT,Reactive Energy - Total,kVArh,Input,344,F32,HH,1,Cum
+Eastron,SDM630MCT,Voltage Phase 1,V,Input,0,F32,HH,1,Int
+Eastron,SDM630MCT,Voltage Phase 2,V,Input,2,F32,HH,1,Int
+Eastron,SDM630MCT,Voltage Phase 3,V,Input,4,F32,HH,1,Int
+Eastron,SDM630MCT,Current Phase 1,A,Input,6,F32,HH,1,Int
+Eastron,SDM630MCT,Current Phase 2,A,Input,8,F32,HH,1,Int
+Eastron,SDM630MCT,Current Phase 3,A,Input,10,F32,HH,1,Int
+Eastron,SDM630MCT,Active Energy - Import,kWh,Input,72,F32,HH,1,Cum
+Eastron,SDM630MCT,Reactive Energy - Import,kVArh,Input,76,F32,HH,1,Cum
+Eastron,SDM630MCT,Active Energy - Export,kWh,Input,74,F32,HH,1,Cum
+Eastron,SDM630MCT,Reactive Energy - Export,kVArh,Input,78,F32,HH,1,Cum
+Eastron,SDM630MCT,Power Factor - Total,pf,Input,62,F32,HH,1,Int
+Eastron,SDM630MCT,Frequency,Hz,Input,70,F32,HH,1,Int
+Socomec,Diris A20,Active Energy - Total,kWh,Holding,856,U32,HH,1,Cum
+Socomec,Diris A20,Reactive Energy - Total,kVArh,Holding,858,U32,HH,1,Cum
+Socomec,Diris A20,Voltage Phase 1,V,Holding,782,U32,HH,0.01,Int
+Socomec,Diris A20,Voltage Phase 2,V,Holding,784,U32,HH,0.01,Int
+Socomec,Diris A20,Voltage Phase 3,V,Holding,786,U32,HH,0.01,Int
+Socomec,Diris A20,Current Phase 1,A,Holding,768,U32,HH,0.001,Int
+Socomec,Diris A20,Current Phase 2,A,Holding,770,U32,HH,0.001,Int
+Socomec,Diris A20,Current Phase 3,A,Holding,772,U32,HH,0.001,Int
+Socomec,Diris A20,Power Factor - Total,pf,Holding,796,U32,HH,1,Int
+Socomec,Diris A20,Frequency,Hz,Input,788,U32,HH,0.01,Int
+Autometer,IC970,Active Energy - Total,kWh,Input,352,F32,HH,1,Cum
+Autometer,IC970,Reactive Energy - Total,kVArh,Input,354,F32,HH,1,Cum
+Autometer,IC970,Voltage Phase 1,V,Input,16,F32,HH,1,Int
+Autometer,IC970,Voltage Phase 2,V,Input,18,F32,HH,1,Int
+Autometer,IC970,Voltage Phase 3,V,Input,20,F32,HH,1,Int
+Autometer,IC970,Current Phase 1,A,Input,80,F32,HH,1,Int
+Autometer,IC970,Current Phase 2,A,Input,82,F32,HH,1,Int
+Autometer,IC970,Current Phase 3,A,Input,84,F32,HH,1,Int
+Autometer,IC970,Active Energy - Import,kWh,Input,352,F32,HH,1,Cum
+Autometer,IC970,Reactive Energy - Import,kVArh,Input,354,F32,HH,1,Cum
+Autometer,IC970,Active Energy - Export,kWh,Input,358,F32,HH,1,Cum
+Autometer,IC970,Reactive Energy - Export,kVArh,Input,360,F32,HH,1,Cum
+Autometer,IC970,Power Factor - Total,pf,Input,342,F32,HH,1,Int
+Autometer,IC970,Frequency,Hz,Input,78,F32,HH,1,Int
+Schneider,Powerlogic PM710,Active Energy - Total,kWh,Holding,999,F32,HH,1,Cum
+Schneider,Powerlogic PM710,Reactive Energy - Total,kVArh,Holding,1003,F32,HH,1,Cum
+Schneider,Powerlogic PM710,Voltage Phase 1,V,Holding,1059,F32,HH,1,Int
+Schneider,Powerlogic PM710,Voltage Phase 2,V,Holding,1061,F32,HH,1,Int
+Schneider,Powerlogic PM710,Voltage Phase 3,V,Holding,1063,F32,HH,1,Int
+Schneider,Powerlogic PM710,Current Phase 1,A,Holding,1033,F32,HH,1,Int
+Schneider,Powerlogic PM710,Current Phase 2,A,Holding,1035,F32,HH,1,Int
+Schneider,Powerlogic PM710,Current Phase 3,A,Holding,1037,F32,HH,1,Int
+Schneider,Powerlogic PM710,Power Factor - Total,pf,Holding,1011,F32,HH,1,Int
+Schneider,Powerlogic PM710,Frequency,Hz,Holding,1019,F32,HH,1,Int
+IME,IFRO Pulse Acquisition Module,Counter 1,count,Holding,2048,U32,HH,1,Cum
+IME,IFRO Pulse Acquisition Module,Counter 2,count,Holding,2052,U32,HH,1,Cum
+IME,IFRO Pulse Acquisition Module,Counter 3,count,Holding,2056,U32,HH,1,Cum
+IME,IFRO Pulse Acquisition Module,Counter 4,count,Holding,2060,U32,HH,1,Cum
+IME,IFRO Pulse Acquisition Module,Counter 5,count,Holding,2064,U32,HH,1,Cum
+IME,IFRO Pulse Acquisition Module,Counter 6,count,Holding,2068,U32,HH,1,Cum
+IME,IFRO Pulse Acquisition Module,Counter 7,count,Holding,2072,U32,HH,1,Cum
+IME,IFRO Pulse Acquisition Module,Counter 8,count,Holding,2076,U32,HH,1,Cum
+IME,IFRO Pulse Acquisition Module,Counter 9,count,Holding,2080,U32,HH,1,Cum
+IME,IFRO Pulse Acquisition Module,Counter 10,count,Holding,2084,U32,HH,1,Cum
+IME,IFRO Pulse Acquisition Module,Counter 11,count,Holding,2088,U32,HH,1,Cum
+IME,IFRO Pulse Acquisition Module,Counter 12,count,Holding,2092,U32,HH,1,Cum
