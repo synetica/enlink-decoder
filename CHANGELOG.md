@@ -1,5 +1,11 @@
 # Change Log
 
+## 2026 August Updates
+
+- 31 Aug. Updated firmware up to 7.24
+- 11 Aug. Added generic and compact DataCake decoder.
+- 11 Aug. Fixed a few typo/errors in README and a few in the decoders.
+
 ## 2026 April Updates
 
 - 04 Apr. Re-written the online decoder. This now includes a Modbus Configuration helper for creating downlink messages for configuring and querying the [enlink Modbus Bridge](https://www.synetica.net/enlink-modbus/).

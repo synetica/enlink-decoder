@@ -355,6 +355,8 @@ function js_decoder(msg) {
 
     const ENLINK_FGS_RESET_COUNTERS = 0x59;
     const ENLINK_RADON_RESET = 0x5A;
+    const ENLINK_RADON_READ_INTERVAL = 0x5B;
+    const ENLINK_SET_CO2_IIR_FILTER = 0x5C;
 
     const ENLINK_REBOOT = 0xff;
 
@@ -979,7 +981,10 @@ function js_decoder(msg) {
                     obj.co2e_ppm = ff32_1(data, i, 2);
                     i += 4;
                     break;
-
+                case 0x3e: //CO2 unfiltered test
+                    i += 2;
+                    break;
+                    
                 case ENLINK_SOUND_MIN:
                     obj.sound_min_dba = ff32_1(data, i, 2);
                     i += 4;
@@ -1431,7 +1436,7 @@ function js_decoder(msg) {
                             obj.fault_0x1C_01 = "SPS30 Fan Speed Error: " + count_val;
                         } else if (fault_code == 2) {
                             obj.fault_0x1C_02 = "SPS30 Laser Failure: " + count_val;
-                        } else if (item_id_id == 3) {
+                        } else if (fault_code == 3) {
                             obj.fault_0x1C_03 = "SPS30 Fan Failure: " + count_val;
                         } else {
                             obj.fault_0x1C_x = "SPS30 General Error. Fault Code: " + fault_code + " Count: " + count_val;
@@ -1693,6 +1698,10 @@ function js_decoder(msg) {
             obj.command = "FGS fault counters reset to zero";
         } else if (data[2] == ENLINK_RADON_RESET) {
             obj.command = "Radon sensor reset";
+        } else if (data[2] == ENLINK_RADON_READ_INTERVAL) {
+            obj.command = "Set Radon sensor read interval";
+        } else if (data[2] == ENLINK_SET_CO2_IIR_FILTER) {
+            obj.command = "Set CO2 Sensor Static IIR Filter";
 
         } else if (data[2] == ENLINK_REBOOT) {
             obj.command = "Reboot";

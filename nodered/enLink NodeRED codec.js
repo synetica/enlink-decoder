@@ -361,6 +361,8 @@ const ENLINK_HS_RESET = 0x58;
 const ENLINK_FGS_RESET_COUNTERS = 0x59;
 
 const ENLINK_RAD_RESET = 0x5A;
+const ENLINK_RAD_READ_INTERVAL = 0x5B;
+const ENLINK_SET_CO2_IIR_FILTER = 0x5C;
 
 const ENLINK_REBOOT = 0xFF;
 
@@ -1140,7 +1142,10 @@ function decodeTelemetry(data) {
                 obj.co2e_ppm = f32_1(data, i);
                 i += 4;
                 break;
-
+            case 0x3e: //CO2 unfiltered test
+                i += 2;
+                break;
+                
             case ENLINK_SOUND_MIN:
                 obj.sound_min_dba = f32_1(data, i);
                 i += 4;
@@ -1182,7 +1187,7 @@ function decodeTelemetry(data) {
                 i += 4;
                 break;
             case ENLINK_MC_PM0_5:
-                obj.mc_pm1_0 = f32_1(data, i);
+                obj.mc_pm0_5 = f32_1(data, i);
                 i += 4;
                 break;
             case ENLINK_MC_PM1_0:
@@ -1948,7 +1953,7 @@ function decodeTelemetry(data) {
                         obj.fault_0x1C_01 = "SPS30 Fan Speed Error: " + count_val;
                     } else if (fault_code == 2) {
                         obj.fault_0x1C_02 = "SPS30 Laser Failure: " + count_val;
-                    } else if (item_id_id == 3) {
+                    } else if (fault_code == 3) {
                         obj.fault_0x1C_03 = "SPS30 Fan Failure: " + count_val;
                     } else {
                         obj.fault_0x1C_x = "SPS30 General Error. Fault Code: " + fault_code + " Count: " + count_val;
@@ -2213,6 +2218,10 @@ function decodeStdResponse(data) {
         obj.command = "FGS fault counters reset to zero";
     } else if (data[2] == ENLINK_RAD_RESET) {
         obj.command = "Radon sensor reset";
+    } else if (data[2] == ENLINK_RAD_READ_INTERVAL) {
+        obj.command = "Set Radon sensor read interval";
+    } else if (data[2] == ENLINK_SET_CO2_IIR_FILTER) {
+        obj.command = "Set CO2 Sensor Static IIR Filter";
 
     } else if (data[2] == ENLINK_REBOOT) {
         obj.command = "Reboot";

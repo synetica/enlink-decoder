@@ -723,6 +723,9 @@ function decodeUplink(input) {
      o.co2e_ppm=f32_1(d, i);
      i += 4;
      break;
+    case 0x3e: //CO2 unfiltered test
+     i += 2;
+     break;
 
     case ENL_SOUND_MIN:
      o.sound_min_dba=f32_1(d, i);
@@ -1471,7 +1474,7 @@ function decodeUplink(input) {
        o.fault_0x1C_01="SPS30 Fan Speed Error: " + count_val;
       } else if (fault_code == 2) {
        o.fault_0x1C_02="SPS30 Laser Failure: " + count_val;
-      } else if (item_id_id == 3) {
+      } else if (fault_code == 3) {
        o.fault_0x1C_03="SPS30 Fan Failure: " + count_val;
       } else {
        o.fault_0x1C_x="SPS30 General Error. Fault Code: " + fault_code + " Count: " + count_val;
@@ -1524,9 +1527,9 @@ function decodeUplink(input) {
     } else if (sensor_id == SENSID_RADON) {
       // Radon Gas - 0x2D/45
       if (fault_code == 0x01) {
-        obj.fault_0x2D_01 = "Radon Restarts: " + count_val;
+        o.fault_0x2D_01 = "Radon Restarts: " + count_val;
       } else {
-        obj.fault_0x2D_x = "Radon General Error. Fault Code: " + fault_code + " Count: " + count_val;
+        o.fault_0x2D_x = "Radon General Error. Fault Code: " + fault_code + " Count: " + count_val;
       }
      } else {
       o.fault_x="Unknown Sensor ID: " + sensor_id + " Fault Code: " + fault_code + " Count: " + count_val;
