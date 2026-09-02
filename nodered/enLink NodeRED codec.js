@@ -362,7 +362,7 @@ const ENLINK_FGS_RESET_COUNTERS = 0x59;
 
 const ENLINK_RAD_RESET = 0x5A;
 const ENLINK_RAD_READ_INTERVAL = 0x5B;
-const ENLINK_SET_CO2_IIR_FILTER = 0x5C;
+const ENLINK_SR_CO2_SEND_UNFILTERED = 0x5C;
 
 const ENLINK_REBOOT = 0xFF;
 
@@ -2220,8 +2220,8 @@ function decodeStdResponse(data) {
         obj.command = "Radon sensor reset";
     } else if (data[2] == ENLINK_RAD_READ_INTERVAL) {
         obj.command = "Set Radon sensor read interval";
-    } else if (data[2] == ENLINK_SET_CO2_IIR_FILTER) {
-        obj.command = "Set CO2 Sensor Static IIR Filter";
+    } else if (data[2] == ENLINK_SR_CO2_SEND_UNFILTERED) {
+        obj.command = "Set CO2 radio packet";
 
     } else if (data[2] == ENLINK_REBOOT) {
         obj.command = "Reboot";
