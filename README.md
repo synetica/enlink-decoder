@@ -1053,6 +1053,7 @@ The following are used in devices with CO<sub>2</sub> sensor
 | Set Regular Auto-Cal Interval                             | 3       | `0x28`  | `24` to `8760` hours (`0x0018` to `0x2238`) |
 | Set the Out-of-Bounds limits<br />**Only GSS model**      | 3       | `0x29`  | `10` to `5000` ppm (`0x000A` to `0x1388`)   |
 | Set initial auto-cal interval<br />**Only GSS model**     | 3       | `0x2A`  | `1` to `8760` hours (`0x0001` to `0x2238`)  |
+| Set CO2 radio packet to unfiltered (from v7.24)           | 2       | `0x5C`  | `0`/`1` (Filtered/Unfiltered)               |
 
 | Example Setting                                                           | Message          |
 | :------------------------------------------------------------------------ | :--------------- |
@@ -1061,6 +1062,8 @@ The following are used in devices with CO<sub>2</sub> sensor
 | Set the sensor to known CO<sub>2</sub> concentration of 780ppm (`0x030C`) | `A5 03 26 03 0C` |
 | To reset the sensor back to factory calibration (Sunrise Only)            | `A5 01 27`       |
 | Set the auto-calibration interval to 10 days (240 hours, `0x00F0`)        | `A5 03 28 00 F0` |
+| Set the CO2 radio packet to unfiltered                                    | `A5 02 5C 01`    |
+| Set the CO2 radio packet to filtered (default)                            | `A5 02 5C 00`    |
 
 ### Occupancy Sensor Downlinks
 

@@ -1,8 +1,12 @@
 # Change Log
 
+## 2026 September Updates
+
+- 2 Sep. Updated firmware up to 7.24
+- 2 Sep. Added OTA downlink (0x5c) to swap CO2 radio packet value from filtered to unfiltered.
+
 ## 2026 August Updates
 
-- 31 Aug. Updated firmware up to 7.24
 - 11 Aug. Added generic and compact DataCake decoder.
 - 11 Aug. Fixed a few typo/errors in README and a few in the decoders.
 
