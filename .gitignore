@@ -1,4 +1,5 @@
 .vscode/settings.json
+.github/copilot-instructions.md
 /chirpstack/README.pdf
 /CHANGELOG.pdf
 /README.pdf
