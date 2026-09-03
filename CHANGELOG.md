@@ -2,8 +2,8 @@
 
 ## 2026 September Updates
 
-- 2 Sep. Updated firmware up to 7.24
-- 2 Sep. Added OTA downlink (0x5c) to swap CO2 radio packet value from filtered to unfiltered.
+- 2 Sep. Updated firmware up to 7.24 - Note upgrading to this will perform a factory reset due to an NVM re-map.
+- 2 Sep. Added OTA downlink (0x5c) to swap CO2 radio packet value from filtered to unfiltered. This is available on Zone, ZonePlus, IAQ, OAQ, Zone2 and ZoneView.
 
 ## 2026 August Updates
 
