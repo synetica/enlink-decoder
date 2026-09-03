@@ -1,5 +1,6 @@
 // Used for decoding enLink Uplink LoRa Messages
 // Created 11 Aug 2026 (FW Ver:7.23)
+// Updated 03 Sep 2026 (FW Ver:7.24)
 // 
 // https://github.com/synetica/enlink-decoder
 
@@ -26,7 +27,7 @@ var ENLINK_PRESSURE = 0x04;                              // U16  0 -> 65535 mbar
 var ENLINK_VOC_IAQ = 0x05;                               // U16  0 -> 500 IAQ Index
 var ENLINK_O2PERC = 0x06;                                // U8   0 -> 25.5% [Divide byte by 10]
 var ENLINK_CO = 0x07;                                    // U16  0 -> 655.35 ppm (0..100 ppm) [Divide by 100]
-var ENLINK_CO2 = 0x08;                                   // U16  0 -> 65535 ppm (0..2000 ppm)
+var ENLINK_CO2 = 0x08;                                   // U16  0 -> 65535 ppm (0..50000 ppm)
 var ENLINK_OZONE = 0x09;                                 // U16  0 -> 6.5535 ppm or 6553.5 ppb (0..1 ppm) [Divide by 10000]
 var ENLINK_POLLUTANTS = 0x0A;                            // U16  0 -> 6553.5 kOhm (Typically 100..1500 kOhm) [Divide by 10]
 

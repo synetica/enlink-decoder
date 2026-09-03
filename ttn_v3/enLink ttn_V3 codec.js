@@ -1,6 +1,6 @@
 // Synetica Payload Decoder for The Things Stack V3
-// 10 Mar 2026 (FW Ver:7.22)
-// 24 Apr 2025 Includes Temperature fix
+// 03 Sep 2026 (FW Ver:7.24)
+//
 // https://github.com/synetica/enlink-decoder
 
 function decodeUplink(input) {

@@ -1,5 +1,7 @@
 // Used for decoding enLink Uplink LoRa Messages
 // Created 11 Aug 2026 (FW Ver:7.23)
+// Updated 03 Sep 2026 (FW Ver:7.24)
+//
 // Written using more compact lookup tables and functions to reduce code size for DataCake table decoder
 // https://github.com/synetica/enlink-decoder
 

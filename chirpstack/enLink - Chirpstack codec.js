@@ -1,7 +1,6 @@
 // Used for decoding enLink Uplink LoRa Messages
-// 10 Mar 2026 (FW Ver:7.22)
-// 24 Apr 2025 Includes Temperature fix
-// Removed all 'toFixed' to return numbers, not text
+// Updated 03 Sep 2026 (FW Ver:7.24)
+// 
 // https://github.com/synetica/enlink-decoder
 
 // Show complex data as either an array, a simple data value, or both.
@@ -27,7 +26,7 @@ const ENLINK_PRESSURE = 0x04;                              // U16  0 -> 65535 mb
 const ENLINK_VOC_IAQ = 0x05;                               // U16  0 -> 500 IAQ Index
 const ENLINK_O2PERC = 0x06;                                // U8   0 -> 25.5% [Divide byte by 10]
 const ENLINK_CO = 0x07;                                    // U16  0 -> 655.35 ppm (0..100 ppm) [Divide by 100]
-const ENLINK_CO2 = 0x08;                                   // U16  0 -> 65535 ppm (0..2000 ppm)
+const ENLINK_CO2 = 0x08;                                   // U16  0 -> 65535 ppm (0..50000 ppm)
 const ENLINK_OZONE = 0x09;                                 // U16  0 -> 6.5535 ppm or 6553.5 ppb (0..1 ppm) [Divide by 10000]
 const ENLINK_POLLUTANTS = 0x0A;                            // U16  0 -> 6553.5 kOhm (Typically 100..1500 kOhm) [Divide by 10]
 
