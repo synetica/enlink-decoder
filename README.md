@@ -4,7 +4,7 @@
 
 Online decoder can be found here: [LoRaWAN Tools with downlink decoder](https://synetica.github.io/enlink-decoder/#decoder)
 
-> Latest firmware release is v7.24
+> Latest firmware release is v7.25
 
 ## Table of Contents <!-- omit in toc -->
 - [Introduction](#introduction)
@@ -37,6 +37,7 @@ Online decoder can be found here: [LoRaWAN Tools with downlink decoder](https://
     - [Gas Readings](#gas-readings)
     - [Corrosion](#corrosion)
     - [Flammable Gas Readings](#flammable-gas-readings)
+    - [Zone View Alert Status](#zone-view-alert-status)
     - [Sensor Fault Code Messages](#sensor-fault-code-messages)
       - [SPS30 Particulates - Sensor ID: 28 `0x1C`](#sps30-particulates---sensor-id-28-0x1c)
       - [Flammable Gas - Sensor ID: 36 `0x24`](#flammable-gas---sensor-id-36-0x24)
@@ -205,6 +206,7 @@ Available from 2025
 | | C | `0x08` | NDIR CO<sub>2</sub> ppm - [CO<sub>2</sub> Sensor Downlinks](#carbon-dioxide-sensor-downlinks) |
 | | H | `0x13`, `0x14`, `0x16` | Human Presence. Includes [ATI](#ati---adaptive-transmission-interval) feature - [Occupancy Sensor Downlinks](#occupancy-sensor-downlinks) |
 | | I | `0x36`, `0x37`, `0x38`, `0x39`, `0x3A` | Indoor TVOC Sensor (enLink IAQ) - [TVOC Sensor Downlinks](#tvoc-sensor-downlinks) |
+| | (e-paper display) | `0x7D` | Zone View Alert Status (from v7.25). Sent in every uplink - [Zone View Alert Status](#zone-view-alert-status) |
 
 [Zone View e-paper Display Downlinks](#zone-view-e-paper-display-downlinks)
 
@@ -442,6 +444,7 @@ Each **Data Type** can use 1 or more bytes to send the value according to the fo
 |`0x7A` 122 | Radon Gas average over 48 hours | 0 to 2^16| Bq/m³| 2 |U16 |
 |`0x7B` 123 | Radon Gas average over 72 hours | 0 to 2^16| Bq/m³| 2 |U16 |
 |`0x7C` 124 | Radon Gas average over 96 hours | 0 to 2^16| Bq/m³| 2 |U16 |
+|`0x7D` 125 | Zone View Alert Status: [Alert Mode] + [Read Count] | Mode: 0 to 3<br />Count: 0 to 255<br />[Zone View Alert Status](#zone-view-alert-status) | status | 2 |2 x U8 |
 |`0xFE` 254 | Fault: [Sensor ID] + [Fault ID] + [Fault Value] ||| 1 + 1 + 2 |U16 |
 </br>
 
@@ -607,6 +610,29 @@ The Gas classes are listed here:
 | 6 - `0x06`   | Heavy Gas              |     |
 | 253 - `0xFD` | Unknown Gas            |     | 254 - `0xFE` | Under Range: < -5%LEL |
 | 255 - `0xFF` | Over Range: >= 110%LEL |
+
+</br>
+
+### Zone View Alert Status
+
+---
+
+Available from v7.25 onwards.
+
+Type: `0x7D`
+
+The full message is sent as 3 bytes. It is included in every uplink from a Zone View that has the e-paper display, early in the packet. The second byte is the Alert Mode, the third byte is the Read Count.
+
+| Byte | Name       | Value |
+| :--- | :--------- | :-------- |
+| 1    | Alert Mode | `0` - None (no alert, cleared, or the Alert Screen feature is disabled)<br />`1` - Quiet<br />`2` - Warning<br />`3` - Locked |
+| 2    | Read Count | `0` - Not yet read<br />`1` to `255` - Number of times the alert has been read (saturates at 255) |
+
+The Read Count increments each time the user closes the alert, and resets to zero on a clear (`A5 02 4E 00`) or when a new alert is sent. The alert is set with the [Zone View e-paper Display Downlinks](#zone-view-e-paper-display-downlinks).
+
+> Example Payload Data: `7D 02 03`
+
+The example shows a **Warning** alert that has been read 3 times.
 
 </br>
 
@@ -1244,8 +1270,23 @@ The following are used in the Zone View product that includes an e-paper display
 | Internal Sensor Logic - Low Threshold | 2 | `0x4A`| `10` to `70` %rH - Below this is `Dry` |
 | Internal Sensor Logic - High Threshold| 2 | `0x4B`| `30` to `90` %rH - Above this is `Damp`|
 | Help Screen | 2 | `0x4C`| `0`/`1` Disable/Enable |
-| Set text for information screens</br>(* use this field for the text index. `0x00` to `0x03` for the 4 information screens. `0x04` for Help text.) | * | `0xD0`| Hexadecimal values for ASCII Text.</br>See example, below. |
-| Set text to default | 2 | `0xD1`| Use this field for the text index. `0x00` to `0x03` for the 4 information screens. `0x04` for Help text. |
+| Alert Screen feature (v7.25) | 2 | `0x4D`| `0`/`1` Disable/Enable. Disabling also clears any alert that is showing |
+| Show Alert Screen (v7.25) | 2 | `0x4E`| `0`/`1`/`2`/`3` Clear/Quiet/Warning/Locked. See note, below. |
+| User Buttons (v7.25) | 2 | `0x4F`| `0`/`1` Disable/Enable. An alert still gets the buttons it needs |
+| Set text for information screens | ** | `0xD0`| Hexadecimal values for ASCII Text.</br>See example, below. |
+| Set text to default | 2 | `0xD1`| ** |
+
+** use this field for the text index. `0x00` to `0x03` for the 4 information screens. `0x04` for Help text. `0x05` for Alert text (v7.25). See examples below.
+
+> Note: Show Alert Screen (`0x4E`) values are:
+> - `0` Clear - removes the alert, or its envelope icon
+> - `1` Quiet - an envelope icon is shown on the left button. Press it to read the alert
+> - `2` Warning - the alert is shown at once with a Close button, then continues as Quiet
+> - `3` Locked - the alert is shown at once with no Close button. Only a downlink clears it
+>
+> The device replies with a NACK if the Alert Screen feature (`0x4D`) is disabled, or the value is above `3`. The alert state is reported in every uplink, see [Zone View Alert Status](#zone-view-alert-status).
+
+</br> </br>
 
 | Example Setting| Message |
 | :-------- | :-------- |
@@ -1253,9 +1294,14 @@ The following are used in the Zone View product that includes an e-paper display
 | To set the comfort icon logic to use a downlink message (`0x49`) | `A5 02 48 01` |
 | Show the comfort icon as `Humid` | `A5 02 49 02` |
 | Enable the Help Screen (Disabled by default) | `A5 02 4C 01` |
+| Enable the Alert Screen feature (Disabled by default) | `A5 02 4D 01` |
+| Show a `Warning` alert | `A5 02 4E 02` |
+| Clear the alert | `A5 02 4E 00` |
+| Disable the user buttons | `A5 02 4F 00` |
 | Set the text for the `Damp` (index `0x03`) comfort icon as `Hello World` | `A5 03 D0 48 65 6C 6C 6F 20 57 6F 72 6C 64` |
-| Set the text for the `Damp` (index `0x03`) to default| `A5 04 D1 03` |
-| Set the text for the `Dry` (index `0x01`) to default | `A5 04 D1 01` |
+| Set the `Alert` text (index `0x05`) as `Call Reception` | `A5 05 D0 43 61 6C 6C 20 52 65 63 65 70 74 69 6F 6E` |
+| Set the text for the `Damp` (index `0x03`) to default| `A5 02 D1 03` |
+| Set the text for the `Dry` (index `0x01`) to default | `A5 02 D1 01` |
 
 > Be aware of the maximum message size for the 'Set Text' feature. You can send a downlink up to 242 bytes at SF7 for EU868. Look out for downlink failures for your Region and Data Rates.
 

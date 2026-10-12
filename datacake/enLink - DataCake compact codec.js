@@ -1,6 +1,6 @@
 // Used for decoding enLink Uplink LoRa Messages
 // Created 11 Aug 2026 (FW Ver:7.23)
-// Updated 03 Sep 2026 (FW Ver:7.24)
+// Updated 05 Oct 2026 (FW Ver:7.25)
 //
 // Written using more compact lookup tables and functions to reduce code size for DataCake table decoder
 // https://github.com/synetica/enlink-decoder
@@ -33,6 +33,7 @@ var ENLINK_CRN_MAX_THK = 0x64;                           // Coupon No. + Metal T
 var ENLINK_CRN_PERC = 0x65;                              // Coupon No. + Metal Type byte + F32 nm.
 
 var ENLINK_FGS_FLAM_GAS = 0x74;                           // 1 + 4 | Gas ID + Conc %LEL(ISO) F32
+var ENLINK_ZV_ALERT_STATUS = 0x7D;                       // U8 Alert mode (0=None, 1=Quiet, 2=Warning, 3=Locked) + U8 Read count
 var ENLINK_FAULT = 0xFE;
 
 // --------------------------------------------------------------------------------------
@@ -423,6 +424,9 @@ var stdResponseCommands = [
     [0x4A, "Set Zone View internal logic low threshold"],
     [0x4B, "Set Zone View internal logic high threshold"],
     [0x4C, "Enable/Disable Zone View Help Screen"],
+    [0x4D, "Enable/Disable Zone View Alert Screen"],
+    [0x4E, "Show Zone View Alert Screen"],
+    [0x4F, "Enable/Disable Zone View Buttons"],
     [0xD0, "Set Zone View text string"],
     [0xD1, "Set Zone View text string to factory default"],
     [0x50, "Enable/Disable EPA/Ozone Sensor"],
@@ -734,6 +738,14 @@ function decodeTelemetry(data) {
                 i += 5;
                 break;
 
+            case ENLINK_ZV_ALERT_STATUS: // Zone View Alert Status
+                // Byte 1 = Alert mode, Byte 2 = Read count
+                obj.alert_mode = data[i + 1];
+                obj.alert_mode_text = ["None", "Quiet", "Warning", "Locked"][data[i + 1]] || "Unknown";
+                obj.alert_read_count = data[i + 2];
+                i += 2;
+                break;
+
             // Sensor fault report
             case ENLINK_FAULT:
                 decodeFault(data, i, obj);
@@ -771,7 +783,12 @@ function decodeStdResponse(data) {
     }
 
     if (data[2] == ENLINK_SEND_SYS_INFO) {
-        obj.command = "Device Firmware Version: " + data[3] + "." + data[4];
+        // Only the ACK carries the version. A NACK with 0x00 is the reply to an unknown command
+        if (data[1] == ENLINK_ACK && data.length >= 5) {
+            obj.command = "Device Firmware Version: " + data[3] + "." + data[4];
+        } else {
+            obj.command = "Unknown command";
+        }
     } else {
         var commandDescription = stdResponseCommandByType[data[2]];
         if (commandDescription) {

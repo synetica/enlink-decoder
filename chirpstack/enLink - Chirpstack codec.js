@@ -1,5 +1,5 @@
 // Used for decoding enLink Uplink LoRa Messages
-// Updated 03 Sep 2026 (FW Ver:7.24)
+// Updated 05 Oct 2026 (FW Ver:7.25)
 // 
 // https://github.com/synetica/enlink-decoder
 
@@ -141,6 +141,9 @@ const ENLINK_RAD_24HR_AVG = 0x79;           // U16
 const ENLINK_RAD_48HR_AVG = 0x7A;           // U16
 const ENLINK_RAD_72HR_AVG = 0x7B;           // U16
 const ENLINK_RAD_96HR_AVG = 0x7C;           // U16
+
+// v7.25 Zone View Alert Status
+const ENLINK_ZV_ALERT_STATUS = 0x7D;        // U8 Alert Mode (0=None, 1=Quiet, 2=Warning, 3=Locked) + U8 Read Count (0=Not read, 1..255)
 
 // --------------------------------------------------------------------------------------
 
@@ -333,6 +336,9 @@ const ENLINK_ZV_DISPLAY_COMF_ICON_STATUS = 0x49;
 const ENLINK_ZV_INT_LOGIC_LOW_THRESH = 0x4A;
 const ENLINK_ZV_INT_LOGIC_HIGH_THRESH = 0x4B;
 const ENLINK_ZV_HELP_SCN_ENABLE = 0x4C;
+const ENLINK_ZV_ALERT_SCN_ENABLE = 0x4D;
+const ENLINK_ZV_ALERT_SCN_SHOW = 0x4E;
+const ENLINK_ZV_BUTTONS_ENABLE = 0x4F;
 const ENLINK_ZV_SET_TEXT = 0xD0;
 const ENLINK_ZV_SET_TEXT_TO_DEFAULT = 0xD1;
 
@@ -648,6 +654,20 @@ function decodeTelemetry(data) {
                 return "Err: Under Range";
             case 0xFF:
                 return "Err: Over Range";
+        }
+        return "Unknown";
+    }
+    // Zone View: Return alert mode name from alert mode byte
+    function GetZvAlertModeName(alert_mode) {
+        switch (alert_mode) {
+            case 0x00:
+                return "None";
+            case 0x01:
+                return "Quiet";
+            case 0x02:
+                return "Warning";
+            case 0x03:
+                return "Locked";
         }
         return "Unknown";
     }
@@ -1867,6 +1887,15 @@ function decodeTelemetry(data) {
                 i += 2;
                 break;
 
+            // Zone View Alert Status
+            case ENLINK_ZV_ALERT_STATUS:
+                // Byte 1 = Alert Mode, Byte 2 = Read Count
+                obj.alert_mode = data[i + 1];
+                obj.alert_mode_text = GetZvAlertModeName(data[i + 1]);
+                obj.alert_read_count = data[i + 2];
+                i += 2;
+                break;
+
             // < -------------------------------------------------------------------------------->
             // Optional KPIs
             case ENLINK_CPU_TEMP_DEP:    // Optional from April 2020
@@ -2046,7 +2075,12 @@ function decodeStdResponse(data) {
     }
 
     if (data[2] == ENLINK_SEND_SYS_INFO) {
-        obj.command = "Device Firmware Version: " + data[3] + "." + data[4];
+        // Only the ACK carries the version. A NACK with 0x00 is the reply to an unknown command
+        if (data[1] == ENLINK_ACK && data.length >= 5) {
+            obj.command = "Device Firmware Version: " + data[3] + "." + data[4];
+        } else {
+            obj.command = "Unknown command";
+        }
     } else if (data[2] == ENLINK_SET_ANTENNA_GAIN) {
         obj.command = "Set Antenna Gain";
     } else if (data[2] == ENLINK_SET_PUBLIC) {
@@ -2189,6 +2223,12 @@ function decodeStdResponse(data) {
         obj.command = "Set Zone View internal logic high threshold";
     } else if (data[2] == ENLINK_ZV_HELP_SCN_ENABLE) {
         obj.command = "Enable/Disable Zone View Help Screen";
+    } else if (data[2] == ENLINK_ZV_ALERT_SCN_ENABLE) {
+        obj.command = "Enable/Disable Zone View Alert Screen";
+    } else if (data[2] == ENLINK_ZV_ALERT_SCN_SHOW) {
+        obj.command = "Show Zone View Alert Screen";
+    } else if (data[2] == ENLINK_ZV_BUTTONS_ENABLE) {
+        obj.command = "Enable/Disable Zone View Buttons";
     } else if (data[2] == ENLINK_ZV_SET_TEXT) {
         obj.command = "Set Zone View text string";
     } else if (data[2] == ENLINK_ZV_SET_TEXT_TO_DEFAULT) {

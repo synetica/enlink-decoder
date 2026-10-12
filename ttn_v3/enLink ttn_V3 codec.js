@@ -1,5 +1,5 @@
 // Synetica Payload Decoder for The Things Stack V3
-// 03 Sep 2026 (FW Ver:7.24)
+// 05 Oct 2026 (FW Ver:7.25)
 //
 // https://github.com/synetica/enlink-decoder
 
@@ -127,6 +127,7 @@ function decodeUplink(input) {
  const ENL_RAD_48H_AVG=0x7A;
  const ENL_RAD_72H_AVG=0x7B;
  const ENL_RAD_96H_AVG=0x7C;
+ const ENL_ZV_ALERT_STATUS=0x7D;
 
  // --------------------------------------------------------------------------------------
  
@@ -274,6 +275,19 @@ function decodeUplink(input) {
     return "Err: Over Range";
   }
   return "Error";
+ }
+ function GetAlertMode(id) {
+  switch (id) {
+   case 0x00:
+    return "None";
+   case 0x01:
+    return "Quiet";
+   case 0x02:
+    return "Warning";
+   case 0x03:
+    return "Locked";
+  }
+  return "Unknown";
  }
  // Workaround Fix for OAQ/IAQ/ZN2/ZV v7.01~7.09
  function t_fix_v7(t) {
@@ -1391,6 +1405,12 @@ function decodeUplink(input) {
      break;
     case ENL_RAD_96H_AVG:
      o.rad_96h_avg=u16_1(d, i);
+     i += 2;
+     break;
+    case ENL_ZV_ALERT_STATUS:
+     o.alert_mode=d[i + 1];
+     o.alert_mode_text=GetAlertMode(d[i + 1]);
+     o.alert_read_count=d[i + 2];
      i += 2;
      break;
 

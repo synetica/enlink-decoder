@@ -1,5 +1,12 @@
 # Change Log
 
+## 2026 October Updates
+
+- 2 Oct. Updated firmware up to 7.25 - ZoneView: new Alert Status uplink (0x7D), sent in every uplink, giving the alert mode (None/Quiet/Warning/Locked) and the number of times it has been read. New e-paper display downlinks 0x4D Enable Alert Screen, 0x4E Show Alert Screen (Clear/Quiet/Warning/Locked) and 0x4F Enable/Disable User Buttons. Text index 0x05 is the Alert text.
+- 2 Oct. Decoders updated to decode the Alert Status uplink (0x7D) and to name the new alert/button ACK commands (0x4D, 0x4E, 0x4F).
+- 2 Oct. README: fixed the ZoneView 'Set text to default' (0xD1) examples. They showed `A5 04 D1 ..`, the message is `A5 02 D1 <index>`.
+- 5 Oct. Decoders: fixed the reply to an unknown downlink command, NACK `A5 15 00`, being decoded as `Device Firmware Version: undefined.undefined`. It is now shown as `Unknown command`. The firmware version is only read from the 5 byte ACK reply, e.g. `A5 06 00 07 19` is v7.25.
+
 ## 2026 September Updates
 
 - 2 Sep. Updated firmware up to 7.24 - Note upgrading to this will perform a factory reset due to an NVM re-map.

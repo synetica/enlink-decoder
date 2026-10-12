@@ -4,3 +4,5 @@
 /CHANGELOG.pdf
 /README.pdf
 /tests/
+# Private dev decoders (device EUIs and site names) - never publish
+dn_dev*
